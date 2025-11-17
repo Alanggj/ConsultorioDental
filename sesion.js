@@ -10,27 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const loginLink = nav.querySelector('a[href="login.html"]');
         if (loginLink) loginLink.parentElement.remove();
 
-        // Ocultar secciones para el admin
-        if (sesion.tipo === "admin") {
-            const agendarLink = nav.querySelector('a[href="cita.html"]');
-            
-            if (agendarLink) {
-                agendarLink.parentElement.style.display = 'none';
-            }
-            // Ocultar "Servicios"
-            const serviciosLink = nav.querySelector('a[href="servicios.html"]');
-            if (serviciosLink) {
-                serviciosLink.parentElement.style.display = 'none';
-            }
-        }
-
         // Mostrar bienvenida
         if (bienvenida) {
             bienvenida.textContent = `¡Hola, ${sesion.nombre}!`;
             bienvenida.classList.remove("d-none");
         }
 
-        // Agregar "Mis Citas"
+        // Agregar "Mis Citas" (si es usuario)
         if (sesion.tipo === "usuario" && !document.getElementById("misCitasLink")) {
             const misCitasLi = document.createElement("li");
             misCitasLi.className = "nav-item";
@@ -38,15 +24,30 @@ document.addEventListener("DOMContentLoaded", function () {
             nav.appendChild(misCitasLi);
         }
 
-        // Agregar "Panel Admin"
+        // Acciones para el Administrador
         if (sesion.tipo === "admin" && !document.getElementById("adminPanelLink")) {
+            
+            // 1. Agregar "Panel Admin"
             const adminLi = document.createElement("li");
             adminLi.className = "nav-item";
-            adminLi.innerHTML = `<a class="nav-link text-warning" id="adminPanelLink" href="admin-citas.html">Panel Admin</a>`;
+            adminLi.innerHTML = `<a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a>`;
             nav.appendChild(adminLi);
+
+            // 2. Mostrar el enlace de Vacaciones (si existe)
+            const navVacaciones = document.getElementById('nav-vacaciones');
+            if (navVacaciones) {
+                navVacaciones.classList.remove('d-none');
+            }
+
+            // 3. Ocultar "Agendar" para el admin
+            const linkAgendar = document.getElementById("nav-agendar");
+            if (linkAgendar) {
+                // Ocultamos el elemento <li> padre para que no ocupe espacio
+                linkAgendar.parentElement.style.display = "none";
+            }
         }
 
-        // Agregar "Cerrar sesión"
+        // Agregar "Cerrar sesión" para cualquier usuario logueado
         if (!document.getElementById('cerrarSesion')) {
             const logoutLi = document.createElement("li");
             logoutLi.className = "nav-item";
@@ -58,5 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 location.href = "index.html";
             });
         }
-    }
+        
+    } // Fin de if (sesion && nav)
 });

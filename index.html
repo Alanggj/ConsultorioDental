@@ -9,7 +9,6 @@
 
     <title>Consultorio Dental Sonrisa Perfecta</title>
 
-    <!-- Fuentes y CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -41,6 +40,19 @@
 
 <body id="top">
 
+    <div class="alert alert-warning alert-dismissible fade show text-center mb-0" 
+         role="alert" 
+         id="aviso-vacaciones" 
+         style="display: none; border-radius: 0;">
+        
+        <strong>¡Aviso Importante!</strong> 
+        
+        <span id="vacation-message-content">
+            El consultorio permanecerá cerrado por vacaciones.
+        </span>
+        
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     <main>
         <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
             <div class="container">
@@ -63,7 +75,7 @@
                             <strong class="d-block">Consultorio Dental</strong>
                         </a>
                         <li class="nav-item"><a class="nav-link" href="testimonios.html">Testimonios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="cita.html">Agendar</a></li>
+                        <li class="nav-item"><a class="nav-link" id="nav-agendar" href="cita.html">Agendar</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
                         <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
                     </ul>
@@ -149,7 +161,6 @@
         </section>
     </main>
 
-    <!-- Secciones adicionales (servicios, testimonios, formulario de citas, contacto, etc.) se mantienen con textos actualizados y enfoque en odontología -->
     <section class="section-padding pb-0" id="timeline">
         <div class="container">
             <div class="row">
@@ -157,7 +168,6 @@
 
                 <div class="timeline">
 
-                    <!-- Fundación -->
                     <div class="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes">
                         <div
                             class="col-9 col-md-5 me-md-4 me-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
@@ -173,7 +183,6 @@
                         </div>
                     </div>
 
-                    <!-- Nuevos servicios -->
                     <div
                         class="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes my-lg-5 my-4">
                         <div
@@ -190,7 +199,6 @@
                         </div>
                     </div>
 
-                    <!-- Digitalización -->
                     <div class="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes">
                         <div
                             class="col-9 col-md-5 me-md-4 me-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
@@ -206,7 +214,6 @@
                         </div>
                     </div>
 
-                    <!-- Atención exclusiva para mujeres -->
                     <div
                         class="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes my-lg-5 my-4">
                         <div
@@ -223,7 +230,6 @@
                         </div>
                     </div>
 
-                    <!-- Educación preventiva -->
                     <div class="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes">
                         <div
                             class="col-9 col-md-5 me-md-4 me-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
@@ -280,7 +286,6 @@
         </div>
     </footer>
 
-    <!-- JS -->
     <script src="js/sesion.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
@@ -293,10 +298,46 @@
         document.getElementById('close-actions').addEventListener('click', function () {
             document.getElementById('floating-actions').style.display = 'none';
         });
-
-
-
     </script>
+
+
+    <script>
+    // Esta función formatea la fecha... (sin cambios aquí)
+    function formatDate(dateStr) {
+        // ...
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... (código para obtener 'vacationPeriods' y 'hoy' sin cambios) ...
+
+        // 4. Si se encontró un periodo activo, mostrar el banner
+        if (activePeriod) {
+            const aviso = document.getElementById('aviso-vacaciones');
+            const mensaje = document.getElementById('vacation-message-content');
+            
+            // **** 1. AÑADE ESTA LÍNEA ****
+            // Selecciona la barra de navegación que es 'fixed-top'
+            const navbar = document.querySelector('nav.fixed-top'); 
+            
+            // ... (código que formatea fechas y construye el mensajeHtml sin cambios) ...
+
+            // Actualizamos el HTML y mostramos el banner
+            mensaje.innerHTML = mensajeHtml;
+            aviso.style.display = 'block';
+
+            // **** 2. AÑADE ESTE BLOQUE ****
+            // Ahora, empuja la barra de navegación hacia abajo
+            if (navbar) {
+                // Usamos un pequeño truco para asegurar que el navegador 
+                // ya calculó la altura del banner antes de medirlo.
+                setTimeout(() => {
+                    const avisoHeight = aviso.offsetHeight;
+                    navbar.style.marginTop = `${avisoHeight}px`;
+                }, 0);
+            }
+        }
+    });
+</script>
 
 
 </body>

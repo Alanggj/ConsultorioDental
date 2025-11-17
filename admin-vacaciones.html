@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Gestión de Vacaciones - Consultorio Sonrisa Perfecta">
+    <meta name="author" content="Equipo Sonrisa Perfecta">
+
+    <title>Gestión de Vacaciones - Sonrisa Perfecta</title>
+
+    <!-- Fuentes y CSS (Mismos que index.html) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/owl.carousel.min.css" rel="stylesheet">
+    <link href="css/owl.theme.default.min.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+
+    <style>
+        .vacation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            background-color: #fff;
+        }
+        .vacation-item .dates {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .vacation-item .desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body id="top">
+
+    <main>
+        <!-- Barra de Navegación de Admin -->
+        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
+            <div class="container">
+                <a class="navbar-brand mx-auto d-lg-none" href="index.html">
+                    Sonrisa Perfecta
+                    <strong class="d-block">Admin Vacaciones</strong>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a>
+                        </li>
+                        
+                        <li class="nav-item"><a class="nav-link" href="admin-citas.html">Citas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-recetas.html">Recetas</a></li>
+                        
+                        <!-- Esta es la página activa -->
+                        <li class="nav-item active" id="nav-vacaciones-admin">
+                            <a class="nav-link text-info" href="admin-vacaciones.html"><i class="bi-calendar-x"></i> Vacaciones</a>
+                        </li>
+                        
+                        <!-- js/sesion.js agregará "Cerrar Sesión" aquí -->
+                    </ul>
+
+                    <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenido Principal -->
+        <section class="section-padding" style="padding-top: 10rem; min-height: 90vh;">
+            <div class="container">
+                <div class="row">
+                    <!-- Título y Botón -->
+                    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">Gestión de Periodos Vacacionales</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalVacaciones">
+                            <i class="bi-plus-circle"></i> Nuevo Periodo
+                        </button>
+                    </div>
+
+                    <!-- Lista de Periodos -->
+                    <div class="col-12">
+                        <div class="card shadow-lg p-4">
+                            <div id="lista-vacaciones-container">
+                                <!-- Los periodos se cargarán aquí con JS -->
+                            </div>
+                            <!-- Mensaje si no hay periodos -->
+                            <div class="alert alert-info" id="no-vacaciones-msg" style="display: none;">
+                                No hay periodos vacacionales registrados.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Mismo que index.html) -->
+    <footer class="site-footer section-padding" id="contact">
+        <!-- El contenido del footer es idéntico al de las otras páginas, omitido aquí por brevedad -->
+    </footer>
+
+    <!-- Modal para Nuevo Periodo Vacacional (Diseño de la imagen) -->
+    <div class="modal fade" id="modalVacaciones" tabindex="-1" aria-labelledby="modalVacacionesLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalVacacionesLabel">Nuevo Periodo Vacacional</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-vacaciones">
+                        <div class="mb-3">
+                            <label for="fecha-inicio" class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fecha-inicio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha-fin" class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fecha-fin" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción (Opcional)</label>
+                            <textarea class="form-control" id="descripcion" rows="3" placeholder="Ej. Vacaciones de Semana Santa"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-guardar-vacaciones">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin del Modal -->
+
+    <!-- JS (Mismos que index.html) -->
+    <script src="js/sesion.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- ... otros scripts ... -->
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Seguridad de Admin
+            const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
+            if (!sesion || sesion.tipo !== 'admin') {
+                alert('Acceso denegado. Debes ser administrador.');
+                window.location.href = 'login.html'; 
+                return;
+            }
+
+            // Elementos del DOM
+            const listaContainer = document.getElementById('lista-vacaciones-container');
+            const noVacacionesMsg = document.getElementById('no-vacaciones-msg');
+            const btnGuardar = document.getElementById('btn-guardar-vacaciones');
+            const modalElement = document.getElementById('modalVacaciones');
+            const modal = new bootstrap.Modal(modalElement);
+            const form = document.getElementById('form-vacaciones');
+
+            // Cargar periodos desde localStorage
+            let vacationPeriods = JSON.parse(localStorage.getItem('vacationPeriods')) || [];
+
+            // Función para renderizar la lista de vacaciones
+            function renderVacaciones() {
+                listaContainer.innerHTML = ''; // Limpiar lista
+                if (vacationPeriods.length === 0) {
+                    noVacacionesMsg.style.display = 'block';
+                } else {
+                    noVacacionesMsg.style.display = 'none';
+                    // Ordenar por fecha de inicio
+                    vacationPeriods.sort((a, b) => new Date(a.start) - new Date(b.start));
+                    
+                    vacationPeriods.forEach(period => {
+                        const item = document.createElement('div');
+                        item.className = 'vacation-item';
+                        item.innerHTML = `
+                            <div>
+                                <div class="dates">${formatDate(period.start)} - ${formatDate(period.end)}</div>
+                                <div class="desc">${period.desc || 'Sin descripción'}</div>
+                            </div>
+                            <button class="btn btn-sm btn-danger btn-eliminar" data-id="${period.id}" title="Eliminar Periodo">
+                                <i class="bi-trash-fill"></i>
+                            </button>
+                        `;
+                        listaContainer.appendChild(item);
+                    });
+                }
+            }
+            
+            // Función para formatear fecha
+            function formatDate(dateStr) {
+                const date = new Date(dateStr + 'T00:00:00'); // Asumir local
+                return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            // Guardar nuevo periodo
+            btnGuardar.addEventListener('click', function() {
+                const fechaInicio = document.getElementById('fecha-inicio').value;
+                const fechaFin = document.getElementById('fecha-fin').value;
+                const descripcion = document.getElementById('descripcion').value;
+
+                if (!fechaInicio || !fechaFin) {
+                    alert('Por favor, selecciona una fecha de inicio y fin.');
+                    return;
+                }
+
+                if (new Date(fechaFin) < new Date(fechaInicio)) {
+                    alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+                    return;
+                }
+
+                // Crear nuevo periodo
+                const newPeriod = {
+                    id: Date.now(),
+                    start: fechaInicio,
+                    end: fechaFin,
+                    desc: descripcion
+                };
+
+                vacationPeriods.push(newPeriod);
+                localStorage.setItem('vacationPeriods', JSON.stringify(vacationPeriods));
+                
+                renderVacaciones();
+                form.reset();
+                modal.hide();
+            });
+
+            // Eliminar periodo
+            listaContainer.addEventListener('click', function(e) {
+                const boton = e.target.closest('.btn-eliminar');
+                if (boton) {
+                    if (confirm('¿Estás seguro de que deseas eliminar este periodo vacacional?')) {
+                        const periodId = parseInt(boton.dataset.id);
+                        vacationPeriods = vacationPeriods.filter(p => p.id !== periodId);
+                        localStorage.setItem('vacationPeriods', JSON.stringify(vacationPeriods));
+                        renderVacaciones();
+                    }
+                }
+            });
+
+            // Renderizado inicial
+            renderVacaciones();
+        });
+    </script>
+
+</body>
+</html>

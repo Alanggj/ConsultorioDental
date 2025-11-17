@@ -4,12 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Consultorio dental Sonrisa Perfecta - Atención odontológica profesional">
+    <meta name="description" content="Administración de Citas - Consultorio Sonrisa Perfecta">
     <meta name="author" content="Equipo Sonrisa Perfecta">
 
-    <title>Consultorio Dental Sonrisa Perfecta</title>
+    <title>Administrar Citas - Sonrisa Perfecta</title>
 
-    <!-- Fuentes y CSS -->
+    <!-- Fuentes y CSS (Mismos que index.html) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -21,16 +21,173 @@
     <link href="css/templatemo-medic-care.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
 
+    <style>
+        /* Estilos específicos para el calendario */
+        .calendar-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .calendar th {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 0.8rem 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .calendar td {
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            vertical-align: top;
+            height: 90px;
+        }
+        .calendar td:not(.other-month):hover {
+            background-color: #f0f8ff;
+        }
+        .calendar td.current-month {
+            background-color: #fff;
+            color: #333;
+        }
+        .calendar td.other-month {
+            background-color: #f8f8f8;
+            color: #ccc;
+            cursor: default;
+        }
+        .calendar td.selected-day {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-weight: 700;
+        }
+        .calendar td.selected-day:hover {
+            background-color: var(--secondary-color);
+        }
+        .calendar .day-number {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        .calendar .today .day-number {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .calendar .cita-badge {
+            font-size: 0.75rem;
+            padding: 0.2em 0.5em;
+        }
+        .calendar .vacation-day {
+            background-color: #ffebee;
+            color: #d32f2f;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        .calendar .vacation-day:hover {
+            background-color: #ffcdd2;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 10px;
+        }
+        .calendar-nav h4 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        .calendar-nav button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        /* Botón flotante de Nueva Cita */
+        .btn-flotante-nueva-cita {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Listado de citas */
+        .cita-item {
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-left: 5px solid var(--primary-color);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .cita-item.estado-confirmada {
+            border-left-color: var(--secondary-color);
+        }
+        .cita-item.estado-cancelada {
+            border-left-color: #dc3545;
+            background-color: #fff5f5;
+            opacity: 0.7;
+        }
+        .cita-item.disponible {
+            background-color: #f8f9fa;
+            border-left: 5px solid #ccc;
+            color: #6c757d;
+        }
+        .cita-item h5 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+        .cita-item.estado-confirmada h5 {
+            color: var(--secondary-color);
+        }
+        .cita-item p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        .cita-actions button {
+            margin-left: 5px;
+        }
+        .no-citas-msg {
+            padding: 20px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            color: #856404;
+            text-align: center;
+        }
+    </style>
+
 </head>
 
 <body id="top">
 
     <main>
-        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
+        <!-- Barra de Navegación de Admin -->
+        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
             <div class="container">
                 <a class="navbar-brand mx-auto d-lg-none" href="index.html">
                     Sonrisa Perfecta
-                    <strong class="d-block">Consultorio Dental</strong>
+                    <strong class="d-block">Control de Citas</strong>
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -39,17 +196,24 @@
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active"><a class="nav-link" href="index.html#hero">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.html#about">Sobre Nosotros</a></li>
-                        <li class="nav-item"><a class="nav-link" href="servicios.html">Servicios</a></li>
-                        <a class="navbar-brand d-none d-lg-block" href="index.html">
-                            Sonrisa Perfecta
-                            <strong class="d-block">Consultorio Dental</strong>
-                        </a>
-                        <li class="nav-item"><a class="nav-link" href="testimonios.html">Testimonios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="cita.html">Agendar</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
-                        <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
+                        
+                        <!-- Enlace al Panel Admin General -->
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a>
+                        </li>
+                        
+                        <!-- Módulos de Admin -->
+                        <li class="nav-item active"><a class="nav-link text-primary" href="admin-citas.html">Citas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-recetas.html">Recetas</a></li>
+                        
+                        <!-- NUEVO: Enlace de Vacaciones -->
+                        <li class="nav-item" id="nav-vacaciones-admin">
+                            <a class="nav-link text-info" href="admin-vacaciones.html"><i class="bi-calendar-x"></i> Vacaciones</a>
+                        </li>
+                        
+                        <!-- Cerrar Sesión (js/sesion.js lo agregará aquí) -->
                     </ul>
 
                     <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
@@ -57,50 +221,76 @@
             </div>
         </nav>
 
-        <div class="container mt-5 pt-5">
-            <h2 class="text-center mb-4">Citas agendadas</h2>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped" id="tabla-citas">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Teléfono</th>
-                            <th>Fecha</th>
-                            <th>Servicio</th>
-                            <th>Mensaje</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+        <!-- Contenido Principal -->
+        <section class="section-padding" style="padding-top: 10rem; min-height: 90vh;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center mb-4">
+                        <h2 class="mb-0">Control de Citas</h2>
+                        <p class="text-muted">Administra el calendario de citas del consultorio.</p>
+                    </div>
+
+                    <!-- Barra de Búsqueda -->
+                    <div class="col-12 mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi-search"></i></span>
+                            <input type="text" id="search-cita-input" class="form-control form-control-lg" placeholder="Buscar cita por nombre o apellido del paciente...">
+                        </div>
+                    </div>
+
+                    <!-- Columna del Calendario -->
+                    <div class="col-lg-7 col-12 mb-4">
+                        <div class="card shadow-lg p-3">
+                            <div class="card-header bg-white border-0 calendar-nav">
+                                <button id="prev-month" title="Mes anterior"><i class="bi-chevron-left"></i></button>
+                                <h4 id="current-month-year" class="mb-0">Mes Año</h4>
+                                <button id="next-month" title="Mes siguiente"><i class="bi-chevron-right"></i></button>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="calendar" id="calendar">
+                                    <thead>
+                                        <tr>
+                                            <th>Lun</th>
+                                            <th>Mar</th>
+                                            <th>Mié</th>
+                                            <th>Jue</th>
+                                            <th>Vie</th>
+                                            <th>Sáb</th>
+                                            <th>Dom</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="calendar-body">
+                                        <!-- El JS llenará esto -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna del Listado de Citas/Horarios -->
+                    <div class="col-lg-5 col-12 mb-4">
+                        <div class="card shadow-lg p-4 h-100">
+                            <h4 class="mb-4" id="citas-list-title">Citas del día</h4>
+                            <div id="citas-list-container" style="max-height: 600px; overflow-y: auto;">
+                                <p class="text-muted text-center mt-3" id="no-day-selected-msg">Haz clic en un día del calendario para ver sus citas y horarios.</p>
+                            </div>
+                            <div id="no-results-message" class="no-citas-msg d-none mt-3">
+                                <i class="bi-emoji-frown"></i> No existen citas que coincidan con la búsqueda.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-        </div>
-
-        <div class="container mt-5">
-            <h2 class="text-center mb-4">Expedientes clínicos</h2>
-
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-info">
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Edad</th>
-                            <th>Diagnóstico</th>
-                            <th>Tratamiento</th>
-                            <th>Fecha última visita</th>
-                            <th>Generar Expediente</th>
-
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-expedientes"></tbody>
-                </table>
-            </div>
-        </div>
-
-
+        </section>
     </main>
 
+    <!-- Botón Flotante para Nueva Cita -->
+    <a href="admin-nueva-cita.html" class="btn btn-success btn-flotante-nueva-cita">
+        <i class="bi-plus-circle-fill"></i> Nueva Cita
+    </a>
+
+    <!-- Footer (Mismo que index.html) -->
     <footer class="site-footer section-padding" id="contact">
         <div class="container">
             <div class="row">
@@ -133,263 +323,313 @@
         </div>
     </footer>
 
-    <!-- JS -->
-    <script src="js/sesion.js"></script>
+    <!-- JS (Mismos que index.html) -->
+    <script src="js/sesion.js"></script> <!-- Carga la lógica de sesión primero -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/scrollspy.min.js"></script>
     <script src="js/custom.js"></script>
     <script src="js/nav.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://kit.fontawesome.com/b1bfd4ff0a.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-
-
-    <script>
-        const tabla = document.querySelector('#tabla-citas tbody');
-        const servicios = [
-            "Limpieza Dental", "Blanqueamiento", "Ortodoncia",
-            "Extracción Dental", "Resinas Estéticas", "Prótesis Dentales"
-        ];
-
-        function cargarCitas() {
-            const citas = JSON.parse(localStorage.getItem('citasAgendadas')) || [];
-            tabla.innerHTML = "";
-
-            citas.forEach((cita, i) => {
-                const fila = document.createElement("tr");
-
-                fila.innerHTML = `
-        <td class="static">${cita.nombre}</td>
-        <td class="static">${cita.email}</td>
-        <td class="static">${cita.telefono}</td>
-        <td class="static">${cita.fecha}</td>
-        <td class="static">${cita.servicio}</td>
-        <td class="static">${cita.mensaje}</td>
-        <td class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary" onclick="editarFila(this)">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" onclick="eliminarCita(this)">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </td>
-
-      `;
-
-                tabla.appendChild(fila);
-            });
+    
+    <!-- SCRIPT COMPLETO DE ESTA PÁGINA -->
+<script>
+    // Lógica de seguridad para admin
+    document.addEventListener("DOMContentLoaded", function() {
+        const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
+        if (!sesion || sesion.tipo !== 'admin') {
+            alert('Acceso denegado. Debes ser administrador.');
+            window.location.href = 'login.html'; 
+            return;
         }
-
-        function editarFila(btn) {
-            const fila = btn.closest("tr");
-            const tds = fila.querySelectorAll("td");
-
-            const valores = [...tds].slice(0, 6).map(td => td.textContent.trim());
-
-            // Cambiar a inputs
-            tds[0].innerHTML = `<input class="form-control" value="${valores[0]}">`;
-            tds[1].innerHTML = `<input class="form-control" value="${valores[1]}">`;
-            tds[2].innerHTML = `<input class="form-control" value="${valores[2]}">`;
-            tds[3].innerHTML = `<input type="date" class="form-control" value="${valores[3]}">`;
-
-            // Select de servicios
-            const select = document.createElement("select");
-            select.className = "form-control";
-            servicios.forEach(serv => {
-                const opt = document.createElement("option");
-                opt.value = serv;
-                opt.textContent = serv;
-                if (serv === valores[4]) opt.selected = true;
-                select.appendChild(opt);
-            });
-            tds[4].innerHTML = "";
-            tds[4].appendChild(select);
-
-            tds[5].innerHTML = `<textarea class="form-control">${valores[5]}</textarea>`;
-
-            // Reemplazar botón
-            tds[6].innerHTML = `
-      <button class="btn btn-sm btn-success" onclick="guardarFila(this)">Guardar</button>
-    `;
+        const navVacacionesAdmin = document.getElementById('nav-vacaciones-admin');
+        if (navVacacionesAdmin) {
+            navVacacionesAdmin.classList.remove('d-none');
         }
+    });
+    
+    // --- LÓGICA DEL CALENDARIO Y CITAS ---
+    
+    const calendarBody = document.getElementById('calendar-body');
+    const currentMonthYear = document.getElementById('current-month-year');
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+    const citasListTitle = document.getElementById('citas-list-title');
+    const citasListContainer = document.getElementById('citas-list-container');
+    const noDaySelectedMsg = document.getElementById('no-day-selected-msg');
+    const searchCitaInput = document.getElementById('search-cita-input');
+    const noResultsMessage = document.getElementById('no-results-message');
 
-        function guardarFila(btn) {
-            const fila = btn.closest("tr");
-            const inputs = fila.querySelectorAll("input, select, textarea");
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let selectedDate = null; 
+    
+    // --- Simulación de Base de Datos (localStorage) ---
+    let citas = JSON.parse(localStorage.getItem('citas')) || [
+        // ... (tus citas de ejemplo) ...
+    ];
 
-            const citaEditada = {
-                nombre: inputs[0].value,
-                email: inputs[1].value,
-                telefono: inputs[2].value,
-                fecha: inputs[3].value,
-                servicio: inputs[4].value,
-                mensaje: inputs[5].value
-            };
+    // --- ¡AQUÍ ESTÁ LA ACTUALIZACIÓN! ---
+    // Cargar los PERIODOS de vacaciones
+    let vacationPeriods = JSON.parse(localStorage.getItem('vacationPeriods')) || [];
 
-            // Obtener índice de la fila
-            const index = [...tabla.rows].indexOf(fila);
-            const citas = JSON.parse(localStorage.getItem("citasAgendadas")) || [];
-
-            citas[index] = citaEditada;
-            localStorage.setItem("citasAgendadas", JSON.stringify(citas));
-
-            Swal.fire('Guardado', 'La cita ha sido actualizada correctamente.', 'success');
-
-            cargarCitas(); // volver a mostrar en modo estático
+    // Nueva función para "aplanar" los periodos en días individuales
+    function getBlockedDays() {
+        let blockedDays = [];
+        for (const period of vacationPeriods) {
+            let currentDate = new Date(period.start + 'T00:00:00'); // Asegurar zona horaria local
+            const endDate = new Date(period.end + 'T00:00:00');
+            
+            while (currentDate <= endDate) {
+                blockedDays.push(currentDate.toISOString().split('T')[0]);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
+        return blockedDays;
+    }
 
-        function eliminarCita(btn) {
-            const fila = btn.closest("tr");
-            const index = [...tabla.rows].indexOf(fila);
+    // 'vacaciones' ahora se genera dinámicamente
+    let vacaciones = getBlockedDays();
+    // ---------------------------------------------
 
-            Swal.fire({
-                title: '¿Eliminar cita?',
-                text: "Esta acción no se puede deshacer.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const citas = JSON.parse(localStorage.getItem("citasAgendadas")) || [];
-                    citas.splice(index, 1);
-                    localStorage.setItem("citasAgendadas", JSON.stringify(citas));
+    function saveCitas() {
+        localStorage.setItem('citas', JSON.stringify(citas));
+    }
 
-                    Swal.fire('¡Eliminado!', 'La cita ha sido eliminada.', 'success');
-                    cargarCitas();
+    // Función principal para renderizar el calendario
+    function renderCalendar() {
+        calendarBody.innerHTML = ''; 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+
+        // ¡ACTUALIZACIÓN! Recalcular los días de vacaciones cada vez que se renderiza el mes
+        // por si se agregaron nuevos periodos en la otra pestaña.
+        vacationPeriods = JSON.parse(localStorage.getItem('vacationPeriods')) || [];
+        vacaciones = getBlockedDays();
+
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        let startDay = firstDayOfMonth.getDay();
+        if (startDay === 0) startDay = 6; else startDay--; 
+
+        currentMonthYear.textContent = new Date(currentYear, currentMonth).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+        let date = 1;
+        for (let i = 0; i < 6; i++) {
+            let row = document.createElement('tr');
+            for (let j = 0; j < 7; j++) {
+                let cell = document.createElement('td');
+                if (i === 0 && j < startDay) {
+                    cell.classList.add('other-month');
+                } else if (date > daysInMonth) {
+                    cell.classList.add('other-month');
+                } else {
+                    cell.classList.add('current-month');
+                    let dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                    cell.dataset.date = dateStr;
+                    cell.innerHTML = `<span class="day-number">${date}</span>`;
+
+                    let cellDate = new Date(dateStr + 'T00:00:00');
+                    if (cellDate.getTime() === today.getTime()) {
+                        cell.classList.add('today');
+                    }
+                    if (dateStr === selectedDate) {
+                        cell.classList.add('selected-day');
+                    }
+
+                    // Marcar vacaciones (usando el array 'vacaciones' generado)
+                    if (vacaciones.includes(dateStr)) {
+                        cell.classList.add('vacation-day');
+                        cell.title = "Día no disponible (Vacaciones)";
+                    } else {
+                        // Mostrar citas solo si NO es vacaciones
+                        const citasDelDia = citas.filter(c => c.fecha === dateStr && c.estado !== 'Cancelada').length;
+                        if (citasDelDia > 0) {
+                            cell.innerHTML += `<span class="badge bg-primary cita-badge">${citasDelDia} cita(s)</span>`;
+                        }
+                        cell.addEventListener('click', () => {
+                            showDaySchedule(dateStr, cell);
+                        });
+                    }
+                    date++;
                 }
-            });
+                row.appendChild(cell);
+            }
+            calendarBody.appendChild(row);
+            if (date > daysInMonth) break;
         }
+    }
 
+    // (El resto de funciones: showDaySchedule, filterCitas, y los Event Listeners
+    // permanecen exactamente IGUAL que en el archivo anterior, ya que dependen
+    // del array 'vacaciones' que ahora generamos dinámicamente)
+    
+    // ... (Pegar aquí el resto del script de admin-citas.html desde 'function showDaySchedule(dateStr, tdElement) {' hasta el final) ...
+    // ... (El código es idéntico al de la respuesta anterior) ...
 
-
-        document.addEventListener("DOMContentLoaded", cargarCitas);
-
-        const expedientesFicticios = [
-  {
-    nombre: "Andrea López",
-    edad: 28,
-    diagnostico: "La paciente presenta caries avanzada en el segundo molar inferior derecho, con presencia de sensibilidad extrema al frío, dolor intermitente y evidencia radiográfica de compromiso pulpar. Se observa inflamación leve de la encía adyacente.",
-    tratamiento: "Se realizó tratamiento de endodoncia completo con irrigación, obturación de conductos y control radiográfico. Posteriormente se colocó resina compuesta estética tipo nanohíbrida. Se indicó seguimiento en 3 meses, uso de pasta desensibilizante y reducción del consumo de azúcares.",
-    fecha: "2024-11-05"
-  },
-  {
-    nombre: "Carlos Méndez",
-    edad: 35,
-    diagnostico: "Paciente con historial de bruxismo nocturno severo, desgaste dental generalizado, sensibilidad en piezas posteriores y cefaleas matutinas. Evaluación clínica revela hipertrofia de músculos maseteros y signos de estrés articular.",
-    tratamiento: "Se confeccionó férula de descarga rígida superior con ajuste oclusal individualizado. Se recomendó fisioterapia mandibular, ejercicios de relajación y seguimiento trimestral para control del desgaste y evaluación del patrón de bruxismo.",
-    fecha: "2025-01-22"
-  },
-  {
-    nombre: "Lucía Ramírez",
-    edad: 42,
-    diagnostico: "Pérdida dental múltiple en arcada superior e inferior debido a enfermedad periodontal crónica. Presenta dificultad masticatoria, reabsorción ósea moderada y alteración en la pronunciación de fonemas.",
-    tratamiento: "Se diseñó y colocó prótesis removible bilateral de base acrílica con retención metálica. Instrucciones detalladas de uso, limpieza diaria y controles periódicos. Se estableció plan de mantenimiento periodontal trimestral.",
-    fecha: "2025-03-10"
-  },
-  {
-    nombre: "Javier Torres",
-    edad: 31,
-    diagnostico: "Encías inflamadas con sangrado al sondaje, presencia de cálculo supragingival en región posterior, halitosis ocasional y bolsas periodontales de 3 a 4 mm. Diagnóstico: gingivitis generalizada.",
-    tratamiento: "Se realizó profilaxis completa con ultrasonido y alisado radicular selectivo. Se indicó clorhexidina 0.12% por 10 días, cepillo dental ultrasuave y revisión en un mes para reevaluación periodontal.",
-    fecha: "2025-04-18"
-  },
-  {
-    nombre: "Mónica Herrera",
-    edad: 24,
-    diagnostico: "Paciente refiere preocupación estética por apiñamiento moderado en el sector anterior inferior. Se observa desalineación sin alteración funcional ni problemas articulares. Buen estado general de salud bucodental.",
-    tratamiento: "Se inició tratamiento ortodóncico con alineadores transparentes (sistema tipo Invisalign). Se realizaron escaneos digitales, planificación virtual del tratamiento y entrega de primeras férulas con controles cada 4 semanas.",
-    fecha: "2025-05-02"
-  }
-];
-
-
-
-        function cargarExpedientes() {
-            const tabla = document.getElementById("tabla-expedientes");
-            expedientesFicticios.forEach(exp => {
-                const fila = document.createElement("tr");
-                fila.innerHTML = `
-        <td>${exp.nombre}</td>
-        <td>${exp.edad}</td>
-        <td>${exp.diagnostico}</td>
-        <td>${exp.tratamiento}</td>
-        <td>${exp.fecha}</td>
-          <td><button class="btn btn-sm btn-outline-danger" onclick='generarPDF(${JSON.stringify(exp)})'>
-    <i class="bi bi-file-earmark-pdf"></i> PDF
-  </button></td>
-      `;
-                tabla.appendChild(fila);
-            });
+    function showDaySchedule(dateStr, tdElement) {
+        selectedDate = dateStr;
+        document.querySelectorAll('.calendar td.selected-day').forEach(d => d.classList.remove('selected-day'));
+        if (tdElement) tdElement.classList.add('selected-day');
+        
+        noDaySelectedMsg.classList.add('d-none');
+        citasListContainer.innerHTML = '';
+        citasListTitle.textContent = `Citas para el ${new Date(dateStr + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}`;
+        searchCitaInput.value = '';
+        noResultsMessage.classList.add('d-none');
+        
+        const dayOfWeek = new Date(dateStr + 'T00:00:00').getDay();
+        
+        if (dayOfWeek === 0) {
+            citasListContainer.innerHTML = '<div class="alert alert-info text-center">Día no laborable (Domingo).</div>';
+            return;
         }
-        async function generarPDF(exp) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+        if (vacaciones.includes(dateStr)) {
+            citasListContainer.innerHTML = '<div class="alert alert-warning text-center">Día no disponible (Vacaciones).</div>';
+            return;
+        }
+        
+        let startHour, endHour;
+        if (dayOfWeek === 6) { startHour = 10; endHour = 14; }
+        else { startHour = 9; endHour = 18; }
+        
+        const citasDelDia = citas.filter(c => c.fecha === dateStr);
+        let hasAvailableSlots = false;
+        
+        for (let h = startHour; h < endHour; h++) {
+            const horaStr = `${String(h).padStart(2, '0')}:00`;
+            const citaEnEstaHora = citasDelDia.find(c => c.hora === horaStr);
+            let itemHtml = '';
+            
+            if (citaEnEstaHora) {
+                let estadoClass = `estado-${citaEnEstaHora.estado.toLowerCase()}`;
+                itemHtml = `
+                    <div class="cita-item ${estadoClass}" data-nombre="${citaEnEstaHora.paciente.toLowerCase()}" data-id="${citaEnEstaHora.id}">
+                        <div>
+                            <h5>${citaEnEstaHora.paciente}</h5>
+                            <p class="mb-1"><strong>Hora:</strong> ${citaEnEstaHora.hora} | <strong>Servicio:</strong> ${citaEnEstaHora.servicio}</p>
+                            <p><strong>Estado:</strong> <span class="fw-bold">${citaEnEstaHora.estado}</span></p>
+                        </div>
+                        <div class="cita-actions">
+                            ${citaEnEstaHora.estado === 'Pendiente' ? 
+                                `<button class="btn btn-sm btn-success btn-confirmar" title="Confirmar Cita"><i class="bi-check-lg"></i></button>
+                                 <button class="btn btn-sm btn-danger btn-cancelar" title="Cancelar Cita"><i class="bi-x-lg"></i></button>` : ''}
+                            ${citaEnEstaHora.estado === 'Confirmada' ? 
+                                `<button class="btn btn-sm btn-danger btn-cancelar" title="Cancelar Cita"><i class="bi-x-lg"></i></button>` : ''}
+                            <button class="btn btn-sm btn-primary btn-ver-expediente" title="Ver Expediente"><i class="bi-person-lines-fill"></i></button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                hasAvailableSlots = true;
+                itemHtml = `
+                    <div class="cita-item disponible" data-nombre="disponible">
+                        <div>
+                            <h5>${horaStr} - ${String(h + 1).padStart(2, '0')}:00</h5>
+                            <p>Hora disponible</p>
+                        </div>
+                        <div class="cita-actions">
+                            <button class="btn btn-sm btn-success btn-agendar-aqui" data-hora="${horaStr}" title="Agendar en esta hora"><i class="bi-plus-circle"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            citasListContainer.innerHTML += itemHtml;
+        }
+        
+        if (citasDelDia.length === 0 && !hasAvailableSlots) {
+            citasListContainer.innerHTML = '<div class="alert alert-secondary text-center">No hay horarios definidos para este día.</div>';
+        }
+    }
+    
+    function filterCitas() {
+        const searchTerm = searchCitaInput.value.toLowerCase().trim();
+        const items = citasListContainer.querySelectorAll('.cita-item');
+        let visibleCount = 0;
+        
+        items.forEach(item => {
+            const nombre = item.dataset.nombre;
+            if (nombre.includes(searchTerm)) {
+                item.classList.remove('d-none');
+                visibleCount++;
+            } else {
+                item.classList.add('d-none');
+            }
+        });
+        
+        if (visibleCount === 0 && searchTerm !== '') {
+            noResultsMessage.classList.remove('d-none');
+        } else {
+            noResultsMessage.classList.add('d-none');
+        }
+    }
+    
+    prevMonthBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+    });
 
-  const logo = new Image();
-  logo.src = 'images/gallery/logo.png'; // Asegúrate de que existe
+    nextMonthBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar();
+    });
+    
+    searchCitaInput.addEventListener('keyup', filterCitas);
 
-  await new Promise((res, rej) => {
-    logo.onload = res;
-    logo.onerror = rej;
-  });
+    citasListContainer.addEventListener('click', function(e) {
+        const boton = e.target.closest('button');
+        if (!boton) return; 
 
-  // Logo
-  doc.addImage(logo, 'PNG', 80, 10, 50, 50);
+        const citaItem = boton.closest('.cita-item');
+        const citaId = parseInt(citaItem.dataset.id);
 
-  // Encabezado
-  doc.setFillColor(240, 240, 240); // Gris claro
-  doc.rect(10, 65, 190, 12, 'F'); // Rectángulo fondo encabezado
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('EXPEDIENTE CLÍNICO', 105, 73, null, null, 'center');
+        if (boton.classList.contains('btn-confirmar')) {
+            const cita = citas.find(c => c.id === citaId);
+            if (cita) {
+                cita.estado = 'Confirmada';
+                saveCitas();
+                showDaySchedule(selectedDate, document.querySelector(`td[data-date="${selectedDate}"]`));
+                alert(`Cita de ${cita.paciente} confirmada.`);
+            }
+        }
+        
+        if (boton.classList.contains('btn-cancelar')) {
+            if (confirm('¿Estás seguro de que deseas cancelar esta cita?')) {
+                const cita = citas.find(c => c.id === citaId);
+                if (cita) {
+                    cita.estado = 'Cancelada';
+                    saveCitas();
+                    showDaySchedule(selectedDate, document.querySelector(`td[data-date="${selectedDate}"]`));
+                    renderCalendar();
+                    alert(`Cita de ${cita.paciente} cancelada.`);
+                }
+            }
+        }
+        
+        if (boton.classList.contains('btn-ver-expediente')) {
+            alert(`Redirigiendo al expediente del paciente (ID Cita: ${citaId})...`);
+        }
+        
+        if (boton.classList.contains('btn-agendar-aqui')) {
+            const hora = boton.dataset.hora;
+            alert(`Redirigiendo a "Nueva Cita" para el día ${selectedDate} a las ${hora}...`);
+            window.location.href = `admin-nueva-cita.html?fecha=${selectedDate}&hora=${hora}`;
+        }
+    });
 
-  // Datos personales
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Nombre:`, 10, 90);
-  doc.text(exp.nombre, 40, 90);
-  doc.text(`Edad:`, 10, 100);
-  doc.text(`${exp.edad} años`, 40, 100);
-  doc.text(`Fecha última visita:`, 10, 110);
-  doc.text(exp.fecha, 60, 110);
-
-  // Diagnóstico
-  doc.setDrawColor(200);
-  doc.setLineWidth(0.5);
-  doc.rect(10, 120, 190, 30);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Diagnóstico:', 12, 128);
-  doc.setFont('helvetica', 'normal');
-  doc.text(doc.splitTextToSize(exp.diagnostico, 180), 12, 134);
-
-  // Tratamiento
-  doc.rect(10, 160, 190, 30);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Tratamiento:', 12, 168);
-  doc.setFont('helvetica', 'normal');
-  doc.text(doc.splitTextToSize(exp.tratamiento, 180), 12, 174);
-
-  // Firma y nota legal
-  doc.setFontSize(10);
-  doc.line(120, 250, 200, 250);
-  doc.text('Dr. Javier Morales', 150, 255, null, null, 'center');
-  doc.text('Céd. Prof. 12345678', 150, 260, null, null, 'center');
-
-  doc.setFontSize(8);
-  doc.setTextColor(100);
-  doc.text('Este documento es confidencial y forma parte del historial clínico.', 10, 285);
-
-  doc.save(`Expediente_${exp.nombre.replaceAll(' ', '_')}.pdf`);
-}
-
-        document.addEventListener("DOMContentLoaded", cargarExpedientes);
-    </script>
-
+    renderCalendar();
+    
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayCell = document.querySelector(`td[data-date="${todayStr}"]`);
+    if (todayCell && !todayCell.classList.contains('vacation-day')) {
+        showDaySchedule(todayStr, todayCell);
+    } else {
+        citasListTitle.textContent = 'Citas del día';
+    }
+</script>
 
 </body>
-
 </html>

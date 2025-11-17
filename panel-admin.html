@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Panel de Administración - Consultorio Sonrisa Perfecta">
+    <meta name="author" content="Equipo Sonrisa Perfecta">
+
+    <title>Panel de Administración - Sonrisa Perfecta</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/owl.carousel.min.css" rel="stylesheet">
+    <link href="css/owl.theme.default.min.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+
+    <style>
+        .floating-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 320px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(6px);
+            border: 1px solid #ddd;
+            z-index: 1050;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding-top: 3rem;
+        }
+    </style>
+
+</head>
+
+<body id="top">
+
+    <main>
+        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
+            <div class="container">
+                <a class="navbar-brand mx-auto d-lg-none" href="index.html">
+                    Sonrisa Perfecta
+                    <strong class="d-block">Consultorio Dental</strong>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.html#hero">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#about">Nosotros</a></li>
+                        <li class="nav-item"><a class="nav-link" href="servicios.html">Servicios</a></li>
+                        <a class="navbar-brand d-none d-lg-block" href="index.html">
+                            Sonrisa Perfecta
+                            <strong class="d-block">Consultorio Dental</strong>
+                        </a>
+                        <li class="nav-item"><a class="nav-link" href="testimonios.html">Testimonios</a></li>
+                        <li class="nav-item"><a class="nav-link" id="nav-agendar" href="cita.html">Agendar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#contact">Contacto</a></li>
+                        <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
+
+                        <li class="nav-item d-none" id="nav-vacaciones">
+                            <a class="nav-link text-info" href="admin-vacaciones.html"><i class="bi-calendar-x"></i>
+                                Vacaciones</a>
+                        </li>
+                    </ul>
+
+                    <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
+                </div>
+            </div>
+        </nav>
+
+        <section class="section-padding" style="padding-top: 10rem;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="text-center mb-5">Panel de Administración</h2>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12 mb-4">
+                        <div class="card shadow-lg h-100 text-center">
+                            <div class="card-body p-4">
+                                <i class="bi-calendar-check-fill h1 text-primary"></i>
+                                <h3 class="card-title mt-3">Citas</h3>
+                                <p class="card-text">Gestionar, aprobar y ver el calendario de citas pendientes y
+                                    confirmadas.</p>
+                                <a href="admin-citas.html" class="btn btn-primary">Administrar Citas</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12 mb-4">
+                        <div class="card shadow-lg h-100 text-center">
+                            <div class="card-body p-4">
+                                <i class="bi-file-earmark-person-fill h1 text-primary"></i>
+                                <h3 class="card-title mt-3">Expedientes</h3>
+                                <p class="card-text">Consultar, crear y actualizar los expedientes clínicos de los
+                                    pacientes.</p>
+                                <a href="admin-expedientes.html" class="btn btn-primary">Ver Expedientes</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12 mb-4">
+                        <div class="card shadow-lg h-100 text-center">
+                            <div class="card-body p-4">
+                                <i class="bi-file-earmark-medical-fill h1 text-primary"></i>
+                                <h3 class="card-title mt-3">Recetas</h3>
+                                <p class="card-text">Generar nuevas recetas médicas y consultar el historial de recetas
+                                    emitidas.</p>
+                                <a href="admin-recetas.html" class="btn btn-primary">Generar Recetas</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12 mx-auto mb-4">
+                        <div class="card shadow-lg h-100 text-center">
+                            <div class="card-body p-4">
+                                <i class="bi-calendar-x-fill h1 text-primary"></i>
+                                <h3 class="card-title mt-3">Vacaciones</h3>
+                                <p class="card-text">Administrar días no laborables para citas.</p>
+                                <a href="admin-vacaciones.html" class="btn btn-primary">Gestionar Vacaciones</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer section-padding" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 me-auto col-12">
+                    <h5 class="mb-lg-4 mb-3">Horarios</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex">Domingo: Cerrado</li>
+                        <li class="list-group-item d-flex">Lunes a Viernes<span> 9:00 AM - 6:00 PM</span></li>
+                        <li class="list-group-item d-flex">Sábado<span> 10:00 AM - 2:00 PM</span></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
+                    <h5 class="mb-lg-4 mb-3">Ubicación</h5>
+                    <p>Av. Salud Dental #123, Aguascalientes, México</p>
+                    <p><a href="mailto:sonrisa@consultorio.com">sonrisa@consultorio.com</a></p>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12 ms-auto">
+                    <h5 class="mb-lg-4 mb-3">Redes Sociales</h5>
+                    <ul class="social-icon">
+                        <li><a href="#" class="social-icon-link bi-facebook"></a></li>
+                        <li><a href="#" class="social-icon-link bi-instagram"></a></li>
+                        <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
+                    <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta<br>Diseñado por el equipo de
+                        Sistemas Computacionales 6°A</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/sesion.js"></script>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/scrollspy.min.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/nav.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
+
+            // Si NO hay sesión O la sesión NO es de admin
+            if (!sesion || sesion.tipo !== 'admin') {
+                alert('Acceso denegado. Debes ser administrador.');
+                window.location.href = 'login.html'; // Lo redirige al login
+            }
+        });
+    </script>
+</body>
+
+</html>
