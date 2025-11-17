@@ -1,0 +1,5 @@
+# Ignorar el archivo de secretos
+.env
+
+# Ignorar la carpeta de módulos de Node (es muy pesada)
+node_modules
