@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (sesion.tipo === "admin" && !document.getElementById("adminPanelLink")) {
             const adminLi = document.createElement("li");
             adminLi.className = "nav-item";
-            adminLi.innerHTML = `<a class="nav-link text-warning" id="adminPanelLink" href="admin-citas.html">Panel Admin</a>`;
+            adminLi.innerHTML = `<a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a>`;
             nav.appendChild(adminLi);
         }
 
