@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle de Expediente - Sonrisa Perfecta</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <style>
+        /* Estilos para que parezca una hoja */
+        .expediente-hoja {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 3rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .expediente-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .expediente-header img {
+            max-width: 100px;
+            border-radius: 50%; /* Como en el PDF [cite: 1] */
+        }
+        .expediente-header .doctor-info {
+            text-align: right;
+            color: #333;
+        }
+        .expediente-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                Sonrisa Perfecta
+                <strong class="d-block">Consultorio Dental</strong>
+            </a>
+            <a href="admin-expedientes.html" class="btn btn-outline-primary">
+                <i class="bi-arrow-left"></i> Volver a Expedientes
+            </a>
+        </div>
+    </nav>
+
+    <div classs="container">
+        <form id="form-expediente" class="expediente-hoja">
+            
+            <div class="expediente-header">
+                <img src="images/logo-dentista.png" alt="Logo Dr. Morales"> <div class="doctor-info">
+                    <h3 class="mb-1">DR. JAVIER MORALES</h3> [cite: 2]
+                    <p class="mb-0">DENTISTA</p> [cite: 3]
+                    <p class="mb-0">Céd. Prof. 12345678</p> [cite: 12]
+                </div>
+            </div>
+
+            <h4 class="text-center mb-4">EXPEDIENTE CLÍNICO</h4> [cite: 4]
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label fw-bold">Nombre:</label>
+                    <input type="text" id="nombre" class="form-control" value="Carlos Méndez" readonly> [cite: 1]
+                </div>
+                <div class="col-md-3">
+                    <label for="edad" class="form-label fw-bold">Edad:</label>
+                    <input type="text" id="edad" class="form-control" value="35 años" readonly> [cite: 1]
+                </div>
+                <div class="col-md-3">
+                    <label for="fecha-visita" class="form-label fw-bold">Fecha última visita:</label>
+                    <input type="date" id="fecha-visita" class="form-control" value="2025-01-22"> [cite: 1]
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <label for="diagnostico" class="form-label h5">Diagnóstico:</label> [cite: 5]
+                <textarea id="diagnostico" class="form-control" rows="5" placeholder="Ingrese el diagnóstico..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="tratamiento" class="form-label h5">Tratamiento:</label> [cite: 8]
+                <textarea id="tratamiento" class="form-control" rows="5" placeholder="Ingrese el tratamiento..."></textarea>
+            </div>
+            
+            <div class="text-end mt-4">
+                <button type="button" class="btn btn-danger me-2" id="btn-eliminar">
+                    <i class="bi-trash"></i> Eliminar Expediente
+                </button>
+                <button type="button" class="btn btn-secondary me-2" id="btn-descargar-pdf">
+                    <i class="bi-download"></i> Descargar PDF
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi-save-fill"></i> Guardar Cambios
+                </button>
+            </div>
+
+            <div class="expediente-footer">
+                Este documento es confidencial y forma parte del historial clínico. [cite: 11]
+            </div>
+
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Obtener el ID del paciente de la URL
+            const params = new URLSearchParams(window.location.search);
+            const pacienteId = params.get('id');
+
+            // 2. Si hay un ID, cargar los datos (simulación)
+            if (pacienteId) {
+                // AQUÍ HARÍAS UN FETCH A TU BASE DE DATOS:
+                // fetch(`/api/expedientes/${pacienteId}`)
+                //     .then(res => res.json())
+                //     .then(data => {
+                //         document.getElementById('nombre').value = data.nombre;
+                //         document.getElementById('edad').value = data.edad;
+                //         document.getElementById('fecha-visita').value = data.fecha_visita;
+                //         // Llenar los textareas con los datos del PDF [cite: 6, 7, 9, 10]
+                //         document.getElementById('diagnostico').value = "Paciente con historial de bruxismo nocturno severo, desgaste dental generalizado, sensibilidad en piezas posteriores y cefaleas matutinas. Evaluación clínica revela hipertrofia de músculos maseteros y signos de estrés articular.";
+                //         document.getElementById('tratamiento').value = "Se confeccionó férula de descarga rígida superior con ajuste oclusal individualizado. Se recomendó fisioterapia mandibular, ejercicios de relajación y seguimiento trimestral.";
+                //     });
+                
+                // Simulación para el ejemplo de Carlos Méndez (ID=1) [cite: 1]
+                if (pacienteId === '1') {
+                    document.getElementById('nombre').value = "Carlos Méndez";
+                    document.getElementById('edad').value = "35 años";
+                    document.getElementById('fecha-visita').value = "2025-01-22";
+                    document.getElementById('diagnostico').value = "Paciente con historial de bruxismo nocturno severo, desgaste dental generalizado, sensibilidad en piezas posteriores y cefaleas matutinas. Evaluación clínica revela hipertrofia de músculos maseteros y signos de estrés articular."; 
+                    document.getElementById('tratamiento').value = "Se confeccionó férula de descarga rígida superior con ajuste oclusal individualizado. Se recomendó fisioterapia mandibular, ejercicios de relajación y seguimiento trimestral para control del desgaste y evaluación del patrón de bruxismo."; 
+                } else {
+                    // Lógica para un nuevo expediente (campos vacíos)
+                    document.getElementById('nombre').value = "Nuevo Paciente";
+                    document.getElementById('nombre').readOnly = false; // Permitir editar nombre si es nuevo
+                }
+            }
+
+            // 3. Lógica para Guardar (EDITAR)
+            document.getElementById('form-expediente').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const datos = {
+                    id: pacienteId,
+                    fecha: document.getElementById('fecha-visita').value,
+                    diagnostico: document.getElementById('diagnostico').value,
+                    tratamiento: document.getElementById('tratamiento').value
+                };
+                
+                // AQUÍ HARÍAS UN FETCH (PUT o PATCH) a tu backend
+                // fetch(`/api/expedientes/${pacienteId}`, {
+                //     method: 'PUT',
+                //     headers: {'Content-Type': 'application/json'},
+                //     body: JSON.stringify(datos)
+                // }).then(...)
+                
+                alert('¡Datos guardados! (Simulación)\n' + JSON.stringify(datos));
+                window.location.href = 'admin-expedientes.html';
+            });
+
+            // 4. Lógica para Eliminar
+            document.getElementById('btn-eliminar').addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que deseas eliminar este expediente?')) {
+                    // AQUÍ HARÍAS UN FETCH (DELETE) a tu backend
+                    // fetch(`/api/expedientes/${pacienteId}`, { method: 'DELETE' })
+                    // .then(...)
+
+                    alert('Expediente eliminado (Simulación)');
+                    window.location.href = 'admin-expedientes.html';
+                }
+            });
+
+            // 5. Lógica para Descargar PDF
+            document.getElementById('btn-descargar-pdf').addEventListener('click', function() {
+                alert("Esta función usará jsPDF para convertir la vista actual en un PDF.");
+                // Aquí iría la lógica de jsPDF o html2pdf
+            });
+        });
+    </script>
+</body>
+
+</html>
