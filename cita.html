@@ -97,6 +97,19 @@
 
                                     </div>
                                     <div class="col-lg-6 col-12">
+                                        <select id="servicio2" class="form-control">
+                                            <option value="">Servicio adicional (opcional)</option>
+                                            <option value="Limpieza Dental">Limpieza Dental</option>
+                                            <option value="Blanqueamiento">Blanqueamiento</option>
+                                            <option value="Ortodoncia">Ortodoncia</option>
+                                            <option value="Extracción Dental">Extracción Dental</option>
+                                            <option value="Resinas Estéticas">Resinas Estéticas</option>
+                                            <option value="Prótesis Dentales">Prótesis Dentales</option>
+                                        </select>
+                                        <small id="info-dias2" class="text-muted mt-1 ms-1 d-block"></small>
+                                    </div>
+
+                                    <div class="col-lg-6 col-12">
                                         <label class="form-label"></label>
                                         <input type="text" id="precio" class="form-control" placeholder="Precio"
                                             readonly>
@@ -337,6 +350,34 @@
         }
 
     </script>
+
+    <script>
+        document.getElementById("servicio2").addEventListener("change", function () {
+            mostrarDiasPermitidos2(this.value);
+        });
+
+        function mostrarDiasPermitidos2(servicio) {
+            const infoDias = document.getElementById("info-dias2");
+            const horarios = horariosServicios[servicio];
+            if (!horarios) {
+                infoDias.textContent = "";
+                return;
+            }
+
+            const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+            const diasTexto = horarios
+                .map(h => {
+                    const nombresDias = h.dias.map(d => diasSemana[d]).join(", ");
+                    return `${nombresDias} de ${h.inicio} a ${h.fin}`;
+                })
+                .join(" / ");
+
+            infoDias.textContent = `Disponible: ${diasTexto}`;
+        }
+    </script>
+
+
 
 
 </body>

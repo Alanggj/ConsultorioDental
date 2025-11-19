@@ -116,77 +116,12 @@
         </div>
     </footer>
 
-    <!-- JS -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/scrollspy.min.js"></script>
-    <script src="js/custom.js"></script>
-    <script src="js/nav.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        const admins = [
-            { nombre: 'Dr. Javier Morales', usuario: 'admin1', contrasena: '1234' },
-            { nombre: 'Dra. Ana', usuario: 'admin2', contrasena: 'abcd' },
-            { nombre: 'Dra. Sofía', usuario: 'admin3', contrasena: 'dentista' }
-        ];
-
-        const loginForm = document.getElementById('loginForm');
-        const bienvenida = document.getElementById('bienvenida');
-
-        loginForm?.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const usuario = document.getElementById('usuario').value.trim();
-            const contrasena = document.getElementById('contrasena').value.trim();
-
-            if (!usuario || !contrasena) {
-                Swal.fire('Campos incompletos', 'Por favor, completa todos los campos', 'warning');
-                return;
-            }
-
-            // Verificar si es admin
-            const admin = admins.find(a => a.usuario === usuario && a.contrasena === contrasena);
-            if (admin) {
-                localStorage.setItem('sesionIniciada', JSON.stringify({
-                    nombre: admin.nombre,
-                    tipo: 'admin'
-                }));
-                mostrarBienvenida(admin.nombre);
-                Swal.fire('Bienvenido administrador', admin.nombre, 'success')
-                    .then(() => location.href = 'index.html');
-                return;
-            }
-
-            // Verificar si es usuario registrado
-            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-            const user = usuarios.find(u => u.usuario === usuario && u.contrasena === contrasena);
-            if (user) {
-                localStorage.setItem('sesionIniciada', JSON.stringify({
-                    nombre: user.nombre,
-                    email: user.email,
-                    tipo: 'usuario'
-                }));
-                mostrarBienvenida(user.nombre);
-                Swal.fire('Bienvenido', user.nombre, 'success')
-                    .then(() => location.href = 'index.html');
-            } else {
-                Swal.fire('Error', 'Credenciales incorrectas', 'error');
-            }
-        });
-
-        function mostrarBienvenida(nombre) {
-            const etiqueta = document.getElementById('bienvenida');
-            if (etiqueta) {
-                etiqueta.textContent = `¡Bienvenido, ${nombre}!`;
-                etiqueta.classList.remove('d-none');
-            }
-        }
-    </script>
-
-
-
-
-
+    
+    <script src="js/login.js"></script>
+    
 </body>
 
 </html>

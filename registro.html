@@ -9,11 +9,6 @@
 
     <title>Registro - Sonrisa Perfecta</title>
 
-    <!-- Fuentes y CSS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <link href="css/owl.carousel.min.css" rel="stylesheet">
@@ -32,11 +27,9 @@
                     Sonrisa Perfecta
                     <strong class="d-block">Consultorio Dental</strong>
                 </a>
-
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item active"><a class="nav-link" href="index.html#hero">Inicio</a></li>
@@ -58,27 +51,68 @@
 
         <div class="container mt-5 pt-5">
             <div class="row justify-content-center">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <h3 class="text-center mb-4">Registro de Usuario</h3>
                     <form id="registroForm">
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre completo</label>
-                            <input type="text" class="form-control" id="nombre" required>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="nombre" class="form-label">Nombre(s)</label>
+                                <input type="text" class="form-control" id="nombre" required>
+                            </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ap_paterno" class="form-label">Apellido Paterno</label>
+                                <input type="text" class="form-control" id="ap_paterno" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ap_materno" class="form-label">Apellido Materno</label>
+                                <input type="text" class="form-control" id="ap_materno" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="edad" class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="edad" min="1" max="100" required>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" placeholder="Ej: 4491234567" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
                         <div class="mb-3">
-                            <label for="correo" class="form-label">Correo</label>
+                            <label for="email" class="form-label">Correo</label>
                             <input type="email" id="email" class="form-control" placeholder="Correo electrónico"
                                 required>
                         </div>
+
                         <div class="mb-3">
                             <label for="usuario" class="form-label">Usuario</label>
                             <input type="text" class="form-control" id="usuario" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="contrasena" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="contrasena" required>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="contrasena" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="contrasena" required aria-describedby="passwordHelpBlock">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="contrasena_confirm" class="form-label">Confirmar Contraseña</label>
+                                <input type="password" class="form-control" id="contrasena_confirm" required>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">Registrarse</button>
+                        
+                        <div id="passwordHelpBlock" class="form-text mb-3" style="font-size: 0.8rem;">
+                            Debe tener 8+ caracteres, una mayúscula, una minúscula, un número y un símbolo (!@#$).
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 mt-3">Registrarse</button>
                     </form>
                 </div>
             </div>
@@ -86,38 +120,8 @@
     </main>
 
     <footer class="site-footer section-padding mt-5" id="contact">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-5 me-auto col-12">
-                    <h5 class="mb-lg-4 mb-3">Horarios</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex">Domingo: Cerrado</li>
-                        <li class="list-group-item d-flex">Lunes a Viernes<span> 9:00 AM - 6:00 PM</span></li>
-                        <li class="list-group-item d-flex">Sábado<span> 10:00 AM - 2:00 PM</span></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
-                    <h5 class="mb-lg-4 mb-3">Ubicación</h5>
-                    <p>Av. Salud Dental #123, Aguascalientes, México</p>
-                    <p><a href="mailto:sonrisa@consultorio.com">sonrisa@consultorio.com</a></p>
-                </div>
-                <div class="col-lg-3 col-md-6 col-12 ms-auto">
-                    <h5 class="mb-lg-4 mb-3">Redes Sociales</h5>
-                    <ul class="social-icon">
-                        <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-                        <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-                        <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
-                    <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta<br>Diseñado por el equipo de
-                        Sistemas Computacionales 6°A</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+        </footer>
 
-    <!-- JS -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
@@ -125,38 +129,7 @@
     <script src="js/custom.js"></script>
     <script src="js/nav.js"></script>
 
-
-    <!-- Script para guardar usuarios -->
-    <script>
-        document.getElementById('registroForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const nombre = document.getElementById('nombre').value.trim();
-            const usuario = document.getElementById('usuario').value.trim();
-            const contrasena = document.getElementById('contrasena').value.trim();
-            const email = document.getElementById('email').value.trim();
-
-            if (!nombre || !usuario || !contrasena || !email) {
-                Swal.fire('Campos incompletos', 'Por favor, completa todos los campos', 'warning');
-                return;
-            }
-
-            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-            const yaExiste = usuarios.some(u => u.usuario === usuario);
-            if (yaExiste) {
-                Swal.fire('Error', 'Este usuario ya está registrado', 'error');
-                return;
-            }
-
-            usuarios.push({ nombre, usuario, contrasena, email });
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-
-            Swal.fire('Registro exitoso', 'Tu cuenta ha sido creada', 'success').then(() => {
-                window.location.href = 'login.html';
-            });
-        });
-    </script>
-
+    <script src="js/registro.js"></script>
 
 </body>
 
