@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    
+
     // 1. VERIFICAR ADMIN
     const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
     if (!sesion || sesion.tipo !== 'admin') {
@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listaResultados = document.getElementById('lista-resultados');
     const usuarioIdInput = document.getElementById('usuario_id_seleccionado');
     const dateInput = document.getElementById('date');
-    
+
     // Selectores
     const servicioSelect1 = document.getElementById('servicio');
     const timeSelect1 = document.getElementById('time');
-    
+
     const servicioSelect2 = document.getElementById('servicio_2');
     const timeSelect2 = document.getElementById('time_2');
-    
+
     const precioTotalInput = document.getElementById('precio_total');
     let serviciosDB = [];
 
@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('http://localhost:3000/api/servicios');
         serviciosDB = await res.json();
-        
+
         const llenarSelect = (select, esOpcional) => {
             select.innerHTML = esOpcional ? '<option value="">-- Ninguno --</option>' : '<option value="">Seleccione...</option>';
             serviciosDB.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.servicio_id;
                 opt.textContent = s.nombre;
-                opt.dataset.precio = s.precio; 
+                opt.dataset.precio = s.precio;
                 select.appendChild(opt);
             });
         };
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let total = 0;
         const opt1 = servicioSelect1.selectedOptions[0];
         const opt2 = servicioSelect2.selectedOptions[0];
-        
+
         if (opt1 && opt1.dataset.precio) total += parseFloat(opt1.dataset.precio);
         if (opt2 && opt2.dataset.precio) total += parseFloat(opt2.dataset.precio); // Suma solo si existe
 
@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     servicioSelect1.addEventListener('change', calcularTotal);
-    
-    servicioSelect2.addEventListener('change', function() {
+
+    servicioSelect2.addEventListener('change', function () {
         calcularTotal();
         // Si elige un 2do servicio, habilitamos su hora. Si no, la limpiamos y deshabilitamos.
         if (this.value) {
@@ -68,9 +68,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // --- 4. BÚSQUEDA PACIENTE ---
-    buscadorInput.addEventListener('keyup', async function() {
+    buscadorInput.addEventListener('keyup', async function () {
         const query = this.value.trim();
-        if(query.length < 2) {
+        if (query.length < 2) {
             listaResultados.style.display = 'none';
             usuarioIdInput.value = '';
             return;
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         listaResultados.innerHTML = '';
         listaResultados.style.display = 'block';
 
-        if(pacientes.length > 0) {
+        if (pacientes.length > 0) {
             pacientes.forEach(p => {
                 const div = document.createElement('div');
                 div.classList.add('item-predictivo');
@@ -104,8 +104,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target !== buscadorInput) listaResultados.style.display = 'none';
     });
 
+
     // --- 5. CARGAR HORARIOS DISPONIBLES ---
-    dateInput.addEventListener('change', async function() {
+    dateInput.addEventListener('change', async function () {
         const fechaStr = this.value;
         if (!fechaStr) return;
 
@@ -120,15 +121,42 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const llenarHoras = (select) => {
                 select.innerHTML = '<option value="">Selecciona hora</option>';
+
                 if (horariosLibres.length === 0) {
                     select.innerHTML = '<option value="">No disponible</option>';
                     return;
                 }
+
                 horariosLibres.forEach(hora => {
-                    const corta = hora.substring(0, 5); 
+                    // hora viene como "09:00:00" o "14:00:00"
+
+                    // 1. Obtener la hora numérica de inicio (ej. 9, 10, 13)
+                    const horaInicioNum = parseInt(hora.substring(0, 2));
+
+                    // Calculamos qué día es para saber a qué hora cortamos
+                    const fechaSeleccionada = new Date(fechaStr + 'T00:00:00');
+                    const esSabado = fechaSeleccionada.getDay() === 6;
+
+                    // Si es Sábado y la hora es 14 (o mayor), NO la agregamos.
+                    if (esSabado && horaInicioNum >= 14) return;
+
+                    // Si es Lunes-Viernes y la hora es 18 (o mayor), NO la agregamos.
+                    // (Esto evita que salga 18:00 - 19:00 entre semana)
+                    if (!esSabado && horaInicioNum >= 18) return;
+                    // --------------------------------------------------
+
+                    // 2. Calcular la hora de fin (Inicio + 1)
+                    const horaFinNum = horaInicioNum + 1;
+
+                    // 3. Formatear
+                    const inicioFmt = String(horaInicioNum).padStart(2, '0') + ":00";
+                    const finFmt = String(horaFinNum).padStart(2, '0') + ":00";
+
+                    // 4. Crear opción
                     const opt = document.createElement('option');
-                    opt.value = hora; 
-                    opt.textContent = `${corta} hrs`;
+                    opt.value = hora;
+                    opt.textContent = `${inicioFmt} - ${finFmt}`;
+
                     select.appendChild(opt);
                 });
             };
@@ -173,11 +201,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 4. Validar Servicio 2 (Opcional pero estricto)
         const s2 = servicioSelect2.value;
         const t2 = timeSelect2.value;
-        
+
         // SI eligió servicio 2, PERO NO eligió hora 2 -> ERROR
         if (s2 && (!t2 || t2 === "")) {
             Swal.fire('Falta Hora', 'Seleccionaste un segundo servicio, pero no le asignaste hora.', 'error');
-            return; 
+            return;
         }
 
         // Validar choque de horarios (misma hora)
@@ -209,12 +237,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            
+
             const res = await response.json();
 
             if (res.success) {
                 Swal.fire('¡Éxito!', 'Citas agendadas correctamente.', 'success')
-                .then(() => window.location.href = 'admin-citas.html');
+                    .then(() => window.location.href = 'admin-citas.html');
             } else {
                 Swal.fire('Error del Servidor', res.message, 'error');
             }

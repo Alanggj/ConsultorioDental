@@ -177,6 +177,7 @@ function renderCalendar() {
 }
 
 // --- MOSTRAR HORARIOS (LÓGICA PRINCIPAL) ---
+// --- MOSTRAR HORARIOS (LÓGICA PRINCIPAL) ---
 function showDaySchedule(dateStr, tdElement) {
     selectedDate = dateStr;
 
@@ -216,8 +217,14 @@ function showDaySchedule(dateStr, tdElement) {
     const citasDelDia = citas.filter(c => c.fecha === dateStr);
 
     // Generar Slots por Hora
-    for (let h = startHour; h <= endHour; h++) {
-        const horaSimple = `${String(h).padStart(2, '0')}:00`;
+    // Nota: Usamos < endHour para que el último slot sea (endHour-1) a (endHour)
+    for (let h = startHour; h < endHour; h++) {
+        const horaSimple = `${String(h).padStart(2, '0')}:00`; // Para buscar en BD (ej: "09:00:00")
+        
+        // --- ⭐ NUEVO: CREAR TEXTO DEL INTERVALO ⭐ ---
+        const horaFin = `${String(h + 1).padStart(2, '0')}:00`;
+        const intervaloVisual = `${String(h).padStart(2, '0')}:00 - ${horaFin}`;
+        // ---------------------------------------------
 
         // Buscar TODAS las citas en esta hora (puede haber canceladas y una activa)
         const citasEnHora = citasDelDia.filter(c => c.horaDisplay === horaSimple || c.hora.startsWith(horaSimple));
@@ -228,18 +235,20 @@ function showDaySchedule(dateStr, tdElement) {
         // 1. Renderizar primero las CANCELADAS (Historial visual)
         const citasCanceladas = citasEnHora.filter(c => c.estadoBD === 'cancelada');
         citasCanceladas.forEach(c => {
-            citasListContainer.innerHTML += generarHtmlCita(c, horaSimple);
+            // Pasamos 'intervaloVisual' en lugar de 'horaSimple'
+            citasListContainer.innerHTML += generarHtmlCita(c, intervaloVisual);
         });
 
         // 2. Renderizar Slot: O la cita activa O el botón disponible
         if (citaActiva) {
-            citasListContainer.innerHTML += generarHtmlCita(citaActiva, horaSimple);
+            // Pasamos 'intervaloVisual' en lugar de 'horaSimple'
+            citasListContainer.innerHTML += generarHtmlCita(citaActiva, intervaloVisual);
         } else {
             // Si no hay activa (aunque haya canceladas), mostramos DISPONIBLE
             citasListContainer.innerHTML += `
                 <div class="cita-item disponible" data-nombre="disponible">
                     <div>
-                        <h5 class="mb-0">${horaSimple} - ${String(h + 1).padStart(2, '0')}:00</h5>
+                        <h5 class="mb-0">${intervaloVisual}</h5>
                         <small class="text-muted">Disponible</small>
                     </div>
                     <div class="cita-actions">
@@ -254,7 +263,8 @@ function showDaySchedule(dateStr, tdElement) {
 }
 
 // Generador de HTML para tarjetas de citas
-function generarHtmlCita(cita, horaSimple) {
+// Cambié el nombre del segundo parámetro a 'intervaloTiempo' para que sea más claro
+function generarHtmlCita(cita, intervaloTiempo) {
     let estadoClass = `estado-${cita.estado.toLowerCase()}`;
     let botonesHtml = "";
 
@@ -279,8 +289,12 @@ function generarHtmlCita(cita, horaSimple) {
             <div style="flex: 1; padding-right: 15px;">
                 <h5 class="mb-2 fw-bold">${cita.paciente}</h5>
                 <div class="mb-2">
-                    <span class="badge bg-light text-dark border me-1"><i class="bi-clock"></i> ${horaSimple}</span>
-                    <span class="badge bg-primary text-white"><i class="bi-tools"></i> ${cita.servicio}</span>
+                    <span class="badge bg-light text-dark border me-1">
+                        <i class="bi-clock"></i> ${intervaloTiempo}
+                    </span>
+                    <span class="badge bg-primary text-white">
+                        <i class="bi-tools"></i> ${cita.servicio}
+                    </span>
                 </div>
                 <p class="mb-0 small text-muted">
                     <strong>Estado:</strong> <span class="fw-bold text-dark">${cita.estado}</span>
