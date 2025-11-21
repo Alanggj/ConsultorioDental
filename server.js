@@ -131,7 +131,7 @@ app.get('/api/citas', async (req, res) => {
                    TO_CHAR(c.hora, 'HH24:MI') AS hora,
                    c.estatus AS estado, 
                    c.comentario,
-                   u.nombre || ' ' || u.ap_paterno AS paciente, 
+                   u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente, 
                    s.nombre AS servicio
             FROM Cita c
             JOIN Usuario u ON c.usuario_id = u.usuario_id
@@ -237,23 +237,38 @@ app.post('/api/citas', async (req, res) => {
 
 // --- AUXILIARES ---
 
-// Buscar Paciente
+// Buscar Paciente (CORREGIDO Y OPTIMIZADO)
 app.get('/api/buscar-paciente', async (req, res) => {
     const { query } = req.query;
 
     if (!query) return res.json([]);
 
     try {
+        // 1. Truco de Búsqueda: Reemplazamos espacios por comodines '%'
+        // Si el usuario escribe "Juan Perez", buscamos "%Juan%Perez%"
+        // Esto ayuda a encontrar coincidencias aunque haya dobles espacios o falte un segundo nombre.
+        const searchTerms = query.trim().split(/\s+/).join('%');
+        const searchPattern = `%${searchTerms}%`;
+
         const sql = `
             SELECT usuario_id, nombre, ap_paterno, ap_materno, correo, telefono 
             FROM Usuario 
-            WHERE nombre ILIKE $1 
-               OR ap_paterno ILIKE $1 
-               OR (nombre || ' ' || ap_paterno) ILIKE $1 
+            WHERE 
+                -- Búsqueda individual (útil si buscan solo por apellido)
+                nombre ILIKE $1 
+                OR ap_paterno ILIKE $1 
+                OR ap_materno ILIKE $1 
+                
+                -- Búsqueda por Nombre Completo ROBUSTA
+                -- NULLIF convierte cadenas vacías '' en NULL para que CONCAT_WS las ignore correctamente
+                OR CONCAT_WS(' ', 
+                    TRIM(nombre), 
+                    TRIM(ap_paterno), 
+                    NULLIF(TRIM(ap_materno), '') 
+                ) ILIKE $1
             LIMIT 5`;
 
-        const result = await pool.query(sql, [`%${query}%`]);
-
+        const result = await pool.query(sql, [searchPattern]);
         res.json(result.rows);
 
     } catch (error) {

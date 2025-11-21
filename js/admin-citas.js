@@ -177,7 +177,6 @@ function renderCalendar() {
 }
 
 // --- MOSTRAR HORARIOS (LÓGICA PRINCIPAL) ---
-// --- MOSTRAR HORARIOS (LÓGICA PRINCIPAL) ---
 function showDaySchedule(dateStr, tdElement) {
     selectedDate = dateStr;
 
@@ -265,25 +264,37 @@ function showDaySchedule(dateStr, tdElement) {
 // Generador de HTML para tarjetas de citas
 // Cambié el nombre del segundo parámetro a 'intervaloTiempo' para que sea más claro
 function generarHtmlCita(cita, intervaloTiempo) {
-    let estadoClass = `estado-${cita.estado.toLowerCase()}`;
+    // Convertimos el estado a minúsculas para la clase CSS (ej: estado-confirmada)
+    let estadoClass = `estado-${cita.estado.toLowerCase()}`; 
     let botonesHtml = "";
 
-    // Lógica de botones según estado
+    // --- LÓGICA DE BOTONES MODIFICADA ---
     if (cita.estado === "Pendiente") {
+        // Si está pendiente, mostramos Confirmar (Check) y Cancelar (X)
         botonesHtml = `
-            <button class="btn btn-success btn-confirmar" title="Confirmar"><i class="bi-check-lg"></i></button>
-            <button class="btn btn-danger btn-cancelar" title="Cancelar"><i class="bi-x-lg"></i></button>
+            <button class="btn btn-success btn-confirmar" title="Confirmar Asistencia"><i class="bi-check-lg"></i></button>
+            <button class="btn btn-danger btn-cancelar" title="Cancelar Cita"><i class="bi-x-lg"></i></button>
         `;
-    } else if (cita.estado === "Confirmada") {
+    } 
+    else if (cita.estado === "Confirmada" || cita.estado === "Atendida") {
+        // ⭐ CAMBIO AQUÍ: 
+        // Antes aparecía el botón de cancelar. Ahora mostramos solo texto/ícono.
+        // Ya no hay botón de X.
         botonesHtml = `
-            <button class="btn btn-outline-danger btn-cancelar" title="Cancelar"><i class="bi-x-lg"></i></button>
+            <span class="text-success fw-bold">
+                <i class="bi-check-circle-fill"></i> Atendida
+            </span>
         `;
-    } else if (cita.estado === "Atendida") {
-        botonesHtml = `<span class="text-success fw-bold">Atendida</span>`;
-    } else if (cita.estado === "Cancelada") {
+    } 
+    else if (cita.estado === "Cancelada") {
         botonesHtml = `<span class="text-danger fw-bold">Cancelada</span>`;
     }
+    else {
+        // Por defecto (si llega otro estado)
+        botonesHtml = `<span class="fw-bold">${cita.estado}</span>`;
+    }
 
+    // Retornamos el HTML de la tarjeta
     return `
         <div class="cita-item ${estadoClass}" data-nombre="${cita.paciente.toLowerCase()}" data-id="${cita.id}">
             <div style="flex: 1; padding-right: 15px;">
@@ -302,6 +313,7 @@ function generarHtmlCita(cita, intervaloTiempo) {
             </div>
             <div class="cita-actions d-flex flex-column gap-2 align-items-end">
                 <div class="btn-group btn-group-sm">${botonesHtml}</div>
+                
                 ${cita.estado !== "Cancelada" ? `
                 <div class="d-flex gap-1">
                     <button class="btn btn-sm btn-info text-white btn-ver-expediente"><i class="bi-folder2-open"></i> Exp.</button>
@@ -344,7 +356,6 @@ nextMonthBtn.addEventListener('click', () => {
     renderCalendar();
 });
 
-// --- DELEGACIÓN DE EVENTOS (BOTONES) ---
 // --- DELEGACIÓN DE EVENTOS (BOTONES) ---
 citasListContainer.addEventListener('click', function (e) {
     // Buscamos el botón más cercano al clic (por si le dan al ícono)
@@ -404,5 +415,25 @@ citasListContainer.addEventListener('click', function (e) {
         const hora = boton.dataset.hora; // Ej: "09:00:00"
         // Enviamos fecha y hora por URL
         window.location.href = `admin-nueva-cita.html?fecha=${selectedDate}&hora=${hora}`;
+    }
+
+    // 5. IR A DETALLE DE RECETA (Botón Azul Oscuro)
+    if (boton.classList.contains('btn-generar-receta')) {
+        // Buscamos el objeto completo de la cita en el arreglo global 'citas'
+        // para asegurarnos de tener el nombre correcto y la fecha exacta.
+        const citaObj = citas.find(c => c.id === citaId);
+
+        if (citaObj) {
+            // Usamos encodeURIComponent para evitar errores con espacios o acentos en la URL
+            const nombrePaciente = encodeURIComponent(citaObj.paciente);
+            const fechaCita = encodeURIComponent(citaObj.fecha);
+
+            // Redirigir a la página de receta con los parámetros
+            window.location.href = `receta-detalle.html?paciente=${nombrePaciente}&fecha=${fechaCita}`;
+        } else {
+            // Fallback por si acaso no encuentra el objeto (raro, pero posible)
+            console.error("No se encontraron datos para la cita ID:", citaId);
+            Swal.fire('Error', 'No se pudieron recuperar los datos del paciente.', 'error');
+        }
     }
 });

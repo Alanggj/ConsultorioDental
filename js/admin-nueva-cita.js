@@ -1,7 +1,7 @@
 // js/admin-nueva-cita.js
 
 document.addEventListener('DOMContentLoaded', async () => {
-    
+
     // 1. VERIFICAR ADMIN
     const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
     if (!sesion || sesion.tipo !== 'admin') {
@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listaResultados = document.getElementById('lista-resultados');
     const usuarioIdInput = document.getElementById('usuario_id_seleccionado');
     const dateInput = document.getElementById('date');
-    
+
     // Selectores
     const servicioSelect1 = document.getElementById('servicio');
     const timeSelect1 = document.getElementById('time');
-    
+
     const servicioSelect2 = document.getElementById('servicio_2');
     const timeSelect2 = document.getElementById('time_2');
-    
+
     const precioTotalInput = document.getElementById('precio_total');
     let serviciosDB = [];
 
@@ -29,14 +29,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('http://localhost:3000/api/servicios');
         serviciosDB = await res.json();
-        
+
         const llenarSelect = (select, esOpcional) => {
             select.innerHTML = esOpcional ? '<option value="">-- Ninguno --</option>' : '<option value="">Seleccione...</option>';
             serviciosDB.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.servicio_id;
                 opt.textContent = s.nombre;
-                opt.dataset.precio = s.precio; 
+                opt.dataset.precio = s.precio;
                 select.appendChild(opt);
             });
         };
@@ -49,14 +49,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         let total = 0;
         const opt1 = servicioSelect1.selectedOptions[0];
         const opt2 = servicioSelect2.selectedOptions[0];
-        
+
         if (opt1 && opt1.dataset.precio) total += parseFloat(opt1.dataset.precio);
         if (opt2 && opt2.dataset.precio) total += parseFloat(opt2.dataset.precio);
 
         precioTotalInput.value = `$${total.toFixed(2)}`;
     }
 
-    servicioSelect1.addEventListener('change', function() {
+    servicioSelect1.addEventListener('change', function () {
         if (servicioSelect2.value !== "" && this.value === servicioSelect2.value) {
             Swal.fire('Servicio Duplicado', 'No puedes tener el mismo servicio seleccionado dos veces.', 'warning');
             servicioSelect2.value = "";
@@ -65,14 +65,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         calcularTotal();
     });
-    
-    servicioSelect2.addEventListener('change', function() {
+
+    servicioSelect2.addEventListener('change', function () {
         if (this.value !== "" && this.value === servicioSelect1.value) {
             Swal.fire('Atención', 'Este servicio ya está seleccionado como principal.', 'warning');
-            this.value = ""; 
+            this.value = "";
         }
         calcularTotal();
-        
+
         if (this.value) {
             timeSelect2.disabled = false;
         } else {
@@ -82,26 +82,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // --- 4. BÚSQUEDA PACIENTE ---
-    buscadorInput.addEventListener('keyup', async function() {
+    buscadorInput.addEventListener('keyup', async function () {
         const query = this.value.trim();
-        if(query.length < 2) {
+        if (query.length < 2) {
             listaResultados.style.display = 'none';
             usuarioIdInput.value = '';
             return;
         }
-        const res = await fetch(`http://localhost:3000/api/buscar-paciente?query=${query}`);
+        // Correcto: encodeURIComponent convierte los espacios en %20 para que no se rompa la URL
+        const res = await fetch(`http://localhost:3000/api/buscar-paciente?query=${encodeURIComponent(query)}`);
         const pacientes = await res.json();
 
         listaResultados.innerHTML = '';
         listaResultados.style.display = 'block';
 
-        if(pacientes.length > 0) {
+        if (pacientes.length > 0) {
             pacientes.forEach(p => {
                 const div = document.createElement('div');
                 div.classList.add('item-predictivo');
-                div.innerHTML = `<strong>${p.nombre} ${p.ap_paterno}</strong><br><small>${p.telefono || 'Sin tel'}</small>`;
+
+                // CORRECCIÓN: Agregamos p.ap_materno || '' para que se muestre
+                const nombreCompleto = `${p.nombre} ${p.ap_paterno} ${p.ap_materno || ''}`.trim();
+
+                div.innerHTML = `<strong>${nombreCompleto}</strong><br><small>${p.telefono || 'Sin tel'}</small>`;
+
                 div.addEventListener('click', () => {
-                    buscadorInput.value = `${p.nombre} ${p.ap_paterno}`;
+                    buscadorInput.value = nombreCompleto; // Poner nombre completo en el input
                     usuarioIdInput.value = p.usuario_id;
                     document.getElementById('phone').value = p.telefono || '';
                     document.getElementById('email').value = p.correo || '';
@@ -134,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const llenarHoras = (select) => {
                 select.innerHTML = '<option value="">Selecciona hora</option>';
-                
+
                 if (horariosLibres.length === 0) {
                     select.innerHTML = '<option value="">No disponible</option>';
                     return;
@@ -157,8 +163,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const opt = document.createElement('option');
                     opt.value = hora; // IMPORTANTE: El value debe coincidir con lo que llega por URL
-                    opt.textContent = `${inicioFmt} - ${finFmt}`; 
-                    
+                    opt.textContent = `${inicioFmt} - ${finFmt}`;
+
                     select.appendChild(opt);
                 });
             };
@@ -176,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Evento manual al cambiar fecha
-    dateInput.addEventListener('change', async function() {
+    dateInput.addEventListener('change', async function () {
         cargarHorariosDisponibles(this.value);
     });
 
@@ -188,17 +194,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (paramFecha) {
         console.log("1. Fecha detectada en URL:", paramFecha);
-        
+
         // A. Asignar fecha al input
         dateInput.value = paramFecha;
-        
+
         // B. Cargar horarios y ESPERAR a que termine (await es clave aquí)
         await cargarHorariosDisponibles(paramFecha);
 
         // C. Seleccionar la hora (si existe)
         if (paramHora) {
             console.log("2. Hora detectada en URL:", paramHora);
-            
+
             // Paso 1: Intentar asignación directa (Exacta)
             timeSelect1.value = paramHora;
 
@@ -206,9 +212,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             // A veces la URL trae "09:00:00" y el select tiene "09:00", o viceversa.
             if (!timeSelect1.value) {
                 // Opción A: Probar formato corto "HH:MM"
-                const horaCorta = paramHora.substring(0, 5); 
+                const horaCorta = paramHora.substring(0, 5);
                 timeSelect1.value = horaCorta;
-                
+
                 // Opción B: Probar formato largo "HH:MM:00" (si venía corto)
                 if (!timeSelect1.value && paramHora.length === 5) {
                     timeSelect1.value = paramHora + ":00";
@@ -219,8 +225,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (timeSelect1.value) {
                 console.log("✅ Hora seleccionada exitosamente:", timeSelect1.value);
             } else {
-                console.warn("❌ No se encontró la hora en el select. Opciones disponibles:", 
-                             [...timeSelect1.options].map(o => o.value));
+                console.warn("❌ No se encontró la hora en el select. Opciones disponibles:",
+                    [...timeSelect1.options].map(o => o.value));
             }
         }
     }
@@ -231,17 +237,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // ... (Tu lógica de validación existente va aquí) ...
         // Copia aquí tus validaciones (paciente, fecha, servicios duplicados, etc.)
-        
+
         if (!usuarioIdInput.value) { Swal.fire('Falta Paciente', 'Selecciona un paciente.', 'warning'); return; }
         if (!dateInput.value) { Swal.fire('Falta Fecha', 'Selecciona la fecha.', 'warning'); return; }
-        
+
         const s1 = servicioSelect1.value;
         const t1 = timeSelect1.value;
         if (!s1 || !t1) { Swal.fire('Datos incompletos', 'Servicio y Hora son obligatorios.', 'warning'); return; }
 
         const s2 = servicioSelect2.value;
         const t2 = timeSelect2.value;
-        
+
         if (s2 && (!t2 || t2 === "")) { Swal.fire('Falta Hora', 'Falta hora del segundo servicio.', 'error'); return; }
         if (s2 && s1 === s2) { Swal.fire('Servicio Duplicado', 'Mismo servicio dos veces.', 'error'); return; }
         if (s2 && t1 === t2) { Swal.fire('Error de Horario', 'Misma hora para dos servicios.', 'error'); return; }
@@ -250,7 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             usuario_id: usuarioIdInput.value,
             admin_id: sesion.id,
             fecha: dateInput.value,
-            citas: [ { servicio_id: s1, hora: t1 } ],
+            citas: [{ servicio_id: s1, hora: t1 }],
             comentario: document.getElementById('message').value
         };
 
@@ -262,12 +268,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            
+
             const res = await response.json();
 
             if (res.success) {
                 Swal.fire('¡Éxito!', 'Citas agendadas correctamente.', 'success')
-                .then(() => window.location.href = 'admin-citas.html');
+                    .then(() => window.location.href = 'admin-citas.html');
             } else {
                 Swal.fire('Error', res.message, 'error');
             }
