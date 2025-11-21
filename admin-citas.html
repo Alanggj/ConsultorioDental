@@ -9,7 +9,6 @@
 
     <title>Administrar Citas - Sonrisa Perfecta</title>
 
-    <!-- Fuentes y CSS (Mismos que index.html) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -23,158 +22,44 @@
 
     <style>
         /* Estilos específicos para el calendario */
-        .calendar-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-        }
-        .calendar th {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 0.8rem 0.5rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .calendar td {
-            padding: 0.5rem;
-            border: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            vertical-align: top;
-            height: 90px;
-        }
-        .calendar td:not(.other-month):hover {
-            background-color: #f0f8ff;
-        }
-        .calendar td.current-month {
-            background-color: #fff;
-            color: #333;
-        }
-        .calendar td.other-month {
-            background-color: #f8f8f8;
-            color: #ccc;
-            cursor: default;
-        }
-        .calendar td.selected-day {
-            background-color: var(--secondary-color);
-            color: #fff;
-            font-weight: 700;
-        }
-        .calendar td.selected-day:hover {
-            background-color: var(--secondary-color);
-        }
-        .calendar .day-number {
-            display: block;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-        }
-        .calendar .today .day-number {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-        .calendar .cita-badge {
-            font-size: 0.75rem;
-            padding: 0.2em 0.5em;
-        }
-        .calendar .vacation-day {
-            background-color: #ffebee;
-            color: #d32f2f;
-            cursor: not-allowed;
-            text-decoration: line-through;
-        }
-        .calendar .vacation-day:hover {
-            background-color: #ffcdd2;
-        }
+        .calendar-container { display: flex; justify-content: center; margin-bottom: 2rem; }
+        .calendar { width: 100%; border-collapse: collapse; text-align: center; }
+        .calendar th { background-color: var(--primary-color); color: #fff; padding: 0.8rem 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        .calendar td { padding: 0.5rem; border: 1px solid #eee; cursor: pointer; transition: background-color 0.2s; vertical-align: top; height: 90px; }
+        .calendar td:not(.other-month):hover { background-color: #f0f8ff; }
+        .calendar td.current-month { background-color: #fff; color: #333; }
+        .calendar td.other-month { background-color: #f8f8f8; color: #ccc; cursor: default; }
+        .calendar td.selected-day { background-color: var(--secondary-color); color: #fff; font-weight: 700; }
+        .calendar td.selected-day:hover { background-color: var(--secondary-color); }
+        .calendar .day-number { display: block; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.2rem; }
+        .calendar .today .day-number { color: var(--primary-color); font-weight: 700; }
+        .calendar .cita-badge { font-size: 0.75rem; padding: 0.2em 0.5em; }
+        .calendar .vacation-day { background-color: #ffebee; color: #d32f2f; cursor: not-allowed; text-decoration: line-through; }
+        .calendar .vacation-day:hover { background-color: #ffcdd2; }
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 10px; }
+        .calendar-nav h4 { margin: 0; color: var(--primary-color); }
+        .calendar-nav button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); }
 
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0 10px;
-        }
-        .calendar-nav h4 {
-            margin: 0;
-            color: var(--primary-color);
-        }
-        .calendar-nav button {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--primary-color);
-        }
-
-        /* Botón flotante de Nueva Cita */
-        .btn-flotante-nueva-cita {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            border-radius: 50px;
-            padding: 15px 25px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        /* Botón flotante */
+        .btn-flotante-nueva-cita { position: fixed; bottom: 30px; right: 30px; z-index: 1000; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); border-radius: 50px; padding: 15px 25px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
 
         /* Listado de citas */
-        .cita-item {
-            background-color: #fff;
-            border: 1px solid #eee;
-            border-left: 5px solid var(--primary-color);
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s ease-in-out;
-        }
-        .cita-item.estado-confirmada {
-            border-left-color: var(--secondary-color);
-        }
-        .cita-item.estado-cancelada {
-            border-left-color: #dc3545;
-            background-color: #fff5f5;
-            opacity: 0.7;
-        }
-        .cita-item.disponible {
-            background-color: #f8f9fa;
-            border-left: 5px solid #ccc;
-            color: #6c757d;
-        }
-        .cita-item h5 {
-            margin: 0 0 5px 0;
-            font-size: 1.1rem;
-            color: var(--primary-color);
-        }
-        .cita-item.estado-confirmada h5 {
-            color: var(--secondary-color);
-        }
-        .cita-item p {
-            margin: 0;
-            font-size: 0.9rem;
-        }
-        .cita-actions button {
-            margin-left: 5px;
-        }
-        .no-citas-msg {
-            padding: 20px;
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            border-radius: 5px;
-            color: #856404;
-            text-align: center;
-        }
+        .cita-item { background-color: #fff; border: 1px solid #eee; border-left: 5px solid var(--primary-color); margin-bottom: 10px; padding: 15px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease-in-out; }
+        .cita-item.estado-confirmada { border-left-color: var(--secondary-color); }
+        
+        /* Estilo para CANCELADAS */
+        .cita-item.estado-cancelada { border-left-color: #dc3545; background-color: #ffe6e6; opacity: 0.8; }
+        .cita-item.estado-cancelada h5 { text-decoration: line-through; color: #dc3545; }
+
+        .cita-item.disponible { background-color: #f8f9fa; border-left: 5px solid #28a745; color: #6c757d; }
+        .cita-item h5 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--primary-color); }
+        .cita-item.estado-confirmada h5 { color: var(--secondary-color); }
+        .cita-item p { margin: 0; font-size: 0.9rem; }
+        .cita-actions button { margin-left: 5px; }
+        .no-citas-msg { padding: 20px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px; color: #856404; text-align: center; }
+        .btn-receta { background-color: #6f42c1; color: white; border: none; }
+        .btn-receta:hover { background-color: #5a32a3; color: white; }
+        .cita-actions { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
     </style>
 
 </head>
@@ -182,7 +67,6 @@
 <body id="top">
 
     <main>
-        <!-- Barra de Navegación de Admin -->
         <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
             <div class="container">
                 <a class="navbar-brand mx-auto d-lg-none" href="index.html">
@@ -197,31 +81,19 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
-                        
-                        <!-- Enlace al Panel Admin General -->
-                        <li class="nav-item">
-                            <a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a>
-                        </li>
-                        
-                        <!-- Módulos de Admin -->
+                        <li class="nav-item"><a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a></li>
                         <li class="nav-item active"><a class="nav-link text-primary" href="admin-citas.html">Citas</a></li>
                         <li class="nav-item"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
                         <li class="nav-item"><a class="nav-link" href="admin-recetas.html">Recetas</a></li>
-                        
-                        <!-- NUEVO: Enlace de Vacaciones -->
                         <li class="nav-item" id="nav-vacaciones-admin">
                             <a class="nav-link text-info" href="admin-vacaciones.html"><i class="bi-calendar-x"></i> Vacaciones</a>
                         </li>
-                        
-                        <!-- Cerrar Sesión (js/sesion.js lo agregará aquí) -->
                     </ul>
-
                     <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
                 </div>
             </div>
         </nav>
 
-        <!-- Contenido Principal -->
         <section class="section-padding" style="padding-top: 10rem; min-height: 90vh;">
             <div class="container">
                 <div class="row">
@@ -230,15 +102,14 @@
                         <p class="text-muted">Administra el calendario de citas del consultorio.</p>
                     </div>
 
-                    <!-- Barra de Búsqueda -->
                     <div class="col-12 mb-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi-search"></i></span>
-                            <input type="text" id="search-cita-input" class="form-control form-control-lg" placeholder="Buscar cita por nombre o apellido del paciente...">
+                            <input type="text" id="search-cita-input" class="form-control form-control-lg"
+                                placeholder="Buscar cita por nombre o apellido del paciente...">
                         </div>
                     </div>
 
-                    <!-- Columna del Calendario -->
                     <div class="col-lg-7 col-12 mb-4">
                         <div class="card shadow-lg p-3">
                             <div class="card-header bg-white border-0 calendar-nav">
@@ -250,29 +121,20 @@
                                 <table class="calendar" id="calendar">
                                     <thead>
                                         <tr>
-                                            <th>Lun</th>
-                                            <th>Mar</th>
-                                            <th>Mié</th>
-                                            <th>Jue</th>
-                                            <th>Vie</th>
-                                            <th>Sáb</th>
-                                            <th>Dom</th>
+                                            <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="calendar-body">
-                                        <!-- El JS llenará esto -->
-                                    </tbody>
+                                    <tbody id="calendar-body"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Columna del Listado de Citas/Horarios -->
                     <div class="col-lg-5 col-12 mb-4">
                         <div class="card shadow-lg p-4 h-100">
                             <h4 class="mb-4" id="citas-list-title">Citas del día</h4>
                             <div id="citas-list-container" style="max-height: 600px; overflow-y: auto;">
-                                <p class="text-muted text-center mt-3" id="no-day-selected-msg">Haz clic en un día del calendario para ver sus citas y horarios.</p>
+                                <p class="text-muted text-center mt-3" id="no-day-selected-msg">Haz clic en un día del calendario.</p>
                             </div>
                             <div id="no-results-message" class="no-citas-msg d-none mt-3">
                                 <i class="bi-emoji-frown"></i> No existen citas que coincidan con la búsqueda.
@@ -285,12 +147,10 @@
         </section>
     </main>
 
-    <!-- Botón Flotante para Nueva Cita -->
     <a href="admin-nueva-cita.html" class="btn btn-success btn-flotante-nueva-cita">
         <i class="bi-plus-circle-fill"></i> Nueva Cita
     </a>
 
-    <!-- Footer (Mismo que index.html) -->
     <footer class="site-footer section-padding" id="contact">
         <div class="container">
             <div class="row">
@@ -305,331 +165,24 @@
                 <div class="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
                     <h5 class="mb-lg-4 mb-3">Ubicación</h5>
                     <p>Av. Salud Dental #123, Aguascalientes, México</p>
-                    <p><a href="mailto:sonrisa@consultorio.com">sonrisa@consultorio.com</a></p>
-                </div>
-                <div class="col-lg-3 col-md-6 col-12 ms-auto">
-                    <h5 class="mb-lg-4 mb-3">Redes Sociales</h5>
-                    <ul class="social-icon">
-                        <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-                        <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-                        <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                    </ul>
                 </div>
                 <div class="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
-                    <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta<br>Diseñado por el equipo de
-                        Sistemas Computacionales 6°A</p>
+                    <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- JS (Mismos que index.html) -->
-    <script src="js/sesion.js"></script> <!-- Carga la lógica de sesión primero -->
+    <script src="js/sesion.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/scrollspy.min.js"></script>
     <script src="js/custom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/nav.js"></script>
-    
-    <!-- SCRIPT COMPLETO DE ESTA PÁGINA -->
-<script>
-    // Lógica de seguridad para admin
-    document.addEventListener("DOMContentLoaded", function() {
-        const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
-        if (!sesion || sesion.tipo !== 'admin') {
-            alert('Acceso denegado. Debes ser administrador.');
-            window.location.href = 'login.html'; 
-            return;
-        }
-        const navVacacionesAdmin = document.getElementById('nav-vacaciones-admin');
-        if (navVacacionesAdmin) {
-            navVacacionesAdmin.classList.remove('d-none');
-        }
-    });
-    
-    // --- LÓGICA DEL CALENDARIO Y CITAS ---
-    
-    const calendarBody = document.getElementById('calendar-body');
-    const currentMonthYear = document.getElementById('current-month-year');
-    const prevMonthBtn = document.getElementById('prev-month');
-    const nextMonthBtn = document.getElementById('next-month');
-    const citasListTitle = document.getElementById('citas-list-title');
-    const citasListContainer = document.getElementById('citas-list-container');
-    const noDaySelectedMsg = document.getElementById('no-day-selected-msg');
-    const searchCitaInput = document.getElementById('search-cita-input');
-    const noResultsMessage = document.getElementById('no-results-message');
 
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
-    let selectedDate = null; 
-    
-    // --- Simulación de Base de Datos (localStorage) ---
-    let citas = JSON.parse(localStorage.getItem('citas')) || [
-        // ... (tus citas de ejemplo) ...
-    ];
-
-    // --- ¡AQUÍ ESTÁ LA ACTUALIZACIÓN! ---
-    // Cargar los PERIODOS de vacaciones
-    let vacationPeriods = JSON.parse(localStorage.getItem('vacationPeriods')) || [];
-
-    // Nueva función para "aplanar" los periodos en días individuales
-    function getBlockedDays() {
-        let blockedDays = [];
-        for (const period of vacationPeriods) {
-            let currentDate = new Date(period.start + 'T00:00:00'); // Asegurar zona horaria local
-            const endDate = new Date(period.end + 'T00:00:00');
-            
-            while (currentDate <= endDate) {
-                blockedDays.push(currentDate.toISOString().split('T')[0]);
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-        }
-        return blockedDays;
-    }
-
-    // 'vacaciones' ahora se genera dinámicamente
-    let vacaciones = getBlockedDays();
-    // ---------------------------------------------
-
-    function saveCitas() {
-        localStorage.setItem('citas', JSON.stringify(citas));
-    }
-
-    // Función principal para renderizar el calendario
-    function renderCalendar() {
-        calendarBody.innerHTML = ''; 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); 
-
-        // ¡ACTUALIZACIÓN! Recalcular los días de vacaciones cada vez que se renderiza el mes
-        // por si se agregaron nuevos periodos en la otra pestaña.
-        vacationPeriods = JSON.parse(localStorage.getItem('vacationPeriods')) || [];
-        vacaciones = getBlockedDays();
-
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-        const daysInMonth = lastDayOfMonth.getDate();
-        let startDay = firstDayOfMonth.getDay();
-        if (startDay === 0) startDay = 6; else startDay--; 
-
-        currentMonthYear.textContent = new Date(currentYear, currentMonth).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-
-        let date = 1;
-        for (let i = 0; i < 6; i++) {
-            let row = document.createElement('tr');
-            for (let j = 0; j < 7; j++) {
-                let cell = document.createElement('td');
-                if (i === 0 && j < startDay) {
-                    cell.classList.add('other-month');
-                } else if (date > daysInMonth) {
-                    cell.classList.add('other-month');
-                } else {
-                    cell.classList.add('current-month');
-                    let dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                    cell.dataset.date = dateStr;
-                    cell.innerHTML = `<span class="day-number">${date}</span>`;
-
-                    let cellDate = new Date(dateStr + 'T00:00:00');
-                    if (cellDate.getTime() === today.getTime()) {
-                        cell.classList.add('today');
-                    }
-                    if (dateStr === selectedDate) {
-                        cell.classList.add('selected-day');
-                    }
-
-                    // Marcar vacaciones (usando el array 'vacaciones' generado)
-                    if (vacaciones.includes(dateStr)) {
-                        cell.classList.add('vacation-day');
-                        cell.title = "Día no disponible (Vacaciones)";
-                    } else {
-                        // Mostrar citas solo si NO es vacaciones
-                        const citasDelDia = citas.filter(c => c.fecha === dateStr && c.estado !== 'Cancelada').length;
-                        if (citasDelDia > 0) {
-                            cell.innerHTML += `<span class="badge bg-primary cita-badge">${citasDelDia} cita(s)</span>`;
-                        }
-                        cell.addEventListener('click', () => {
-                            showDaySchedule(dateStr, cell);
-                        });
-                    }
-                    date++;
-                }
-                row.appendChild(cell);
-            }
-            calendarBody.appendChild(row);
-            if (date > daysInMonth) break;
-        }
-    }
-
-    // (El resto de funciones: showDaySchedule, filterCitas, y los Event Listeners
-    // permanecen exactamente IGUAL que en el archivo anterior, ya que dependen
-    // del array 'vacaciones' que ahora generamos dinámicamente)
-    
-    // ... (Pegar aquí el resto del script de admin-citas.html desde 'function showDaySchedule(dateStr, tdElement) {' hasta el final) ...
-    // ... (El código es idéntico al de la respuesta anterior) ...
-
-    function showDaySchedule(dateStr, tdElement) {
-        selectedDate = dateStr;
-        document.querySelectorAll('.calendar td.selected-day').forEach(d => d.classList.remove('selected-day'));
-        if (tdElement) tdElement.classList.add('selected-day');
-        
-        noDaySelectedMsg.classList.add('d-none');
-        citasListContainer.innerHTML = '';
-        citasListTitle.textContent = `Citas para el ${new Date(dateStr + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}`;
-        searchCitaInput.value = '';
-        noResultsMessage.classList.add('d-none');
-        
-        const dayOfWeek = new Date(dateStr + 'T00:00:00').getDay();
-        
-        if (dayOfWeek === 0) {
-            citasListContainer.innerHTML = '<div class="alert alert-info text-center">Día no laborable (Domingo).</div>';
-            return;
-        }
-        if (vacaciones.includes(dateStr)) {
-            citasListContainer.innerHTML = '<div class="alert alert-warning text-center">Día no disponible (Vacaciones).</div>';
-            return;
-        }
-        
-        let startHour, endHour;
-        if (dayOfWeek === 6) { startHour = 10; endHour = 14; }
-        else { startHour = 9; endHour = 18; }
-        
-        const citasDelDia = citas.filter(c => c.fecha === dateStr);
-        let hasAvailableSlots = false;
-        
-        for (let h = startHour; h < endHour; h++) {
-            const horaStr = `${String(h).padStart(2, '0')}:00`;
-            const citaEnEstaHora = citasDelDia.find(c => c.hora === horaStr);
-            let itemHtml = '';
-            
-            if (citaEnEstaHora) {
-                let estadoClass = `estado-${citaEnEstaHora.estado.toLowerCase()}`;
-                itemHtml = `
-                    <div class="cita-item ${estadoClass}" data-nombre="${citaEnEstaHora.paciente.toLowerCase()}" data-id="${citaEnEstaHora.id}">
-                        <div>
-                            <h5>${citaEnEstaHora.paciente}</h5>
-                            <p class="mb-1"><strong>Hora:</strong> ${citaEnEstaHora.hora} | <strong>Servicio:</strong> ${citaEnEstaHora.servicio}</p>
-                            <p><strong>Estado:</strong> <span class="fw-bold">${citaEnEstaHora.estado}</span></p>
-                        </div>
-                        <div class="cita-actions">
-                            ${citaEnEstaHora.estado === 'Pendiente' ? 
-                                `<button class="btn btn-sm btn-success btn-confirmar" title="Confirmar Cita"><i class="bi-check-lg"></i></button>
-                                 <button class="btn btn-sm btn-danger btn-cancelar" title="Cancelar Cita"><i class="bi-x-lg"></i></button>` : ''}
-                            ${citaEnEstaHora.estado === 'Confirmada' ? 
-                                `<button class="btn btn-sm btn-danger btn-cancelar" title="Cancelar Cita"><i class="bi-x-lg"></i></button>` : ''}
-                            <button class="btn btn-sm btn-primary btn-ver-expediente" title="Ver Expediente"><i class="bi-person-lines-fill"></i></button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                hasAvailableSlots = true;
-                itemHtml = `
-                    <div class="cita-item disponible" data-nombre="disponible">
-                        <div>
-                            <h5>${horaStr} - ${String(h + 1).padStart(2, '0')}:00</h5>
-                            <p>Hora disponible</p>
-                        </div>
-                        <div class="cita-actions">
-                            <button class="btn btn-sm btn-success btn-agendar-aqui" data-hora="${horaStr}" title="Agendar en esta hora"><i class="bi-plus-circle"></i></button>
-                        </div>
-                    </div>
-                `;
-            }
-            citasListContainer.innerHTML += itemHtml;
-        }
-        
-        if (citasDelDia.length === 0 && !hasAvailableSlots) {
-            citasListContainer.innerHTML = '<div class="alert alert-secondary text-center">No hay horarios definidos para este día.</div>';
-        }
-    }
-    
-    function filterCitas() {
-        const searchTerm = searchCitaInput.value.toLowerCase().trim();
-        const items = citasListContainer.querySelectorAll('.cita-item');
-        let visibleCount = 0;
-        
-        items.forEach(item => {
-            const nombre = item.dataset.nombre;
-            if (nombre.includes(searchTerm)) {
-                item.classList.remove('d-none');
-                visibleCount++;
-            } else {
-                item.classList.add('d-none');
-            }
-        });
-        
-        if (visibleCount === 0 && searchTerm !== '') {
-            noResultsMessage.classList.remove('d-none');
-        } else {
-            noResultsMessage.classList.add('d-none');
-        }
-    }
-    
-    prevMonthBtn.addEventListener('click', () => {
-        currentMonth--;
-        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        renderCalendar();
-    });
-
-    nextMonthBtn.addEventListener('click', () => {
-        currentMonth++;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        renderCalendar();
-    });
-    
-    searchCitaInput.addEventListener('keyup', filterCitas);
-
-    citasListContainer.addEventListener('click', function(e) {
-        const boton = e.target.closest('button');
-        if (!boton) return; 
-
-        const citaItem = boton.closest('.cita-item');
-        const citaId = parseInt(citaItem.dataset.id);
-
-        if (boton.classList.contains('btn-confirmar')) {
-            const cita = citas.find(c => c.id === citaId);
-            if (cita) {
-                cita.estado = 'Confirmada';
-                saveCitas();
-                showDaySchedule(selectedDate, document.querySelector(`td[data-date="${selectedDate}"]`));
-                alert(`Cita de ${cita.paciente} confirmada.`);
-            }
-        }
-        
-        if (boton.classList.contains('btn-cancelar')) {
-            if (confirm('¿Estás seguro de que deseas cancelar esta cita?')) {
-                const cita = citas.find(c => c.id === citaId);
-                if (cita) {
-                    cita.estado = 'Cancelada';
-                    saveCitas();
-                    showDaySchedule(selectedDate, document.querySelector(`td[data-date="${selectedDate}"]`));
-                    renderCalendar();
-                    alert(`Cita de ${cita.paciente} cancelada.`);
-                }
-            }
-        }
-        
-        if (boton.classList.contains('btn-ver-expediente')) {
-            alert(`Redirigiendo al expediente del paciente (ID Cita: ${citaId})...`);
-        }
-        
-        if (boton.classList.contains('btn-agendar-aqui')) {
-            const hora = boton.dataset.hora;
-            alert(`Redirigiendo a "Nueva Cita" para el día ${selectedDate} a las ${hora}...`);
-            window.location.href = `admin-nueva-cita.html?fecha=${selectedDate}&hora=${hora}`;
-        }
-    });
-
-    renderCalendar();
-    
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayCell = document.querySelector(`td[data-date="${todayStr}"]`);
-    if (todayCell && !todayCell.classList.contains('vacation-day')) {
-        showDaySchedule(todayStr, todayCell);
-    } else {
-        citasListTitle.textContent = 'Citas del día';
-    }
-</script>
+    <script src="js/admin-citas.js"></script>
 
 </body>
 </html>
