@@ -401,7 +401,8 @@ citasListContainer.addEventListener('click', function (e) {
 
     // 4. AGENDAR EN HUECO (Botón "Agendar" Verde)
     if (boton.classList.contains('btn-agendar-aqui')) {
-        const hora = boton.dataset.hora;
+        const hora = boton.dataset.hora; // Ej: "09:00:00"
+        // Enviamos fecha y hora por URL
         window.location.href = `admin-nueva-cita.html?fecha=${selectedDate}&hora=${hora}`;
     }
 });
