@@ -75,12 +75,22 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="edad" class="form-label">Edad</label>
-                                <input type="number" class="form-control" id="edad" min="1" max="100" required>
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fecha_nacimiento" required>
+                            </div>
+
+                            <div class="col-md-12 mb-3" id="divTutor" style="display: none;">
+                                <label for="nombre_tutor" class="form-label">Nombre del Tutor / Responsable</label>
+                                <input type="text" class="form-control" id="nombre_tutor"
+                                    placeholder="Nombre completo del padre, madre o tutor">
+                                <div class="form-text text-warning">
+                                    <i class="bi bi-info-circle"></i> Requerido para menores de 18 años.
+                                </div>
                             </div>
                             <div class="col-md-8 mb-3">
                                 <label for="telefono" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" placeholder="Ej: 4491234567" required>
+                                <input type="tel" class="form-control" id="telefono" placeholder="Ej: 4491234567"
+                                    required>
                             </div>
                         </div>
 
@@ -100,14 +110,15 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="contrasena" required aria-describedby="passwordHelpBlock">
+                                <input type="password" class="form-control" id="contrasena" required
+                                    aria-describedby="passwordHelpBlock">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="contrasena_confirm" class="form-label">Confirmar Contraseña</label>
                                 <input type="password" class="form-control" id="contrasena_confirm" required>
                             </div>
                         </div>
-                        
+
                         <div id="passwordHelpBlock" class="form-text mb-3" style="font-size: 0.8rem;">
                             Debe tener 8+ caracteres, una mayúscula, una minúscula, un número y un símbolo (!@#$).
                         </div>
@@ -120,7 +131,7 @@
     </main>
 
     <footer class="site-footer section-padding mt-5" id="contact">
-        </footer>
+    </footer>
 
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>

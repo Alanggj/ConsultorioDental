@@ -90,10 +90,62 @@ app.post('/api/login', async (req, res) => {
 
 // REGISTRO
 app.post('/api/registro', async (req, res) => {
-    const { nombre, ap_paterno, ap_materno, edad, telefono, correo, usuario, contrasena } = req.body;
+    // 1. Recibimos también 'nombre_tutor'
+    const { nombre, ap_paterno, ap_materno, fecha_nacimiento, nombre_tutor, telefono, correo, usuario, contrasena } = req.body;
 
-    if (!nombre || !correo || !usuario || !contrasena) 
+    // 2. Validar campos vacíos básicos
+    if (!nombre || !correo || !usuario || !contrasena || !fecha_nacimiento) 
         return res.status(400).json({ success: false, message: 'Datos incompletos' });
+
+    // 3. VALIDACIÓN DE CONTRASEÑA (Tu lógica original)
+    const tieneMayuscula = /[A-Z]/.test(contrasena);
+    const tieneMinuscula = /[a-z]/.test(contrasena);
+    const tieneNumero = /[0-9]/.test(contrasena);
+    const tieneSimbolo = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(contrasena);
+    const longitudValida = contrasena.length >= 8;
+
+    if (!longitudValida || !tieneMayuscula || !tieneMinuscula || !tieneNumero || !tieneSimbolo) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'La contraseña es débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo.' 
+        });
+    }
+
+    // 4. LÓGICA DE FECHA Y EDAD
+    const fechaNacDate = new Date(fecha_nacimiento);
+    const hoy = new Date();
+
+    // A. Validar fecha futura
+    if (fechaNacDate > hoy) {
+        return res.status(400).json({ success: false, message: 'Fecha de nacimiento inválida (futura)' });
+    }
+
+    // B. Calcular edad exacta
+    let edadCalculada = hoy.getFullYear() - fechaNacDate.getFullYear();
+    const m = hoy.getMonth() - fechaNacDate.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < fechaNacDate.getDate())) {
+        edadCalculada--;
+    }
+
+    // C. Validar tope de edad
+    if (edadCalculada > 100) {
+        return res.status(400).json({ success: false, message: 'La edad no puede ser mayor a 100 años.' });
+    }
+
+    // Validación de edad mínima (1 año) 
+    if (edadCalculada < 1) {
+        return res.status(400).json({ success: false, message: 'Lo sentimos, la edad mínima para atención es de 1 año.' });
+    }
+
+    // D. VALIDACIÓN DE TUTOR (NUEVO)
+    // Si es menor de 18 y NO envió tutor
+    if (edadCalculada < 18 && !nombre_tutor) {
+        return res.status(400).json({ success: false, message: 'Para menores de edad, el nombre del tutor es obligatorio.' });
+    }
+
+    // E. Limpieza de datos
+    // Si es mayor de 18, forzamos a que el tutor sea null (aunque envíen algo)
+    const tutorFinal = edadCalculada >= 18 ? null : nombre_tutor;
 
     try {
         const check = await pool.query(
@@ -102,21 +154,22 @@ app.post('/api/registro', async (req, res) => {
         );
 
         if (check.rowCount > 0)
-            return res.status(400).json({ success: false, message: 'Usuario ya existe' });
+            return res.status(400).json({ success: false, message: 'El usuario o correo ya existen' });
 
+        // 5. INSERT ACTUALIZADO (Con nombre_tutor)
         const insert = `INSERT INTO Usuario 
-            (nombre, ap_paterno, ap_materno, edad, telefono, correo, usuario, contraseña)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+            (nombre, ap_paterno, ap_materno, fecha_nacimiento, nombre_tutor, telefono, correo, usuario, contraseña)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
 
         await pool.query(insert, [
-            nombre, ap_paterno, ap_materno, edad, telefono, correo, usuario, contrasena
+            nombre, ap_paterno, ap_materno, fecha_nacimiento, tutorFinal, telefono, correo, usuario, contrasena
         ]);
 
         res.status(201).json({ success: true, message: 'Registro exitoso' });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: 'Error al registrar' });
+        res.status(500).json({ success: false, message: 'Error en el servidor' });
     }
 });
 
