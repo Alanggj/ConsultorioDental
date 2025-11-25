@@ -451,6 +451,46 @@ app.delete('/api/vacaciones/:id', async (req, res) => {
     }
 });
 
+//GANANCIAS
+app.get('/api/ganancias', async (req, res) => {
+    try {
+        const { filtro } = req.query; 
+
+        let whereClause = "";
+        
+        if (filtro === 'month') {
+            //mes actual
+            whereClause = "WHERE date_trunc('month', c.fecha) = date_trunc('month', CURRENT_DATE)";
+        } else if (filtro === 'year') {
+            //año actual
+            whereClause = "WHERE date_trunc('year', c.fecha) = date_trunc('year', CURRENT_DATE)";
+        }
+
+        const query = `
+            SELECT 
+                p.id_pago,
+                c.fecha,
+                u.nombre || ' ' || u.ap_paterno AS paciente,
+                s.nombre AS servicio,
+                p.monto,
+                SUM(p.monto) OVER() as total_periodo
+            FROM Pago p
+            JOIN Cita c ON p.cita_id = c.cita_id
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+            JOIN Servicio s ON dc.servicio_id = s.servicio_id
+            ${whereClause} 
+            ORDER BY c.fecha DESC;
+        `;
+        
+        const result = await pool.query(query);
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener historial de ganancias' });
+    }
+});
 
 // OBTENER DATOS DE UN USUARIO ESPECÍFICO
 app.get('/api/usuario/:id', async (req, res) => {
@@ -469,7 +509,6 @@ app.get('/api/usuario/:id', async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al obtener usuario' });
     }
 });
-
 
 
 // Servir archivos estáticos
