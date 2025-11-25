@@ -14,15 +14,30 @@
 <body id="top">
 
     <main>
-        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
+        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
             <div class="container">
+                <a class="navbar-brand mx-auto d-lg-none" href="index.html">
+                    Sonrisa Perfecta
+                    <strong class="d-block">Finanzas</strong>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item"><a class="nav-link" href="panel-admin.html">Panel</a></li>
-                        <li class="nav-item active"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="panel-admin.html">Panel Admin</a></li>
                         <li class="nav-item"><a class="nav-link" href="admin-citas.html">Citas</a></li>
+                        <li class="nav-item active">
+                            <a class="nav-link text-success fw-bold" href="admin-expedientes.html">Expedientes</a>
+                        </li>
                         <li class="nav-item"><a class="nav-link" href="admin-recetas.html">Recetas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-ganancias.html">Ganancias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-vacaciones.html">Vacaciones</a></li>
                     </ul>
+                        <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
                 </div>
             </div>
         </nav>

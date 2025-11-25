@@ -454,18 +454,18 @@ app.delete('/api/vacaciones/:id', async (req, res) => {
 //GANANCIAS
 app.get('/api/ganancias', async (req, res) => {
     try {
-        const { filtro } = req.query; 
-
+        const { filtro } = req.query;
+        
         let whereClause = "";
         
-        if (filtro === 'month') {
-            //mes actual
+        if (filtro === 'today') {
+            whereClause = "WHERE c.fecha = CURRENT_DATE";
+        } else if (filtro === 'month') {
             whereClause = "WHERE date_trunc('month', c.fecha) = date_trunc('month', CURRENT_DATE)";
         } else if (filtro === 'year') {
-            //año actual
             whereClause = "WHERE date_trunc('year', c.fecha) = date_trunc('year', CURRENT_DATE)";
         }
-
+        
         const query = `
             SELECT 
                 p.id_pago,
@@ -492,11 +492,18 @@ app.get('/api/ganancias', async (req, res) => {
     }
 });
 
-// OBTENER DATOS DE UN USUARIO ESPECÍFICO
+//OBTENER DATOS COMPLETOS DE UN USUARIO ESPECÍFICO
 app.get('/api/usuario/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const sql = `SELECT nombre, ap_paterno, ap_materno, correo, telefono FROM Usuario WHERE usuario_id = $1`;
+        const sql = `
+            SELECT 
+                nombre, ap_paterno, ap_materno, correo, telefono, 
+                usuario, direccion, alergias, enfermedades_cronicas, 
+                nombre_tutor, TO_CHAR(fecha_nacimiento, 'YYYY-MM-DD') as fecha_nacimiento
+            FROM Usuario 
+            WHERE usuario_id = $1`;
+        
         const result = await pool.query(sql, [id]);
         
         if (result.rowCount > 0) {
@@ -507,6 +514,41 @@ app.get('/api/usuario/:id', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, error: 'Error al obtener usuario' });
+    }
+});
+
+//ACTUALIZAR DATOS DEL USUARIO
+app.put('/api/usuario/:id', async (req, res) => {
+    const { id } = req.params;
+    const { 
+        telefono, direccion, alergias, 
+        enfermedades_cronicas, nombre_tutor, 
+        contrasena //opcional
+    } = req.body;
+
+    try {
+        let sql, params;
+
+        if (contrasena && contrasena.trim() !== "") {
+            sql = `UPDATE Usuario SET 
+                    telefono = $1, direccion = $2, alergias = $3, 
+                    enfermedades_cronicas = $4, nombre_tutor = $5, contraseña = $6
+                   WHERE usuario_id = $7`;
+            params = [telefono, direccion, alergias, enfermedades_cronicas, nombre_tutor, contrasena, id];
+        } else {
+            sql = `UPDATE Usuario SET 
+                    telefono = $1, direccion = $2, alergias = $3, 
+                    enfermedades_cronicas = $4, nombre_tutor = $5
+                   WHERE usuario_id = $6`;
+            params = [telefono, direccion, alergias, enfermedades_cronicas, nombre_tutor, id];
+        }
+
+        await pool.query(sql, params);
+        res.json({ success: true, message: 'Datos actualizados correctamente' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar datos' });
     }
 });
 
