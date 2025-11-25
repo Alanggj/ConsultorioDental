@@ -38,7 +38,7 @@ app.get('/api/prueba_conexion', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { usuario, contrasena } = req.body;
 
-    if (!usuario || !contrasena) 
+    if (!usuario || !contrasena)
         return res.status(400).json({ success: false, message: 'Faltan datos' });
 
     try {
@@ -94,7 +94,7 @@ app.post('/api/registro', async (req, res) => {
     const { nombre, ap_paterno, ap_materno, fecha_nacimiento, nombre_tutor, telefono, correo, usuario, contrasena } = req.body;
 
     // 2. Validar campos vacíos básicos
-    if (!nombre || !correo || !usuario || !contrasena || !fecha_nacimiento) 
+    if (!nombre || !correo || !usuario || !contrasena || !fecha_nacimiento)
         return res.status(400).json({ success: false, message: 'Datos incompletos' });
 
     // 3. VALIDACIÓN DE CONTRASEÑA (Tu lógica original)
@@ -105,9 +105,9 @@ app.post('/api/registro', async (req, res) => {
     const longitudValida = contrasena.length >= 8;
 
     if (!longitudValida || !tieneMayuscula || !tieneMinuscula || !tieneNumero || !tieneSimbolo) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'La contraseña es débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo.' 
+        return res.status(400).json({
+            success: false,
+            message: 'La contraseña es débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo.'
         });
     }
 
@@ -347,7 +347,7 @@ app.get('/api/servicios', async (req, res) => {
 app.get('/api/horarios-disponibles', async (req, res) => {
     const { fecha } = req.query;
 
-    if (!fecha) 
+    if (!fecha)
         return res.status(400).json({ error: 'Fecha requerida' });
 
     try {
@@ -360,7 +360,7 @@ app.get('/api/horarios-disponibles', async (req, res) => {
             slots = ['10:00:00', '11:00:00', '12:00:00', '13:00:00', '14:00:00'];
         else
             slots = ['09:00:00', '10:00:00', '11:00:00', '12:00:00', '13:00:00',
-                     '14:00:00', '15:00:00', '16:00:00', '17:00:00', '18:00:00'];
+                '14:00:00', '15:00:00', '16:00:00', '17:00:00', '18:00:00'];
 
         const occupied = await pool.query(
             `SELECT hora 
@@ -379,6 +379,68 @@ app.get('/api/horarios-disponibles', async (req, res) => {
         res.status(500).json({ error: 'Error calculando horarios' });
     }
 });
+
+// --- RUTAS DE VACACIONES ---
+
+// --- RUTAS DE VACACIONES ---
+
+// 1. CREAR VACACIONES (POST)
+app.post('/api/vacaciones', async (req, res) => {
+    const { fecha_inicio, fecha_fin, descripcion } = req.body;
+    const admin_id = 1; 
+
+    try {
+        // Validar traslape
+        const conflicto = await pool.query(
+            `SELECT vacacion_id FROM Periodo_vacacional 
+             WHERE fecha_inicio <= $2 AND fecha_fin >= $1`,
+            [fecha_inicio, fecha_fin]
+        );
+
+        if (conflicto.rowCount > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ya existe un periodo vacacional en esas fechas.'
+            });
+        }
+
+        // Insertar
+        const insert = `INSERT INTO Periodo_vacacional (admin_id, fecha_inicio, fecha_fin, descripcion) 
+                        VALUES ($1, $2, $3, $4) RETURNING *`;
+
+        const result = await pool.query(insert, [admin_id, fecha_inicio, fecha_fin, descripcion]);
+
+        res.status(201).json({ success: true, data: result.rows[0] });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor.' });
+    }
+}); 
+
+// 2. OBTENER LISTA DE VACACIONES (GET) 
+app.get('/api/vacaciones', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM Periodo_vacacional ORDER BY fecha_inicio ASC');
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener vacaciones' });
+    }
+});
+
+// 3. ELIMINAR VACACIONES (DELETE) 
+app.delete('/api/vacaciones/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM Periodo_vacacional WHERE vacacion_id = $1', [id]);
+        res.json({ success: true, message: 'Periodo eliminado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al eliminar' });
+    }
+});
+
 
 // Servir archivos estáticos
 app.use(express.static(__dirname));
