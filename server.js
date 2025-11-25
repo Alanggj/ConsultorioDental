@@ -272,17 +272,28 @@ app.post('/api/citas', async (req, res) => {
         await pool.query('COMMIT');
         res.status(201).json({ success: true });
 
-    } catch (error) {
+   } catch (error) {
         await pool.query('ROLLBACK');
-        console.error(error);
+        console.error(error); // Verás el error en la consola del servidor
 
+        // 1. Error de horario ocupado (lógica de JS)
         if (error.message === "Horario ocupado") {
             return res.status(400).json({ success: false, message: 'Horario ocupado.' });
         }
 
+        // 2. Error del Trigger de Vacaciones (lógica de BD)
+        // PostgreSQL devuelve el mensaje del RAISE EXCEPTION dentro de error.message
+        if (error.message.includes('VACACIONES_CONFLICTO')) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'No se puede agendar: El doctor está de vacaciones en la fecha seleccionada.' 
+            });
+        }
+
+        // 3. Otros errores
         const msg = error.message.includes('Falta hora')
             ? error.message
-            : 'Error al crear cita';
+            : 'Error interno al crear la cita.';
 
         res.status(500).json({ success: false, message: msg });
     }
@@ -360,7 +371,7 @@ app.get('/api/horarios-disponibles', async (req, res) => {
             slots = ['10:00:00', '11:00:00', '12:00:00', '13:00:00', '14:00:00'];
         else
             slots = ['09:00:00', '10:00:00', '11:00:00', '12:00:00', '13:00:00',
-                '14:00:00', '15:00:00', '16:00:00', '17:00:00', '18:00:00'];
+                '14:00:00', '15:00:00', '16:00:00', '17:00:00'];
 
         const occupied = await pool.query(
             `SELECT hora 
@@ -379,8 +390,6 @@ app.get('/api/horarios-disponibles', async (req, res) => {
         res.status(500).json({ error: 'Error calculando horarios' });
     }
 });
-
-// --- RUTAS DE VACACIONES ---
 
 // --- RUTAS DE VACACIONES ---
 
@@ -440,6 +449,26 @@ app.delete('/api/vacaciones/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar' });
     }
 });
+
+
+// OBTENER DATOS DE UN USUARIO ESPECÍFICO
+app.get('/api/usuario/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const sql = `SELECT nombre, ap_paterno, ap_materno, correo, telefono FROM Usuario WHERE usuario_id = $1`;
+        const result = await pool.query(sql, [id]);
+        
+        if (result.rowCount > 0) {
+            res.json({ success: true, data: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error al obtener usuario' });
+    }
+});
+
 
 
 // Servir archivos estáticos

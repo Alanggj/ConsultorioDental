@@ -4,23 +4,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Consultorio dental Sonrisa Perfecta - Atención odontológica profesional">
+    <meta name="description" content="Consultorio dental Sonrisa Perfecta">
     <meta name="author" content="Equipo Sonrisa Perfecta">
+    <title>Agendar Cita - Sonrisa Perfecta</title>
 
-    <title>Consultorio Dental Sonrisa Perfecta</title>
-
-    <!-- Fuentes y CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <link href="css/owl.carousel.min.css" rel="stylesheet">
     <link href="css/owl.theme.default.min.css" rel="stylesheet">
     <link href="css/templatemo-medic-care.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
-
 </head>
 
 <body id="top">
@@ -29,29 +25,24 @@
         <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
             <div class="container">
                 <a class="navbar-brand mx-auto d-lg-none" href="index.html">
-                    Sonrisa Perfecta
-                    <strong class="d-block">Consultorio Dental</strong>
+                    Sonrisa Perfecta <strong class="d-block">Consultorio Dental</strong>
                 </a>
-
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active"><a class="nav-link" href="index.html#hero">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#hero">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link" href="index.html#about">Sobre Nosotros</a></li>
                         <li class="nav-item"><a class="nav-link" href="servicios.html">Servicios</a></li>
                         <a class="navbar-brand d-none d-lg-block" href="index.html">
-                            Sonrisa Perfecta
-                            <strong class="d-block">Consultorio Dental</strong>
+                            Sonrisa Perfecta <strong class="d-block">Consultorio Dental</strong>
                         </a>
                         <li class="nav-item"><a class="nav-link" href="testimonios.html">Testimonios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="cita.html">Agendar</a></li>
+                        <li class="nav-item active"><a class="nav-link" href="cita.html">Agendar</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
                         <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
                     </ul>
-
                     <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
                 </div>
             </div>
@@ -65,61 +56,84 @@
                             <h2 class="text-center mb-lg-3 mb-2">Agendar una cita</h2>
                             <form id="form-cita">
                                 <div class="row">
-                                    <div class="col-lg-6 col-12">
+                                    <div class="col-lg-6 col-12 mb-3">
                                         <input type="text" name="name" id="name" class="form-control"
                                             placeholder="Nombre completo" required>
                                     </div>
-                                    <div class="col-lg-6 col-12">
-                                        <input type="email" name="email" id="email" pattern="[^ @]*@[^ @]*"
-                                            class="form-control" placeholder="Correo electrónico" required>
+                                    <div class="col-lg-6 col-12 mb-3">
+                                        <input type="email" name="email" id="email" class="form-control"
+                                            placeholder="Correo electrónico" required>
                                     </div>
-                                    <div class="col-lg-6 col-12">
-                                        <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                                            class="form-control" placeholder="Teléfono: 449-000-0000">
+                                    <div class="col-lg-6 col-12 mb-3">
+                                        <input type="tel" name="phone" id="phone" class="form-control"
+                                            placeholder="Teléfono: 449-000-0000">
                                     </div>
-                                    <div class="col-lg-6 col-12">
-                                        <input type="date" name="date" id="date" class="form-control">
+                                    <div class="col-lg-6 col-12 mb-3">
+                                        <input type="date" name="date" id="date" class="form-control" required>
                                     </div>
-                                    <div class="col-lg-6 col-12">
-                                        <input type="time" name="time" id="time" class="form-control" required>
+
+                                    <div class="col-12 mt-2">
+                                        <h5 class="mb-3 text-secondary">Detalles del Servicio</h5>
                                     </div>
-                                    <div class="col-lg-6 col-12">
-                                        <select id="servicio" class="form-control" required>
+                                    <div class="col-lg-6 col-12 mb-3">
+                                        <label class="form-label fw-bold text-muted small">Servicio Principal</label>
+                                        <select id="servicio" class="form-select" required>
                                             <option value="">Seleccione un servicio</option>
-                                            <option value="Limpieza Dental">Limpieza Dental</option>
-                                            <option value="Blanqueamiento">Blanqueamiento</option>
-                                            <option value="Ortodoncia">Ortodoncia</option>
-                                            <option value="Extracción Dental">Extracción Dental</option>
-                                            <option value="Resinas Estéticas">Resinas Estéticas</option>
-                                            <option value="Prótesis Dentales">Prótesis Dentales</option>
                                         </select>
                                         <small id="info-dias" class="text-muted mt-1 ms-1 d-block"></small>
-
                                     </div>
-                                    <div class="col-lg-6 col-12">
-                                        <select id="servicio2" class="form-control">
-                                            <option value="">Servicio adicional (opcional)</option>
-                                            <option value="Limpieza Dental">Limpieza Dental</option>
-                                            <option value="Blanqueamiento">Blanqueamiento</option>
-                                            <option value="Ortodoncia">Ortodoncia</option>
-                                            <option value="Extracción Dental">Extracción Dental</option>
-                                            <option value="Resinas Estéticas">Resinas Estéticas</option>
-                                            <option value="Prótesis Dentales">Prótesis Dentales</option>
+                                    <div class="col-lg-6 col-12 mb-3">
+                                        <label class="form-label fw-bold text-muted small">Hora de Inicio</label>
+                                        <select name="time" id="time" class="form-select" disabled required>
+                                            <option value="">Selecciona una fecha primero</option>
                                         </select>
-                                        <small id="info-dias2" class="text-muted mt-1 ms-1 d-block"></small>
                                     </div>
 
-                                    <div class="col-lg-6 col-12">
-                                        <label class="form-label"></label>
-                                        <input type="text" id="precio" class="form-control" placeholder="Precio"
-                                            readonly>
+                                    <div class="col-12 my-3">
+                                        <div class="p-4 bg-light rounded" style="border: 2px dashed #ced4da;">
+
+                                            <div class="d-flex align-items-center mb-3">
+                                                <span class="badge bg-secondary me-2">Opcional</span>
+                                                <small class="text-muted">Agrega un segundo servicio si es
+                                                    necesario.</small>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-lg-6 col-12 mb-3 mb-lg-0">
+                                                    <label for="servicio2"
+                                                        class="form-label fw-bold text-muted small">Servicio
+                                                        Adicional</label>
+                                                    <select id="servicio2" class="form-select">
+                                                        <option value="">-- Ninguno --</option>
+                                                    </select>
+                                                    <small id="info-dias2" class="text-muted mt-1 ms-1 d-block"></small>
+                                                </div>
+
+                                                <div class="col-lg-6 col-12">
+                                                    <label for="time2" class="form-label fw-bold text-muted small">Hora
+                                                        Segundo Servicio</label>
+                                                    <select id="time2" class="form-select" disabled>
+                                                        <option value="">Selecciona hora</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-12">
+
+                                    <div class="col-12 mb-4">
+                                        <label for="precio" class="form-label fw-bold text-dark">Total a Pagar</label>
+                                        <div class="input-group input-group-lg">
+                                            <input type="text" id="precio" class="form-control fw-bold fs-4 text-dark"
+                                                placeholder="$0.00" readonly style="background-color: #fff;">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
                                         <textarea class="form-control" rows="5" id="message" name="message"
                                             placeholder="Mensaje adicional"></textarea>
                                     </div>
                                     <div class="col-lg-3 col-md-4 col-6 mx-auto">
-                                        <button type="button" class="form-control btn btn-primary"
+                                        <button type="button" class="form-control btn btn-primary py-3 fw-bold"
                                             id="btn-agendar">Agendar cita</button>
                                     </div>
                                 </div>
@@ -132,253 +146,20 @@
     </main>
 
     <footer class="site-footer section-padding" id="contact">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-5 me-auto col-12">
-                    <h5 class="mb-lg-4 mb-3">Horarios</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex">Domingo: Cerrado</li>
-                        <li class="list-group-item d-flex">Lunes a Viernes<span> 9:00 AM - 6:00 PM</span></li>
-                        <li class="list-group-item d-flex">Sábado<span> 10:00 AM - 2:00 PM</span></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
-                    <h5 class="mb-lg-4 mb-3">Ubicación</h5>
-                    <p>Av. Salud Dental #123, Aguascalientes, México</p>
-                    <p><a href="mailto:sonrisa@consultorio.com">sonrisa@consultorio.com</a></p>
-                </div>
-                <div class="col-lg-3 col-md-6 col-12 ms-auto">
-                    <h5 class="mb-lg-4 mb-3">Redes Sociales</h5>
-                    <ul class="social-icon">
-                        <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-                        <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-                        <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
-                    <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta<br>Diseñado por el equipo de
-                        Sistemas Computacionales 6°A</p>
-                </div>
-            </div>
-        </div>
     </footer>
 
-    <!-- JS -->
-    <script src="js/sesion.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/scrollspy.min.js"></script>
     <script src="js/custom.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/sesion.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-
-    <script>
-        emailjs.init("1asuRmlqgPwQ1OAgz");
-
-        const preciosServicios = {
-            "limpieza dental": 500,
-            "blanqueamiento": 1200,
-            "ortodoncia": 6000,
-            "extracción dental": 800,
-            "resinas estéticas": 650,
-            "prótesis dentales": 3500
-        };
-
-        const horariosServicios = {
-            "Limpieza Dental": [{ dias: [1, 2, 3, 4, 5], inicio: "09:00", fin: "18:00" }],
-            "Blanqueamiento": [{ dias: [1, 2, 3, 4, 5, 6], inicio: "10:00", fin: "17:00" }],
-            "Ortodoncia": [{ dias: [1, 2, 3, 4, 5], inicio: "11:00", fin: "19:00" }],
-            "Extracción Dental": [{ dias: [6], inicio: "10:00", fin: "14:00" }],
-            "Resinas Estéticas": [{ dias: [1, 2, 3, 4, 5], inicio: "09:00", fin: "16:00" }],
-            "Prótesis Dentales": [{ dias: [1, 2, 3, 4, 5], inicio: "12:00", fin: "18:00" }]
-        };
-
-        function actualizarPrecio(servicioSeleccionado) {
-            const precioInput = document.getElementById("precio");
-            const servicio = servicioSeleccionado.toLowerCase();
-            const precio = preciosServicios[servicio];
-            precioInput.value = precio ? "$" + precio.toLocaleString() : "";
-        }
-
-        function esHoraValida(horaSel, inicio, fin) {
-            const selMin = horaSel[0] * 60 + horaSel[1];
-            const iniMin = inicio[0] * 60 + inicio[1];
-            const finMin = fin[0] * 60 + fin[1];
-            return selMin >= iniMin && selMin < finMin;
-        }
-
-        function enviarCorreoConfirmacion(cita) {
-            emailjs.send("service_ot6ffgl", "template_g1imyft", {
-                nombre: cita.nombre,
-                email: cita.email,
-                telefono: cita.telefono,
-                fecha: cita.fecha,
-                hora: cita.hora,
-                servicio: cita.servicio,
-                precio: cita.precio,
-                mensaje: cita.mensaje || "(Sin mensaje adicional)"
-            }).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Cita agendada!',
-                    text: 'Tu cita ha sido registrada y se ha enviado un correo de confirmación.'
-                });
-            }).catch(error => {
-                console.error('Error al enviar correo:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de correo',
-                    text: 'La cita fue guardada, pero no se pudo enviar el correo.'
-                });
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const sesion = JSON.parse(localStorage.getItem("sesionIniciada"));
-            const params = new URLSearchParams(window.location.search);
-            const servicioURL = params.get("servicio");
-            const select = document.getElementById("servicio");
-
-            if (servicioURL && select) {
-                for (let i = 0; i < select.options.length; i++) {
-                    if (select.options[i].value === servicioURL) {
-                        select.selectedIndex = i;
-                        break;
-                    }
-                }
-                actualizarPrecio(select.value);
-                mostrarDiasPermitidos(select.value);
-            }
-
-            if (sesion?.tipo === "usuario") {
-                const emailInput = document.getElementById("email");
-                emailInput.value = sesion.email;
-                emailInput.disabled = true;
-            }
-
-            document.getElementById("servicio").addEventListener("change", function () {
-                actualizarPrecio(this.value);
-                mostrarDiasPermitidos(this.value);
-            });
-
-            document.getElementById("btn-agendar").addEventListener("click", function () {
-                const nombre = document.getElementById("name").value.trim();
-                const telefono = document.getElementById("phone").value.trim();
-                const fecha = document.getElementById("date").value;
-                const hora = document.getElementById("time").value;
-                const mensaje = document.getElementById("message").value.trim();
-                const servicio = document.getElementById("servicio").value;
-                const precio = document.getElementById("precio").value;
-                const sesion = JSON.parse(localStorage.getItem("sesionIniciada"));
-
-                const email = (sesion?.tipo === "usuario")
-                    ? sesion.email
-                    : document.getElementById("email").value.trim();
-
-                if (!nombre || !email || !fecha || !hora || !servicio) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Campos incompletos',
-                        text: 'Por favor completa todos los campos requeridos.'
-                    });
-                    return;
-                }
-
-                const fechaObj = new Date(fecha + "T00:00:00");
-                const dia = fechaObj.getDay();
-                const horarios = horariosServicios[servicio];
-                console.log(servicio, horarios)
-                const horariosValidos = horarios?.filter(h => h.dias.includes(dia)) || [];
-
-                if (horariosValidos.length === 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Día sin horario',
-                        text: 'El servicio no está disponible ese día.'
-                    });
-                    return;
-                }
-
-                const horario = horariosValidos[0];
-                const horaSeleccionada = hora.split(':').map(Number);
-                const horaInicio = horario.inicio.split(':').map(Number);
-                const horaFin = horario.fin.split(':').map(Number);
-
-                if (!esHoraValida(horaSeleccionada, horaInicio, horaFin)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Hora no válida',
-                        text: `La hora seleccionada (${hora}) está fuera del horario permitido (${horario.inicio} - ${horario.fin}).`
-                    });
-                    return;
-                }
-
-                const nuevaCita = { nombre, email, telefono, fecha, hora, mensaje, servicio, precio };
-                const citas = JSON.parse(localStorage.getItem("citasAgendadas")) || [];
-                citas.push(nuevaCita);
-                localStorage.setItem("citasAgendadas", JSON.stringify(citas));
-
-                enviarCorreoConfirmacion(nuevaCita);
-                document.getElementById("form-cita").reset();
-
-                if (sesion?.tipo === "usuario") {
-                    document.getElementById("email").value = sesion.email;
-                }
-            });
-        });
-        function mostrarDiasPermitidos(servicio) {
-            const infoDias = document.getElementById("info-dias");
-            const horarios = horariosServicios[servicio];
-            if (!horarios) {
-                infoDias.textContent = "";
-                return;
-            }
-
-            const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
-            const diasTexto = horarios
-                .map(h => {
-                    const nombresDias = h.dias.map(d => diasSemana[d]).join(", ");
-                    return `${nombresDias} de ${h.inicio} a ${h.fin}`;
-                })
-                .join(" / ");
-
-            infoDias.textContent = `Disponible: ${diasTexto}`;
-        }
-
-    </script>
-
-    <script>
-        document.getElementById("servicio2").addEventListener("change", function () {
-            mostrarDiasPermitidos2(this.value);
-        });
-
-        function mostrarDiasPermitidos2(servicio) {
-            const infoDias = document.getElementById("info-dias2");
-            const horarios = horariosServicios[servicio];
-            if (!horarios) {
-                infoDias.textContent = "";
-                return;
-            }
-
-            const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
-            const diasTexto = horarios
-                .map(h => {
-                    const nombresDias = h.dias.map(d => diasSemana[d]).join(", ");
-                    return `${nombresDias} de ${h.inicio} a ${h.fin}`;
-                })
-                .join(" / ");
-
-            infoDias.textContent = `Disponible: ${diasTexto}`;
-        }
-    </script>
-
-
-
+    <script src="js/agendar_cita.js"></script>
 
 </body>
 
