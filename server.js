@@ -341,11 +341,12 @@ app.get('/api/buscar-paciente', async (req, res) => {
     }
 });
 
-// Obtener Servicios
+// Obtener Servicios 
 app.get('/api/servicios', async (req, res) => {
     try {
+        // Ahora seleccionamos TODO (*) para tener descripción y horarios
         const result = await pool.query(
-            'SELECT servicio_id, nombre, precio FROM Servicio'
+            'SELECT * FROM Servicio ORDER BY servicio_id ASC'
         );
         res.json(result.rows);
     } catch (error) {
