@@ -83,6 +83,7 @@
                 <div class="row">
                     <div class="col-12">
                         <h2 class="text-center mb-5">Panel de Administración</h2>
+                        <small class="text-muted fs-5" id="rolLabel"></small>
                     </div>
 
                     <div class="col-lg-4 col-md-6 col-12 mb-4">
@@ -97,7 +98,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-6 col-12 mb-4">
+                    <div class="col-lg-4 col-md-6 col-12 mb-4" id="admin-expedientes">
                         <div class="card shadow-lg h-100 text-center">
                             <div class="card-body p-4">
                                 <i class="bi-file-earmark-person-fill h1 text-primary"></i>
@@ -109,7 +110,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-6 col-12 mb-4">
+                    <div class="col-lg-4 col-md-6 col-12 mb-4" id="admin-recetas">
                         <div class="card shadow-lg h-100 text-center">
                             <div class="card-body p-4">
                                 <i class="bi-file-earmark-medical-fill h1 text-primary"></i>
@@ -121,7 +122,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-6 col-12 mx-auto mb-4">
+                    <div class="col-lg-4 col-md-6 col-12 mx-auto mb-4" id="admin-ganancias">
                         <div class="card shadow-lg h-100 text-center">
                             <div class="card-body p-4">
                                 <i class="bi-cash-stack h1 text-primary"></i>
@@ -196,10 +197,25 @@
         document.addEventListener("DOMContentLoaded", function () {
             const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
 
-            // Si NO hay sesión O la sesión NO es de admin
+            //verificar si es admin
             if (!sesion || sesion.tipo !== 'admin') {
                 alert('Acceso denegado. Debes ser administrador.');
-                window.location.href = 'login.html'; // Lo redirige al login
+                window.location.href = 'login.html'; //login
+                return;
+            }
+
+            //mostrar rol (doctor o asistente)
+            const rolTexto = sesion.rol.charAt(0).toUpperCase() + sesion.rol.slice(1);
+            document.getElementById('rolLabel').textContent = `(${rolTexto})`;
+
+            //ocultar tarjetas si es asistente
+            if (sesion.rol == 'asistente') {
+                const idsToHide = ['admin-expedientes', 'admin-recetas', 'admin-ganancias'];
+
+                idsToHide.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.remove();
+                });
             }
         });
     </script>
