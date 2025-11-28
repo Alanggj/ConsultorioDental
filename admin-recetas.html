@@ -17,8 +17,7 @@
         <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
             <div class="container">
                 <a class="navbar-brand mx-auto d-lg-none" href="index.html">
-                    Sonrisa Perfecta
-                    <strong class="d-block">Finanzas</strong>
+                    Sonrisa Perfecta <strong class="d-block">Finanzas</strong>
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -37,7 +36,7 @@
                         <li class="nav-item"><a class="nav-link" href="admin-ganancias.html">Ganancias</a></li>
                         <li class="nav-item"><a class="nav-link" href="admin-vacaciones.html">Vacaciones</a></li>
                     </ul>
-                        <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
+                    <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
                 </div>
             </div>
         </nav>
@@ -59,11 +58,21 @@
                     <div class="col-12">
                         <div class="card shadow-lg">
                             <div class="card-body">
+                                
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-6">
+                                        <select class="form-select" id="filtro-fecha">
+                                            <option value="todos">Todas las fechas</option>
+                                            <option value="hoy">Recetas de Hoy</option>
+                                            <option value="mes">Este Mes</option>
+                                        </select>
+                                    </div>
+                                    </div>
 
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="icono-busqueda-receta"><i class="bi-search"></i></span>
                                     <input type="text" class="form-control" id="buscador-recetas"
-                                        placeholder="Buscar por paciente o medicamento..."
+                                        placeholder="Buscar por nombre del paciente ..."
                                         aria-label="Buscar receta" aria-describedby="icono-busqueda-receta">
                                 </div>
 
@@ -73,50 +82,12 @@
                                             <tr>
                                                 <th>Nombre del Paciente</th>
                                                 <th>Fecha de Emisión</th>
-                                                <th>Medicamento Principal</th>
+                                                <th>Medicamento / Detalle</th>
                                                 <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody id="tabla-recetas">
-                                            <tr>
-                                                <td><strong>Carlos Méndez</strong></td>
-                                                <td>2025-01-22</td>
-                                                <td>Ketorolaco (Dolor agudo)</td>
-                                                <td class="text-end">
-                                                    <a href="receta-detalle.html?id=1"
-                                                        class="btn btn-sm btn-outline-primary" title="Ver/Editar">
-                                                        <i class="bi-pencil-fill"></i>
-                                                    </a>
-                                                    <button class="btn btn-sm btn-outline-danger" title="Eliminar"
-                                                        onclick="eliminarReceta(1)">
-                                                        <i class="bi-trash-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-secondary"
-                                                        title="Descargar PDF" onclick="descargarRecetaPDF(1)">
-                                                        <i class="bi-download"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Ana García</strong></td>
-                                                <td>2024-11-15</td>
-                                                <td>Enjuague Clorhexidina 0.12%</td>
-                                                <td class="text-end">
-                                                    <a href="receta-detalle.html?id=2"
-                                                        class="btn btn-sm btn-outline-primary" title="Ver/Editar">
-                                                        <i class="bi-pencil-fill"></i>
-                                                    </a>
-                                                    <button class="btn btn-sm btn-outline-danger" title="Eliminar"
-                                                        onclick="eliminarReceta(2)">
-                                                        <i class="bi-trash-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-secondary"
-                                                        title="Descargar PDF" onclick="descargarRecetaPDF(2)">
-                                                        <i class="bi-download"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
+                                            </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -128,27 +99,6 @@
     </main>
 
     <script src="js/bootstrap.bundle.min.js"></script>
-    <script>
-        // --- Lógica de búsqueda actualizada para RECETAS ---
-        document.getElementById('buscador-recetas').addEventListener('keyup', function () {
-            let terminoBusqueda = this.value.toLowerCase();
-            // Apunta al ID de la tabla de recetas
-            let filas = document.querySelectorAll('#tabla-recetas tr'); 
-
-            filas.forEach(function (fila) {
-                let textoFila = fila.textContent.toLowerCase();
-                if (textoFila.includes(terminoBusqueda)) {
-                    fila.style.display = '';
-                } else {
-                    fila.style.display = 'none';
-                }
-            });
-        });
-
-        // Aquí iría tu lógica de JavaScript para:
-        // 1. Cargar las recetas desde la base de datos (con fetch).
-        // 2. La función eliminarReceta(id)
-        // 3. La función descargarRecetaPDF(id)
-    </script>
+    <script src="js/admin-recetas.js"></script>
 </body>
 </html>

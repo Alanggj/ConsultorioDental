@@ -585,6 +585,32 @@ app.get('/api/expedientes', async (req, res) => {
     }
 });
 
+// --- RUTAS DE RECETAS ---
+
+// OBTENER TODAS LAS RECETAS (CORREGIDO)
+app.get('/api/recetas', async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                r.receta_id,
+                TO_CHAR(r.fecha, 'YYYY-MM-DD') AS fecha,
+                -- Usamos 'tratamiento' que sí existe en tu tabla y lo renombramos 
+                -- como 'medicamentos' para que el JS lo entienda.
+                r.tratamiento AS medicamentos, 
+                u.nombre || ' ' || u.ap_paterno AS nombre_paciente
+            FROM Receta r
+            JOIN Cita c ON r.cita_id = c.cita_id        -- 1. Unimos Receta con Cita
+            JOIN Usuario u ON c.usuario_id = u.usuario_id -- 2. Unimos Cita con Usuario
+            ORDER BY r.fecha DESC
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener recetas' });
+    }
+});
+
 // Servir archivos estáticos
 app.use(express.static(__dirname));
 
