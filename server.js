@@ -91,11 +91,15 @@ app.post('/api/login', async (req, res) => {
 // REGISTRO
 app.post('/api/registro', async (req, res) => {
     // 1. Recibimos también 'nombre_tutor'
-    const { nombre, ap_paterno, ap_materno, fecha_nacimiento, nombre_tutor, telefono, correo, usuario, contrasena } = req.body;
+    const { nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, nombre_tutor, telefono, correo, usuario, contrasena } = req.body;
 
     // 2. Validar campos vacíos básicos
-    if (!nombre || !correo || !usuario || !contrasena || !fecha_nacimiento)
+   if (!nombre || !correo || !usuario || !contrasena || !fecha_nacimiento || !sexo)
         return res.status(400).json({ success: false, message: 'Datos incompletos' });
+    // Validar valor correcto de sexo
+    if (sexo !== 'M' && sexo !== 'F') {
+        return res.status(400).json({ success: false, message: 'Sexo inválido.' });
+    }
 
     // 3. VALIDACIÓN DE CONTRASEÑA (Tu lógica original)
     const tieneMayuscula = /[A-Z]/.test(contrasena);
@@ -158,11 +162,11 @@ app.post('/api/registro', async (req, res) => {
 
         // 5. INSERT ACTUALIZADO (Con nombre_tutor)
         const insert = `INSERT INTO Usuario 
-            (nombre, ap_paterno, ap_materno, fecha_nacimiento, nombre_tutor, telefono, correo, usuario, contraseña)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+            (nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, nombre_tutor, telefono, correo, usuario, contraseña)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
 
         await pool.query(insert, [
-            nombre, ap_paterno, ap_materno, fecha_nacimiento, tutorFinal, telefono, correo, usuario, contrasena
+            nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, tutorFinal, telefono, correo, usuario, contrasena
         ]);
 
         res.status(201).json({ success: true, message: 'Registro exitoso' });
@@ -552,6 +556,34 @@ app.put('/api/usuario/:id', async (req, res) => {
     }
 });
 
+// OBTENER LISTA DE EXPEDIENTES (Actualizado con Edad y Sexo)
+app.get('/api/expedientes', async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                e.expediente_id,
+                u.usuario_id,
+                TRIM(CONCAT(u.nombre, ' ', u.ap_paterno, ' ', COALESCE(u.ap_materno, ''))) AS nombre_paciente,
+                TO_CHAR(MAX(c.fecha), 'YYYY-MM-DD') AS ultima_visita,
+                CASE WHEN MAX(c.fecha) IS NULL THEN 'Sin historial' ELSE TO_CHAR(MAX(c.fecha), 'YYYY-MM-DD') END AS fecha_mostrar,
+                -- NUEVOS CAMPOS:
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.fecha_nacimiento))::int AS edad,
+                u.sexo
+            FROM Expediente e
+            JOIN Usuario u ON e.usuario_id = u.usuario_id
+            LEFT JOIN Cita c ON u.usuario_id = c.usuario_id AND c.estatus = 'atendida'
+            GROUP BY e.expediente_id, u.usuario_id, u.nombre, u.ap_paterno, u.ap_materno, u.fecha_nacimiento, u.sexo
+            ORDER BY u.ap_paterno ASC;
+        `;
+
+        const result = await pool.query(query);
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al cargar expedientes' });
+    }
+});
 
 // Servir archivos estáticos
 app.use(express.static(__dirname));

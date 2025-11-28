@@ -28,7 +28,8 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
-                        <li class="nav-item"><a class="nav-link text-warning" href="panel-admin.html">Panel Admin</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="panel-admin.html">Panel Admin</a>
+                        </li>
                         <li class="nav-item"><a class="nav-link" href="admin-citas.html">Citas</a></li>
                         <li class="nav-item active">
                             <a class="nav-link text-success fw-bold" href="admin-expedientes.html">Expedientes</a>
@@ -37,7 +38,7 @@
                         <li class="nav-item"><a class="nav-link" href="admin-ganancias.html">Ganancias</a></li>
                         <li class="nav-item"><a class="nav-link" href="admin-vacaciones.html">Vacaciones</a></li>
                     </ul>
-                        <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
+                    <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
                 </div>
             </div>
         </nav>
@@ -59,12 +60,28 @@
                     <div class="col-12">
                         <div class="card shadow-lg">
                             <div class="card-body">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="filtro-edad">
+                                            <option value="todos">Todas las edades</option>
+                                            <option value="mayores">Mayores de edad (>= 18)</option>
+                                            <option value="menores">Menores de edad (< 18)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="filtro-sexo">
+                                            <option value="todos">Todos los sexos</option>
+                                            <option value="M">Masculino</option>
+                                            <option value="F">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
 
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="icono-busqueda"><i class="bi-search"></i></span>
                                     <input type="text" class="form-control" id="buscador-pacientes"
-                                        placeholder="Buscar paciente por nombre o cédula..."
-                                        aria-label="Buscar paciente" aria-describedby="icono-busqueda">
+                                        placeholder="Buscar paciente por nombre" aria-label="Buscar paciente"
+                                        aria-describedby="icono-busqueda">
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle">
@@ -127,31 +144,7 @@
     </main>
 
     <script src="js/bootstrap.bundle.min.js"></script>
-    <script>
-        // --- INICIO: Lógica para la barra de búsqueda ---
-        document.getElementById('buscador-pacientes').addEventListener('keyup', function () {
-            let terminoBusqueda = this.value.toLowerCase();
-            let filas = document.querySelectorAll('#tabla-expedientes tr');
-
-            filas.forEach(function (fila) {
-                // Obtenemos el texto de toda la fila
-                let textoFila = fila.textContent.toLowerCase();
-
-                if (textoFila.includes(terminoBusqueda)) {
-                    fila.style.display = ''; // Muestra la fila si coincide
-                } else {
-                    fila.style.display = 'none'; // Oculta la fila si no coincide
-                }
-            });
-        });
-        // --- FIN: Lógica para la barra de búsqueda ---
-
-
-        // Aquí iría tu lógica de JavaScript para:
-        // 1. Cargar los pacientes desde la base de datos (con fetch) y llenar la tabla.
-        // 2. La función eliminarExpediente(id)
-        // 3. La función descargarPDF(id)
-    </script>
+    <script src="js/admin-expedientes.js"></script>
 </body>
 
 </html>

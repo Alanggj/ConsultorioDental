@@ -73,24 +73,32 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                       <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
                                 <input type="date" class="form-control" id="fecha_nacimiento" required>
                             </div>
 
+                            <div class="col-md-4 mb-3">
+                                <label for="sexo" class="form-label">Sexo</label>
+                                <select class="form-select" id="sexo" required>
+                                    <option value="" selected disabled>Selecciona...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" placeholder="Ej: 4491234567" required>
+                            </div>
+
                             <div class="col-md-12 mb-3" id="divTutor" style="display: none;">
                                 <label for="nombre_tutor" class="form-label">Nombre del Tutor / Responsable</label>
-                                <input type="text" class="form-control" id="nombre_tutor"
-                                    placeholder="Nombre completo del padre, madre o tutor">
+                                <input type="text" class="form-control" id="nombre_tutor" placeholder="Nombre completo del padre, madre o tutor">
                                 <div class="form-text text-warning">
                                     <i class="bi bi-info-circle"></i> Requerido para menores de 18 años.
                                 </div>
-                            </div>
-                            <div class="col-md-8 mb-3">
-                                <label for="telefono" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" placeholder="Ej: 4491234567"
-                                    required>
                             </div>
                         </div>
 

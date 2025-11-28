@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ap_paterno = document.getElementById('ap_paterno').value.trim();
         const ap_materno = document.getElementById('ap_materno').value.trim();
         const fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
+        const sexo = document.getElementById('sexo').value; // <--- NUEVO
         const nombre_tutor = document.getElementById('nombre_tutor') ? document.getElementById('nombre_tutor').value.trim() : '';
         const telefono = document.getElementById('telefono').value.trim();
         const correo = document.getElementById('email').value.trim();
@@ -50,8 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const erroresValidacion = [];
 
         // 2. Validaciones básicas
-        if (!nombre || !ap_paterno || !ap_materno || !fecha_nacimiento || !telefono || !correo || !usuario || !contrasena || !contrasena_confirm) {
-            erroresValidacion.push("Debes llenar todos los campos obligatorios.");
+        if (!nombre || !ap_paterno || !ap_materno || !fecha_nacimiento || !sexo || !telefono || !correo || !usuario || !contrasena || !contrasena_confirm) {
+            erroresValidacion.push("Debes llenar todos los campos obligatorios, incluyendo el sexo.");
         }
 
         // 3. Validaciones de Contraseña
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 7. Enviar datos
         const datosPaciente = {
-            nombre, ap_paterno, ap_materno, fecha_nacimiento, 
+            nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, // <--- NUEVO
             nombre_tutor: nombre_tutor || null, 
             telefono, correo, usuario, contrasena
         };
