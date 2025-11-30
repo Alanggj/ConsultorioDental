@@ -47,6 +47,7 @@ async function cargarCitasDesdeBD() {
 
         citas = data.map(cita => ({
             id: cita.id,
+            usuarioId: cita.usuario_id,
             fecha: cita.fecha, // Formato esperado YYYY-MM-DD
             hora: cita.hora ? cita.hora + (cita.hora.length === 5 ? ":00" : "") : "00:00:00",
             horaDisplay: cita.hora ? cita.hora.substring(0, 5) : "00:00",
@@ -407,7 +408,15 @@ citasListContainer.addEventListener('click', function (e) {
 
     // 3. VER EXPEDIENTE (Botón Azul Claro)
     if (boton.classList.contains('btn-ver-expediente')) {
-        window.location.href = `admin-expedientes.html?cita_id=${citaId}`;
+        //buscar objeto cita completo para sacar el ID del usuario
+        const citaObj = citas.find(c => c.id === citaId);
+        
+        if (citaObj && citaObj.usuarioId) {
+            window.location.href = `expediente-detalle.html?id=${citaObj.usuarioId}`;
+        } else {
+            console.error("No se encontró el ID del usuario para esta cita");
+            window.location.href = `admin-expedientes.html`; 
+        }
     }
 
     // 4. AGENDAR EN HUECO (Botón "Agendar" Verde)
@@ -419,21 +428,11 @@ citasListContainer.addEventListener('click', function (e) {
 
     // 5. IR A DETALLE DE RECETA (Botón Azul Oscuro)
     if (boton.classList.contains('btn-generar-receta')) {
-        // Buscamos el objeto completo de la cita en el arreglo global 'citas'
-        // para asegurarnos de tener el nombre correcto y la fecha exacta.
-        const citaObj = citas.find(c => c.id === citaId);
-
-        if (citaObj) {
-            // Usamos encodeURIComponent para evitar errores con espacios o acentos en la URL
-            const nombrePaciente = encodeURIComponent(citaObj.paciente);
-            const fechaCita = encodeURIComponent(citaObj.fecha);
-
-            // Redirigir a la página de receta con los parámetros
-            window.location.href = `receta-detalle.html?paciente=${nombrePaciente}&fecha=${fechaCita}`;
+        if (citaId) {
+            //redirigir pasando id de cita
+            window.location.href = `receta-detalle.html?id=${citaId}`;
         } else {
-            // Fallback por si acaso no encuentra el objeto (raro, pero posible)
-            console.error("No se encontraron datos para la cita ID:", citaId);
-            Swal.fire('Error', 'No se pudieron recuperar los datos del paciente.', 'error');
+            Swal.fire('Error', 'No se identificó la cita.', 'error');
         }
     }
 });

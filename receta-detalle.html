@@ -4,35 +4,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalle de Expediente - Sonrisa Perfecta</title>
+    <title>Receta Médica - Sonrisa Perfecta</title>
     
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f4f7f6; /* Un gris muy claro */
-        }
-
-        /* La "hoja" principal que simula el documento */
+        body { background-color: #f4f7f6; }
         .expediente-hoja {
-            max-width: 850px; /* Tamaño similar a A4 */
+            max-width: 850px;
             margin: 2rem auto;
             background-color: #fff;
             border: 1px solid #ddd;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             border-radius: 6px;
-            overflow: hidden; /* Para que el header y footer se ajusten */
-            position: relative; /* Para el watermark */
+            overflow: hidden;
+            position: relative;
         }
-
-        /* 1. Encabezado (Inspirado en el recetario azul) */
         .expediente-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             padding: 2rem;
             background: linear-gradient(135deg, #eaf4ff 0%, #ffffff 70%);
-            border-bottom: 2px solid #0d6efd; /* Línea azul */
+            border-bottom: 2px solid #0d6efd;
         }
         .expediente-header .doctor-info h2 {
             color: #0d6efd;
@@ -48,27 +42,22 @@
             font-size: 3.5rem;
             color: #0d6efd;
         }
-
-        /* 2. Cuerpo del formulario */
         .expediente-body {
             padding: 2.5rem;
-            position: relative; /* Para el watermark */
+            position: relative;
             z-index: 10;
         }
-
-        /* Watermark (Logo de fondo) */
         .watermark {
             position: absolute;
             top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 18rem; /* Tamaño gigante */
+            font-size: 18rem;
             color: #0d6efd;
-            opacity: 0.06; /* Muy transparente */
+            opacity: 0.06;
             z-index: 1;
+            pointer-events: none; 
         }
-
-        /* Estilo de los campos para que parezcan líneas */
         .form-label {
             font-weight: 600;
             color: #333;
@@ -86,9 +75,15 @@
             border-bottom-color: #0d6efd;
             background-color: #fafdff;
         }
+        .input-line[readonly] {
+            background-color: transparent;
+            color: #555;
+            cursor: default;
+        }
         textarea.input-line {
-            height: 120px;
-            border: 1px solid #ccc; /* Textarea se ve mejor con borde completo */
+            height: auto;
+            min-height: 80px;
+            border: 1px solid #ccc;
             border-radius: 4px;
             padding: 0.5rem;
         }
@@ -96,10 +91,8 @@
             border-color: #0d6efd;
             box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
         }
-        
-        /* 3. Área de Firma (al final del cuerpo) */
         .firma-area {
-            margin-top: 5rem;
+            margin-top: 4rem;
             text-align: right;
         }
         .firma-linea {
@@ -113,8 +106,6 @@
             color: #333;
             font-weight: 600;
         }
-
-        /* 4. Pie de página (Inspirado en el recetario) */
         .expediente-footer {
             background-color: #0d6efd;
             color: white;
@@ -124,17 +115,14 @@
             align-items: center;
             font-size: 0.85rem;
         }
-        .expediente-footer p {
-            margin-bottom: 0.25rem;
-        }
-        .expediente-footer i {
-            margin-right: 0.5rem;
-        }
-
-        /* 5. Botones de acción (Fuera de la hoja) */
+        .expediente-footer p { margin-bottom: 0.25rem; }
         .botones-accion {
             text-align: center;
             padding: 1.5rem 0 3rem 0;
+        }
+        .alerta-alergia {
+            color: #dc3545;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -145,23 +133,25 @@
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 Sonrisa Perfecta
-                <strong class="d-block">Consultorio Dental</strong>
+                <strong class="d-block">Panel Médico</strong>
             </a>
-            <a href="admin-expedientes.html" class="btn btn-outline-primary">
-                <i class="bi-arrow-left"></i> Volver a Recetas
+            <a href="admin-citas.html" class="btn btn-outline-primary">
+                <i class="bi-arrow-left"></i> Volver a Citas
             </a>
         </div>
     </nav>
 
     <div class="container">
 
-        <form id="form-expediente" class="expediente-hoja">
+        <input type="hidden" id="citaIdHidden">
+
+        <form id="form-receta" class="expediente-hoja">
             
             <div class="expediente-header">
                 <div class="doctor-info">
-                    <h2>Dr. Javier Morales</h2>
+                    <h2 id="header-doctor">Dr. Cargando...</h2>
                     <p>DENTISTA</p>
-                    <p>Céd. Prof. 12345678</p>
+                    <p>Céd. Prof. <span id="header-cedula">...</span></p>
                 </div>
                 <div class="logo-area">
                     <i class="bi bi-heart-pulse-fill"></i>
@@ -175,28 +165,35 @@
                 <div class="row mb-4">
                     <div class="col-md-7">
                         <label for="nombre" class="form-label">Nombre del Paciente:</label>
-                        <input type="text" id="nombre" class="form-control input-line" placeholder="Nombre completo...">
+                        <input type="text" id="nombre" class="form-control input-line" readonly>
                     </div>
                     <div class="col-md-2">
                         <label for="edad" class="form-label">Edad:</label>
-                        <input type="text" id="edad" class="form-control input-line" placeholder="Ej: 35">
+                        <input type="text" id="edad" class="form-control input-line" readonly>
                     </div>
                     <div class="col-md-3">
                         <label for="fecha" class="form-label">Fecha:</label>
-                        <input type="date" id="fecha" class="form-control input-line" value="">
+                        <input type="text" id="fecha" class="form-control input-line" readonly>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="alergias" class="form-label">Medicamentos que es Alérgico/a:</label>
-                    <textarea id="alergias" class="form-control input-line" rows="3" 
-                        placeholder="Ej: Penicilina, Ibuprofeno..."></textarea>
+                    <label for="alergias" class="form-label">Alergias Conocidas:</label>
+                    <input type="text" id="alergias" class="form-control input-line alerta-alergia" readonly>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="mb-4">
+                    <label for="diagnostico" class="form-label fw-bold text-primary">Diagnóstico:</label>
+                    <textarea id="diagnostico" class="form-control input-line" rows="2" 
+                        placeholder="Escriba el diagnóstico clínico..." required></textarea>
                 </div>
 
                 <div class="mb-4">
-                    <label for="tratamiento" class="form-label">Tratamiento:</label>
-                    <textarea id="tratamiento" class="form-control input-line" rows="6" 
-                        placeholder="Describir el tratamiento realizado..."></textarea>
+                    <label for="tratamiento" class="form-label fw-bold text-primary">Tratamiento / Receta (Rx):</label>
+                    <textarea id="tratamiento" class="form-control input-line" rows="5" 
+                        placeholder="Nombre del medicamento, dosis, frecuencia y duración..." required></textarea>
                 </div>
 
                 <div class="firma-area">
@@ -219,8 +216,8 @@
         </form>
 
         <div class="botones-accion">
-            <button type="submit" form="form-expediente" class="btn btn-primary btn-lg me-2">
-                <i class="bi-save-fill"></i> Guardar Cambios
+            <button type="button" class="btn btn-primary btn-lg me-2" onclick="guardarReceta()">
+                <i class="bi-save-fill"></i> Guardar Receta
             </button>
             <button type="button" class="btn btn-secondary btn-lg" id="btn-descargar-pdf">
                 <i class="bi-download"></i> Descargar PDF
@@ -230,80 +227,109 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             
-            // --- Simulación de Carga de Datos ---
-            // 1. Obtener el ID del paciente de la URL
+            //obtener id de cita
             const params = new URLSearchParams(window.location.search);
-            const pacienteId = params.get('id');
+            const citaId = params.get('id');
 
-            // 2. Poner la fecha de hoy por defecto
-            document.getElementById('fecha').valueAsDate = new Date();
-
-            // 3. Si hay un ID, cargar los datos (simulación)
-            if (pacienteId && pacienteId === '1') { // Si es Carlos Méndez
-                document.getElementById('nombre').value = "Carlos Méndez";
-                document.getElementById('edad').value = "35";
-                document.getElementById('fecha').value = "2025-01-22";
-                document.getElementById('alergias').value = "Ninguna conocida.";
-                document.getElementById('tratamiento').value = "Paciente con historial de bruxismo nocturno severo, desgaste dental generalizado, sensibilidad en piezas posteriores y cefaleas matutinas. Evaluación clínica revela hipertrofia de músculos maseteros y signos de estrés articular. Se confeccionó férula de descarga rígida superior.";
-            } else if (pacienteId && pacienteId === '2') { // Si es Ana García
-                document.getElementById('nombre').value = "Ana García";
-                document.getElementById('edad').value = "28";
-                document.getElementById('fecha').value = "2024-11-15";
-                document.getElementById('alergias').value = "Penicilina";
-                document.getElementById('tratamiento').value = "Revisión y limpieza dental. Se detectó caries incipiente en molar 26. Se programa cita para resina.";
+            if (!citaId) {
+                Swal.fire('Error', 'No se especificó ninguna cita.', 'error');
+                return;
             }
-            // Si no hay ID, los campos (excepto la fecha) aparecerán vacíos para un nuevo expediente.
 
-            // --- Lógica para Guardar ---
-            document.getElementById('form-expediente').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const datos = {
-                    id: pacienteId,
-                    nombre: document.getElementById('nombre').value,
-                    edad: document.getElementById('edad').value,
-                    fecha: document.getElementById('fecha').value,
-                    alergias: document.getElementById('alergias').value,
-                    tratamiento: document.getElementById('tratamiento').value
-                };
-                
-                // AQUÍ HARÍAS EL FETCH (PUT o POST) a tu backend
-                alert('¡Datos guardados! (Simulación)\n' + JSON.stringify(datos, null, 2));
-                // window.location.href = 'admin-expedientes.html'; // Descomentar para redirigir
-            });
+            document.getElementById('citaIdHidden').value = citaId;
 
-            // --- Lógica para Descargar PDF ---
+            //obtener datos
+            fetch(`/api/cita/${citaId}/datos-receta`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Cita no encontrada');
+                    return response.json();
+                })
+                .then(data => {
+                    //llenar campos doctor
+                    document.getElementById('header-doctor').textContent = "Dr. " + data.doctor_nombre;
+                    document.getElementById('header-cedula').textContent = data.cedula_profesional || 'S/N';
+
+                    //llenar campos paciente
+                    document.getElementById('nombre').value = data.paciente_nombre;
+                    document.getElementById('edad').value = data.paciente_edad + " años";
+                    document.getElementById('fecha').value = data.fecha_actual;
+                    
+                    //alergias
+                    const alergias = (data.paciente_alergias && data.paciente_alergias.trim() !== "") 
+                                     ? data.paciente_alergias 
+                                     : "Ninguna conocida";
+                    document.getElementById('alergias').value = alergias;
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('Error', 'No se pudieron cargar los datos de la cita.', 'error');
+                });
+
+            
             document.getElementById('btn-descargar-pdf').addEventListener('click', function () {
-                alert('Iniciando descarga de PDF... esto puede tardar un segundo.');
-                
                 const { jsPDF } = window.jspdf;
-                const hoja = document.getElementById('form-expediente');
+                const hoja = document.getElementById('form-receta');
                 
-                html2canvas(hoja, { scale: 2 /* Mejora la resolución */ }).then(canvas => {
+                html2canvas(hoja, { scale: 2 }).then(canvas => {
                     const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' = portrait, 'mm', 'a4'
+                    const pdf = new jsPDF('p', 'mm', 'a4'); 
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
-
                     const imgWidth = canvas.width;
                     const imgHeight = canvas.height;
                     const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-
                     const imgX = (pdfWidth - imgWidth * ratio) / 2;
-                    const imgY = 0; // Empezar desde arriba
                     
-                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                    pdf.addImage(imgData, 'PNG', imgX, 10, imgWidth * ratio, imgHeight * ratio);
                     
-                    // Nombre del archivo
-                    const nombrePaciente = document.getElementById('nombre').value || 'expediente';
-                    pdf.save(`Expediente-${nombrePaciente}.pdf`);
+                    const nombrePaciente = document.getElementById('nombre').value || 'paciente';
+                    pdf.save(`Receta-${nombrePaciente}.pdf`);
                 });
             });
-
         });
+
+        //guardar en db
+        function guardarReceta() {
+            const citaId = document.getElementById('citaIdHidden').value;
+            const diagnostico = document.getElementById('diagnostico').value;
+            const tratamiento = document.getElementById('tratamiento').value;
+
+            if(!diagnostico.trim() || !tratamiento.trim()) {
+                Swal.fire('Atención', 'Por favor llena el Diagnóstico y el Tratamiento antes de guardar.', 'warning');
+                return;
+            }
+
+            //backend
+            fetch('/api/crear-receta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cita_id: citaId,
+                    diagnostico: diagnostico,
+                    tratamiento: tratamiento
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) {
+                    throw new Error(data.error);
+                }
+                Swal.fire('¡Guardado!', 'La receta se ha registrado exitosamente en la base de datos.', 'success')
+                .then(() => {
+                    //volver a admin citas
+                    window.location.href = 'admin-citas.html';
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'Hubo un problema al guardar la receta.', 'error');
+            });
+        }
     </script>
 
 </body>
