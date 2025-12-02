@@ -182,20 +182,8 @@ app.post('/api/registro', async (req, res) => {
 // 1. OBTENER TODAS LAS CITAS
 app.get('/api/citas', async (req, res) => {
     try {
-        const query = `
-            SELECT c.cita_id AS id, 
-                   TO_CHAR(c.fecha, 'YYYY-MM-DD') AS fecha, 
-                   TO_CHAR(c.hora, 'HH24:MI') AS hora,
-                   c.estatus AS estado, 
-                   c.comentario,
-                   u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente, 
-                   s.nombre AS servicio
-            FROM Cita c
-            JOIN Usuario u ON c.usuario_id = u.usuario_id
-            LEFT JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
-            LEFT JOIN Servicio s ON dc.servicio_id = s.servicio_id
-        `;
-
+        const query = `SELECT * FROM Vista_Agenda_Maestra ORDER BY fecha ASC, hora ASC`;
+        
         const result = await pool.query(query);
         res.json(result.rows);
 
@@ -459,35 +447,21 @@ app.delete('/api/vacaciones/:id', async (req, res) => {
 app.get('/api/ganancias', async (req, res) => {
     try {
         const { filtro } = req.query;
-        
-        let whereClause = "";
-        
+        let query = `SELECT *, SUM(monto) OVER() as total_periodo FROM Vista_Reporte_Ganancias`;
+        let params = [];
+
+        // Filtramos sobre la VISTA, no sobre las tablas originales
         if (filtro === 'today') {
-            whereClause = "WHERE c.fecha = CURRENT_DATE";
+            query += " WHERE fecha = CURRENT_DATE";
         } else if (filtro === 'month') {
-            whereClause = "WHERE date_trunc('month', c.fecha) = date_trunc('month', CURRENT_DATE)";
+            query += " WHERE mes = EXTRACT(MONTH FROM CURRENT_DATE) AND anio = EXTRACT(YEAR FROM CURRENT_DATE)";
         } else if (filtro === 'year') {
-            whereClause = "WHERE date_trunc('year', c.fecha) = date_trunc('year', CURRENT_DATE)";
+            query += " WHERE anio = EXTRACT(YEAR FROM CURRENT_DATE)";
         }
         
-        const query = `
-            SELECT 
-                p.id_pago,
-                c.fecha,
-                u.nombre || ' ' || u.ap_paterno AS paciente,
-                s.nombre AS servicio,
-                p.monto,
-                SUM(p.monto) OVER() as total_periodo
-            FROM Pago p
-            JOIN Cita c ON p.cita_id = c.cita_id
-            JOIN Usuario u ON c.usuario_id = u.usuario_id
-            JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
-            JOIN Servicio s ON dc.servicio_id = s.servicio_id
-            ${whereClause} 
-            ORDER BY c.fecha DESC;
-        `;
+        query += " ORDER BY fecha DESC";
         
-        const result = await pool.query(query);
+        const result = await pool.query(query, params);
         res.json(result.rows);
         
     } catch (error) {
@@ -585,23 +559,13 @@ app.get('/api/expedientes', async (req, res) => {
     }
 });
 
-// --- RUTAS DE RECETAS ---
-
-// OBTENER TODAS LAS RECETAS (CORREGIDO)
+// OBTENER TODAS LAS RECETAS 
 app.get('/api/recetas', async (req, res) => {
     try {
+        // Ahora consultamos directamente la vista simplificada
         const query = `
-            SELECT 
-                r.receta_id,
-                TO_CHAR(r.fecha, 'YYYY-MM-DD') AS fecha,
-                -- Usamos 'tratamiento' que sí existe en tu tabla y lo renombramos 
-                -- como 'medicamentos' para que el JS lo entienda.
-                r.tratamiento AS medicamentos, 
-                u.nombre || ' ' || u.ap_paterno AS nombre_paciente
-            FROM Receta r
-            JOIN Cita c ON r.cita_id = c.cita_id        -- 1. Unimos Receta con Cita
-            JOIN Usuario u ON c.usuario_id = u.usuario_id -- 2. Unimos Cita con Usuario
-            ORDER BY r.fecha DESC
+            SELECT * FROM Vista_Recetas_Completas 
+            ORDER BY fecha DESC
         `;
         const result = await pool.query(query);
         res.json(result.rows);
@@ -618,3 +582,4 @@ app.use(express.static(__dirname));
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
