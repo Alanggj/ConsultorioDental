@@ -3,14 +3,40 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarFiltros(); // Nueva función para activar los filtros
 });
 
-async function cargarExpedientes() {
-    const tabla = document.getElementById('tabla-expedientes');
-    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>`;
+window.eliminarExpediente = async (usuarioId) => {
+    const result = await Swal.fire({
+        title: '¿Borrar historial?',
+        text: "Se eliminará el diagnóstico y tratamiento. El paciente y sus citas NO se borrarán.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, borrar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-        const response = await fetch('http://localhost:3000/api/expedientes');
-        if (!response.ok) throw new Error('Error al obtener datos');
+        const res = await fetch(`/api/expediente/${usuarioId}`, { method: 'DELETE' });
+        const data = await res.json();
         
+        if (data.success) {
+            Swal.fire('¡Eliminado!', 'Historial clínico vaciado.', 'success');
+            cargarExpedientes(); // Recargar la tabla automáticamente
+        } else {
+            Swal.fire('Error', 'No se pudo eliminar: ' + data.message, 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'Fallo de conexión con el servidor.', 'error');
+    }
+};
+
+async function cargarExpedientes() {
+    const tabla = document.getElementById('tabla-expedientes');
+    try {
+        const response = await fetch('http://localhost:3000/api/expedientes');
         const expedientes = await response.json();
         tabla.innerHTML = '';
 
@@ -21,31 +47,29 @@ async function cargarExpedientes() {
 
         expedientes.forEach(exp => {
             const fila = document.createElement('tr');
-            
-            // IMPORTANTE: Guardamos edad y sexo en atributos data- para usarlos al filtrar
-            // Si el sexo es null, ponemos un string vacío
-            fila.setAttribute('data-edad', exp.edad || 0); 
-            fila.setAttribute('data-sexo', exp.sexo || ''); 
-
             fila.innerHTML = `
                 <td>
                     <strong>${exp.nombre_paciente}</strong>
-                    <br><small class="text-muted">${exp.edad} años - ${exp.sexo === 'M' ? 'Masculino' : exp.sexo === 'F' ? 'Femenino' : 'S/D'}</small>
+                    <br><small class="text-muted">${exp.edad || 0} años - ${exp.sexo || 'S/D'}</small>
                 </td>
                 <td>${exp.fecha_mostrar}</td>
-                <td>${exp.expediente_id}</td>
+                <td>ID: ${exp.usuario_id}</td>
                 <td class="text-end">
-                    <a href="expediente-detalle.html?id=${exp.expediente_id}" class="btn btn-sm btn-outline-primary"><i class="bi-pencil-fill"></i></a>
-                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarExpediente(${exp.expediente_id})"><i class="bi-trash-fill"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="descargarPDF(${exp.expediente_id})"><i class="bi-download"></i></button>
+                    <a href="expediente-detalle.html?id=${exp.usuario_id}" class="btn btn-sm btn-outline-primary" title="Editar">
+                        <i class="bi-pencil-fill"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarExpediente(${exp.usuario_id})" title="Borrar Historial">
+                        <i class="bi-trash-fill"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="descargarPDF(${exp.usuario_id})" title="PDF">
+                        <i class="bi-download"></i>
+                    </button>
                 </td>
             `;
             tabla.appendChild(fila);
         });
-
     } catch (error) {
         console.error(error);
-        tabla.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error de conexión.</td></tr>`;
     }
 }
 
@@ -97,5 +121,5 @@ function configurarFiltros() {
 }
 
 // ... Mantén tus funciones window.eliminarExpediente y window.descargarPDF aquí ...
-window.eliminarExpediente = async (id) => { /* ... tu código de eliminar ... */ };
-window.descargarPDF = (id) => { /* ... tu código de PDF ... */ };
+//window.eliminarExpediente = async (id) => { /* ... tu código de eliminar ... */ };
+//window.descargarPDF = (id) => { /* ... tu código de PDF ... */ };

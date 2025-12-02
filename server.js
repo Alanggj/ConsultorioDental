@@ -182,8 +182,21 @@ app.post('/api/registro', async (req, res) => {
 // 1. OBTENER TODAS LAS CITAS
 app.get('/api/citas', async (req, res) => {
     try {
-        const query = `SELECT * FROM Vista_Agenda_Maestra ORDER BY fecha ASC, hora ASC`;
-        
+        const query = `
+            SELECT c.cita_id AS id,
+                   c.usuario_id, 
+                   TO_CHAR(c.fecha, 'YYYY-MM-DD') AS fecha, 
+                   TO_CHAR(c.hora, 'HH24:MI') AS hora,
+                   c.estatus AS estado, 
+                   c.comentario,
+                   u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente, 
+                   s.nombre AS servicio
+            FROM Cita c
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            LEFT JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+            LEFT JOIN Servicio s ON dc.servicio_id = s.servicio_id
+        `;
+
         const result = await pool.query(query);
         res.json(result.rows);
 
@@ -447,21 +460,35 @@ app.delete('/api/vacaciones/:id', async (req, res) => {
 app.get('/api/ganancias', async (req, res) => {
     try {
         const { filtro } = req.query;
-        let query = `SELECT *, SUM(monto) OVER() as total_periodo FROM Vista_Reporte_Ganancias`;
-        let params = [];
-
-        // Filtramos sobre la VISTA, no sobre las tablas originales
+        
+        let whereClause = "";
+        
         if (filtro === 'today') {
-            query += " WHERE fecha = CURRENT_DATE";
+            whereClause = "WHERE c.fecha = CURRENT_DATE";
         } else if (filtro === 'month') {
-            query += " WHERE mes = EXTRACT(MONTH FROM CURRENT_DATE) AND anio = EXTRACT(YEAR FROM CURRENT_DATE)";
+            whereClause = "WHERE date_trunc('month', c.fecha) = date_trunc('month', CURRENT_DATE)";
         } else if (filtro === 'year') {
-            query += " WHERE anio = EXTRACT(YEAR FROM CURRENT_DATE)";
+            whereClause = "WHERE date_trunc('year', c.fecha) = date_trunc('year', CURRENT_DATE)";
         }
         
-        query += " ORDER BY fecha DESC";
+        const query = `
+            SELECT 
+                p.id_pago,
+                c.fecha,
+                u.nombre || ' ' || u.ap_paterno AS paciente,
+                s.nombre AS servicio,
+                p.monto,
+                SUM(p.monto) OVER() as total_periodo
+            FROM Pago p
+            JOIN Cita c ON p.cita_id = c.cita_id
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+            JOIN Servicio s ON dc.servicio_id = s.servicio_id
+            ${whereClause} 
+            ORDER BY c.fecha DESC;
+        `;
         
-        const result = await pool.query(query, params);
+        const result = await pool.query(query);
         res.json(result.rows);
         
     } catch (error) {
@@ -559,19 +586,145 @@ app.get('/api/expedientes', async (req, res) => {
     }
 });
 
-// OBTENER TODAS LAS RECETAS 
+// --- RUTAS DE RECETAS ---
+
+// OBTENER TODAS LAS RECETAS (CORREGIDO)
 app.get('/api/recetas', async (req, res) => {
     try {
-        // Ahora consultamos directamente la vista simplificada
         const query = `
-            SELECT * FROM Vista_Recetas_Completas 
-            ORDER BY fecha DESC
+            SELECT 
+                r.receta_id,
+                TO_CHAR(r.fecha, 'YYYY-MM-DD') AS fecha,
+                -- Usamos 'tratamiento' que sí existe en tu tabla y lo renombramos 
+                -- como 'medicamentos' para que el JS lo entienda.
+                r.tratamiento AS medicamentos, 
+                u.nombre || ' ' || u.ap_paterno AS nombre_paciente
+            FROM Receta r
+            JOIN Cita c ON r.cita_id = c.cita_id        -- 1. Unimos Receta con Cita
+            JOIN Usuario u ON c.usuario_id = u.usuario_id -- 2. Unimos Cita con Usuario
+            ORDER BY r.fecha DESC
         `;
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener recetas' });
+    }
+});
+
+//obtener los datos precargados de la receta
+app.get('/api/cita/:id/datos-receta', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT 
+                -- Concatenamos nombre completo del paciente
+                u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente_nombre,
+                -- Usamos la función que creamos
+                calcular_edad(u.fecha_nacimiento) AS paciente_edad,
+                u.alergias AS paciente_alergias,
+                -- Concatenamos nombre del doctor
+                doc.nombre || ' ' || doc.ap_paterno || ' ' || COALESCE(doc.ap_materno, '') AS doctor_nombre,
+                doc.cedula_profesional,
+                -- Fecha actual formateada
+                TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') as fecha_actual
+            FROM Cita c
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            JOIN Admin doc ON c.admin_id = doc.admin_id
+            WHERE c.cita_id = $1
+        `;
+        const result = await pool.query(query, [id]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Cita no encontrada' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al obtener datos de la receta' });
+    }
+});
+
+//guardar receta
+app.post('/api/crear-receta', async (req, res) => {
+    const { cita_id, diagnostico, tratamiento } = req.body;
+    try {
+        //fecha actual
+        const query = `
+            INSERT INTO Receta (fecha, diagnostico, tratamiento, cita_id)
+            VALUES (CURRENT_DATE, $1, $2, $3)
+            RETURNING *;
+        `;
+        await pool.query(query, [diagnostico, tratamiento, cita_id]);
+        
+        res.json({ mensaje: 'Receta creada exitosamente' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al guardar la receta' });
+    }
+});
+
+//1.obtener detalle
+app.get('/api/expediente/:id', async (req, res) => {
+    const { id } = req.params; 
+    try {
+        const query = `
+            SELECT 
+                u.usuario_id, 
+                u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS nombre_completo,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.fecha_nacimiento))::int AS edad,
+                TO_CHAR(u.fecha_nacimiento, 'YYYY-MM-DD') as fecha_nac,
+                e.diagnostico, 
+                e.tratamiento,
+                -- Obtenemos la última cita atendida como referencia
+                (SELECT TO_CHAR(MAX(fecha), 'YYYY-MM-DD') FROM Cita WHERE usuario_id = u.usuario_id AND estatus = 'atendida') as ultima_visita,
+            
+                doc.nombre || ' ' || doc.ap_paterno AS doctor_nombre,
+                doc.cedula_profesional
+            
+            FROM Usuario u
+            LEFT JOIN Expediente e ON u.usuario_id = e.usuario_id
+            LEFT JOIN Admin doc ON e.admin_id = doc.admin_id
+            WHERE u.usuario_id = $1
+        `;
+        const result = await pool.query(query, [id]);
+        
+        if (result.rows.length > 0) {
+            res.json({ success: true, data: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Paciente no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error de servidor' });
+    }
+});
+
+//2.guardar o actualizar
+app.post('/api/expediente', async (req, res) => {
+    const { usuario_id, diagnostico, tratamiento } = req.body;  
+    try {
+        await pool.query('CALL sp_guardar_expediente($1, $2, $3)', 
+                         [usuario_id, diagnostico, tratamiento]);
+
+        res.json({ success: true, message: 'Expediente guardado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al guardar' });
+    }
+});
+
+//3.eliminar expediente
+app.delete('/api/expediente/:usuario_id', async (req, res) => {
+    const { usuario_id } = req.params;
+    try {
+        //borrar el registro de la tabla Expediente, no al usuario ni sus citas
+        await pool.query('DELETE FROM Expediente WHERE usuario_id = $1', [usuario_id]);
+        res.json({ success: true, message: 'Expediente eliminado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al eliminar' });
     }
 });
 
@@ -582,4 +735,3 @@ app.use(express.static(__dirname));
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
-

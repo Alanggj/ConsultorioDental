@@ -66,9 +66,9 @@
             
             <div class="expediente-header">
                 <img src="images/logo-dentista.png" alt="Logo Dr. Morales"> <div class="doctor-info">
-                    <h3 class="mb-1">DR. JAVIER MORALES</h3> [cite: 2]
+                    <h3 class="mb-1" id="header-doctor">DR. JAVIER MORALES</h3> [cite: 2]
                     <p class="mb-0">DENTISTA</p> [cite: 3]
-                    <p class="mb-0">Céd. Prof. 12345678</p> [cite: 12]
+                    <p class="mb-0">Céd. Prof. <span id="header-cedula">...</span></p> [cite: 12]
                 </div>
             </div>
 
@@ -122,78 +122,139 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. Obtener el ID del paciente de la URL
             const params = new URLSearchParams(window.location.search);
-            const pacienteId = params.get('id');
+            const usuarioId = params.get('id'); // Esto es el usuario_id
 
-            // 2. Si hay un ID, cargar los datos (simulación)
-            if (pacienteId) {
-                // AQUÍ HARÍAS UN FETCH A TU BASE DE DATOS:
-                // fetch(`/api/expedientes/${pacienteId}`)
-                //     .then(res => res.json())
-                //     .then(data => {
-                //         document.getElementById('nombre').value = data.nombre;
-                //         document.getElementById('edad').value = data.edad;
-                //         document.getElementById('fecha-visita').value = data.fecha_visita;
-                //         // Llenar los textareas con los datos del PDF [cite: 6, 7, 9, 10]
-                //         document.getElementById('diagnostico').value = "Paciente con historial de bruxismo nocturno severo, desgaste dental generalizado, sensibilidad en piezas posteriores y cefaleas matutinas. Evaluación clínica revela hipertrofia de músculos maseteros y signos de estrés articular.";
-                //         document.getElementById('tratamiento').value = "Se confeccionó férula de descarga rígida superior con ajuste oclusal individualizado. Se recomendó fisioterapia mandibular, ejercicios de relajación y seguimiento trimestral.";
-                //     });
-                
-                // Simulación para el ejemplo de Carlos Méndez (ID=1) [cite: 1]
-                if (pacienteId === '1') {
-                    document.getElementById('nombre').value = "Carlos Méndez";
-                    document.getElementById('edad').value = "35 años";
-                    document.getElementById('fecha-visita').value = "2025-01-22";
-                    document.getElementById('diagnostico').value = "Paciente con historial de bruxismo nocturno severo, desgaste dental generalizado, sensibilidad en piezas posteriores y cefaleas matutinas. Evaluación clínica revela hipertrofia de músculos maseteros y signos de estrés articular."; 
-                    document.getElementById('tratamiento').value = "Se confeccionó férula de descarga rígida superior con ajuste oclusal individualizado. Se recomendó fisioterapia mandibular, ejercicios de relajación y seguimiento trimestral para control del desgaste y evaluación del patrón de bruxismo."; 
-                } else {
-                    // Lógica para un nuevo expediente (campos vacíos)
-                    document.getElementById('nombre').value = "Nuevo Paciente";
-                    document.getElementById('nombre').readOnly = false; // Permitir editar nombre si es nuevo
-                }
+            if (!usuarioId) {
+                Swal.fire('Error', 'No se especificó un paciente');
+                window.location.href = 'admin-expedientes.html';
+                return;
             }
 
-            // 3. Lógica para Guardar (EDITAR)
+            //cargar datos
+            fetch(`/api/expediente/${usuarioId}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (!response.success) throw new Error(response.message);
+                
+                    const data = response.data;
+                    //llenar campos
+                    document.getElementById('nombre').value = data.nombre_completo;
+                    document.getElementById('edad').value = data.edad + " años";
+                    document.getElementById('fecha-visita').value = data.ultima_visita || new Date().toISOString().split('T')[0];
+                
+                    //datos doctor
+                    if (data.doctor_nombre) {
+                        document.getElementById('header-doctor').textContent = "DR. " + data.doctor_nombre.toUpperCase();
+                        document.getElementById('header-cedula').textContent = data.cedula_profesional || 'SIN CÉDULA';
+                    } else {
+                        //expediente nuevo
+                        document.getElementById('header-doctor').textContent = "DR. GENERAL";
+                        document.getElementById('header-cedula').textContent = "PENDIENTE";
+                    }
+                    
+                    //llenar diagnostico y tratamiento
+                    document.getElementById('diagnostico').value = data.diagnostico || '';
+                    document.getElementById('tratamiento').value = data.tratamiento || '';
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error', 'Error al cargar datos del expediente ' + data.message, 'error');
+                });
+
+            //guardar cambios
             document.getElementById('form-expediente').addEventListener('submit', function(e) {
                 e.preventDefault();
+            
                 const datos = {
-                    id: pacienteId,
-                    fecha: document.getElementById('fecha-visita').value,
+                    usuario_id: usuarioId,
                     diagnostico: document.getElementById('diagnostico').value,
                     tratamiento: document.getElementById('tratamiento').value
                 };
-                
-                // AQUÍ HARÍAS UN FETCH (PUT o PATCH) a tu backend
-                // fetch(`/api/expedientes/${pacienteId}`, {
-                //     method: 'PUT',
-                //     headers: {'Content-Type': 'application/json'},
-                //     body: JSON.stringify(datos)
-                // }).then(...)
-                
-                alert('¡Datos guardados! (Simulación)\n' + JSON.stringify(datos));
-                window.location.href = 'admin-expedientes.html';
+
+                fetch('/api/expediente', {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Guardado!',
+                            text: 'El expediente se ha actualizado correctamente.',
+                            icon: 'success',
+                            confirmButtonColor: '#0d6efd',
+                            confirmButtonText: 'Aceptar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'admin-expedientes.html';
+                            }
+                        });
+
+                    } else {
+                        Swal.fire('Error', 'No se pudo guardar: ' + data.message, 'error');
+                    }
+                })
+                .catch(err => console.error(err));
             });
 
-            // 4. Lógica para Eliminar
+            //eliminar desde detalle
             document.getElementById('btn-eliminar').addEventListener('click', function() {
-                if (confirm('¿Estás seguro de que deseas eliminar este expediente?')) {
-                    // AQUÍ HARÍAS UN FETCH (DELETE) a tu backend
-                    // fetch(`/api/expedientes/${pacienteId}`, { method: 'DELETE' })
-                    // .then(...)
-
-                    alert('Expediente eliminado (Simulación)');
-                    window.location.href = 'admin-expedientes.html';
-                }
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¿Deseas vaciar el contenido de este expediente? Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33', 
+                    cancelButtonColor: '#3085d6', 
+                    confirmButtonText: 'Sí, vaciar expediente',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/api/expediente/${usuarioId}`, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    'El expediente ha sido vaciado correctamente.',
+                                    'success'
+                                ).then(() => {
+                                    window.location.href = 'admin-expedientes.html';
+                                });
+                            } else {
+                                Swal.fire('Error', 'No se pudo completar la acción: ' + data.message, 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire('Error', 'Hubo un error de conexión', 'error');
+                        });
+                    }
+                });
             });
 
-            // 5. Lógica para Descargar PDF
+            //pdf
             document.getElementById('btn-descargar-pdf').addEventListener('click', function() {
-                alert("Esta función usará jsPDF para convertir la vista actual en un PDF.");
-                // Aquí iría la lógica de jsPDF o html2pdf
+                const { jsPDF } = window.jspdf;
+                const hoja = document.getElementById('form-expediente');
+                html2canvas(hoja, { scale: 2 }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const imgWidth = canvas.width;
+                    const imgHeight = canvas.height;
+                    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                    pdf.addImage(imgData, 'PNG', imgX, 10, imgWidth * ratio, imgHeight * ratio);
+                    pdf.save(`Expediente-${document.getElementById('nombre').value}.pdf`);
+                });
             });
         });
     </script>
