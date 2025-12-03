@@ -666,6 +666,70 @@ app.put('/api/recetas/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al actualizar la receta' });
     }
 });
+// ═══════════════════════════════════════════════════════════════════
+// REPORTES AVANZADOS (UNION, EXCEPT, INTERSECT)
+// ═══════════════════════════════════════════════════════════════════
+
+// 1. UNION - Fechas ocupadas
+app.get('/api/reportes/fechas-ocupadas', async (req, res) => {
+    try {
+        const query = `
+            SELECT fecha::DATE as fecha, 'Cita' as tipo, hora::TEXT as detalle
+            FROM Cita WHERE estatus = 'agendada'
+            UNION
+            SELECT fecha_inicio::DATE as fecha, 'Vacaciones' as tipo, descripcion as detalle
+            FROM Periodo_vacacional WHERE fecha_fin >= CURRENT_DATE
+            ORDER BY fecha DESC`;
+        
+        const result = await pool.query(query);
+        res.json({ success: true, total: result.rows.length, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error al obtener fechas' });
+    }
+});
+
+// 2. EXCEPT - Pacientes sin citas
+app.get('/api/reportes/pacientes-sin-citas', async (req, res) => {
+    try {
+        const query = `
+            SELECT usuario_id, nombre || ' ' || ap_paterno || ' ' || COALESCE(ap_materno, '') as nombre_completo,
+                   correo, telefono
+            FROM Usuario
+            EXCEPT
+            SELECT DISTINCT u.usuario_id, u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, ''),
+                   u.correo, u.telefono
+            FROM Usuario u JOIN Cita c ON u.usuario_id = c.usuario_id
+            ORDER BY nombre_completo`;
+        
+        const result = await pool.query(query);
+        res.json({ success: true, total: result.rows.length, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error' });
+    }
+});
+
+// 3. Pacientes activos (con citas Y recetas)
+app.get('/api/reportes/pacientes-activos', async (req, res) => {
+    try {
+        const query = `
+            SELECT u.usuario_id, u.nombre || ' ' || u.ap_paterno as nombre_completo, u.correo,
+                   COUNT(DISTINCT c.cita_id) as total_citas, COUNT(DISTINCT r.receta_id) as total_recetas
+            FROM Usuario u
+            JOIN Cita c ON u.usuario_id = c.usuario_id
+            LEFT JOIN Receta r ON c.cita_id = r.cita_id
+            WHERE EXISTS (SELECT 1 FROM Receta r2 JOIN Cita c2 ON r2.cita_id = c2.cita_id WHERE c2.usuario_id = u.usuario_id)
+            GROUP BY u.usuario_id, u.nombre, u.ap_paterno, u.correo
+            ORDER BY total_citas DESC`;
+        
+        const result = await pool.query(query);
+        res.json({ success: true, total: result.rows.length, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error' });
+    }
+});
 
 // Servir archivos estáticos
 app.use(express.static(__dirname));
