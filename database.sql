@@ -38,7 +38,7 @@ CREATE TABLE Usuario (
     alergias VARCHAR(30),
     enfermedades_cronicas VARCHAR(30),
 	nombre_tutor VARCHAR(80),
-	sexo CHAR(1), --F(Femenino), M(Masculino)
+	sexo CHAR(1) --F(Femenino), M(Masculino)
 );
 
 -- Tabla Servicio
@@ -62,7 +62,7 @@ CREATE TABLE Cita (
     fecha DATE NOT NULL,
     hora TIME NOT NULL,
     comentario VARCHAR(30),
-    estatus cita_estatus NOT NULL DEFAULT 'agendada', 
+    estatus cita_estatus NOT NULL DEFAULT 'agendada' 
 );
 
 -- Tabla Detalle_cita
@@ -251,19 +251,19 @@ JOIN Servicio s ON dc.servicio_id = s.servicio_id;
 CREATE OR REPLACE VIEW Vista_Recetas_Completas AS
 SELECT 
     r.receta_id,
-    -- Formateamos la fecha directamente en la vista
     TO_CHAR(r.fecha, 'YYYY-MM-DD') AS fecha,
     r.tratamiento AS medicamentos,
     r.diagnostico,
-    -- Concatenamos nombre del paciente
+    -- Concatenamos nombre del paciente (Alias u)
     CONCAT(u.nombre, ' ', u.ap_paterno, ' ', COALESCE(u.ap_materno, '')) AS nombre_paciente,
-    -- Concatenamos nombre del doctor (Admin)
+    -- Concatenamos nombre del doctor (Alias doc)
     CONCAT(doc.nombre, ' ', doc.ap_paterno) AS doctor_asignado,
     doc.especialidad AS especialidad_doctor
 FROM Receta r
-JOIN Cita c ON r.cita_id = c.cita_id      
+JOIN Cita c ON r.cita_id = c.cita_id
+JOIN Usuario u ON c.usuario_id = u.usuario_id 
+JOIN Admin doc ON c.admin_id = doc.admin_id; 
 
---
 CREATE OR REPLACE VIEW Vista_Agenda_Maestra AS
 SELECT 
     c.cita_id AS id, 
@@ -287,3 +287,9 @@ select * from Usuario;
 select * from cita;
 select * from expediente;
 select * from servicio;
+
+-- ALTER USER postgres WITH PASSWORD 'gasaiyuno';
+INSERT INTO Admin (usuario, contraseña, tipo, nombre, ap_paterno, cedula_profesional)
+VALUES ('admin', 'Admin123!', 'doctor', 'Administrador', 'Sistema', 'CED001');
+
+SELECT COUNT(*) FROM Admin;
