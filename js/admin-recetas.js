@@ -121,25 +121,42 @@ function configurarFiltros() {
     selectFecha.addEventListener('change', aplicarFiltros);
 }
 
-// Funciones globales para los botones de acción
-window.eliminarReceta = async (id) => {
-    if(!confirm('¿Estás seguro de eliminar esta receta?')) return;
+//eliminar receta
+window.eliminarReceta = (id) => {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción. La receta se borrará permanentemente.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', 
+        cancelButtonColor: '#3085d6', 
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/recetas/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
 
-    try {
-        const response = await fetch(`http://localhost:3000/api/recetas/${id}`, {
-            method: 'DELETE'
-        });
-        
-        if (response.ok) {
-            alert('Receta eliminada');
-            cargarRecetas(); // Recargar tabla
-        } else {
-            alert('Error al eliminar');
+                if (response.ok && data.success) {
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'La receta ha sido eliminada.',
+                        'success'
+                    );
+                    cargarRecetas(); 
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo eliminar.', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
+            }
         }
-    } catch (error) {
-        console.error(error);
-        alert('Error de conexión');
-    }
+    });
 };
 
 window.descargarRecetaPDF = (id) => {

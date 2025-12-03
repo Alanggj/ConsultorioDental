@@ -578,6 +578,45 @@ app.get('/api/recetas', async (req, res) => {
     }
 });
 
+//obtener receta por id
+app.get('/api/recetas/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT 
+                r.receta_id,
+                r.cita_id,
+                TO_CHAR(r.fecha, 'YYYY-MM-DD') as fecha,
+                r.diagnostico,
+                r.tratamiento,
+                -- Datos del Paciente
+                u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente_nombre,
+                calcular_edad(u.fecha_nacimiento) AS paciente_edad,
+                u.alergias AS paciente_alergias,
+                -- Datos del Doctor
+                doc.nombre || ' ' || doc.ap_paterno AS doctor_nombre,
+                doc.cedula_profesional
+            FROM Receta r
+            JOIN Cita c ON r.cita_id = c.cita_id
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            JOIN Admin doc ON c.admin_id = doc.admin_id
+            WHERE r.receta_id = $1
+        `;
+        
+        const result = await pool.query(query, [id]);
+
+        if (result.rows.length > 0) {
+            res.json({ success: true, data: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Receta no encontrada' });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error al obtener la receta' });
+    }
+});
+
 //obtener los datos precargados de la receta
 app.get('/api/cita/:id/datos-receta', async (req, res) => {
     const { id } = req.params;
@@ -628,6 +667,45 @@ app.post('/api/crear-receta', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error al guardar la receta' });
+    }
+});
+
+//eliminar receta
+app.delete('/api/recetas/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM Receta WHERE receta_id = $1', [id]);
+        
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: 'Receta eliminada correctamente' });
+        } else {
+            res.status(404).json({ success: false, message: 'Receta no encontrada' });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al eliminar la receta' });
+    }
+});
+
+//editar receta
+app.put('/api/recetas/:id', async (req, res) => {
+    const { id } = req.params;
+    const { diagnostico, tratamiento } = req.body;
+
+    try {
+        const query = `
+            UPDATE Receta 
+            SET diagnostico = $1, tratamiento = $2
+            WHERE receta_id = $3
+        `;
+        
+        await pool.query(query, [diagnostico, tratamiento, id]);
+        res.json({ success: true, message: 'Receta actualizada correctamente' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar la receta' });
     }
 });
 

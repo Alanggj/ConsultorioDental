@@ -430,7 +430,7 @@ citasListContainer.addEventListener('click', function (e) {
     if (boton.classList.contains('btn-generar-receta')) {
         if (citaId) {
             //redirigir pasando id de cita
-            window.location.href = `receta-detalle.html?id=${citaId}`;
+            window.location.href = `receta-detalle.html?cita_id=${citaId}`;
         } else {
             Swal.fire('Error', 'No se identificó la cita.', 'error');
         }

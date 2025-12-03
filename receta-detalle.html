@@ -229,48 +229,136 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            
-            //obtener id de cita
-            const params = new URLSearchParams(window.location.search);
-            const citaId = params.get('id');
+<script>
+        let modoEdicion = false;
+        let idActual = null; //cita o receta
 
-            if (!citaId) {
-                Swal.fire('Error', 'No se especificó ninguna cita.', 'error');
-                return;
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
+            const recetaId = params.get('id');       
+            const citaId = params.get('cita_id');    
+
+            if (recetaId) {
+                //editar
+                modoEdicion = true;
+                idActual = recetaId;
+                cargarDatosRecetaExistente(recetaId);
+            } else if (citaId) {
+                //crear
+                modoEdicion = false;
+                idActual = citaId;
+                document.getElementById('citaIdHidden').value = citaId;
+                cargarDatosParaNuevaReceta(citaId);
+            } else {
+                Swal.fire('Error', 'No se especificó ninguna cita o receta.', 'error');
             }
 
-            document.getElementById('citaIdHidden').value = citaId;
+            //pedf
+            configurarBotonPDF();
+        });
 
-            //obtener datos
-            fetch(`/api/cita/${citaId}/datos-receta`)
+        //cargar receta existente
+        function cargarDatosRecetaExistente(id) {
+            fetch(`/api/recetas/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Receta no encontrada');
+                    return response.json();
+                })
+                .then(res => {
+                    const data = res.data;
+                
+                    llenarEncabezado(data);
+
+                    document.getElementById('diagnostico').value = data.diagnostico;
+                    document.getElementById('tratamiento').value = data.tratamiento;
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('Error', 'No se pudo cargar la receta.', 'error');
+                });
+        }
+
+        //cargar datos de cita
+        function cargarDatosParaNuevaReceta(id) {
+            fetch(`/api/cita/${id}/datos-receta`)
                 .then(response => {
                     if (!response.ok) throw new Error('Cita no encontrada');
                     return response.json();
                 })
                 .then(data => {
-                    //llenar campos doctor
-                    document.getElementById('header-doctor').textContent = "Dr. " + data.doctor_nombre;
-                    document.getElementById('header-cedula').textContent = data.cedula_profesional || 'S/N';
-
-                    //llenar campos paciente
-                    document.getElementById('nombre').value = data.paciente_nombre;
-                    document.getElementById('edad').value = data.paciente_edad + " años";
-                    document.getElementById('fecha').value = data.fecha_actual;
-                    
-                    //alergias
-                    const alergias = (data.paciente_alergias && data.paciente_alergias.trim() !== "") 
-                                     ? data.paciente_alergias 
-                                     : "Ninguna conocida";
-                    document.getElementById('alergias').value = alergias;
+                    llenarEncabezado(data);
                 })
                 .catch(error => {
                     console.error(error);
                     Swal.fire('Error', 'No se pudieron cargar los datos de la cita.', 'error');
                 });
+        }
 
+        function llenarEncabezado(data) {
+            document.getElementById('header-doctor').textContent = "Dr. " + (data.doctor_nombre || "Desconocido");
+            document.getElementById('header-cedula').textContent = data.cedula_profesional || 'S/N';
+
+            document.getElementById('nombre').value = data.paciente_nombre || data.nombre_paciente; 
+            document.getElementById('edad').value = (data.paciente_edad || data.edad || 0) + " años";
             
+            document.getElementById('fecha').value = data.fecha || data.fecha_actual;
+            
+            const alergias = (data.paciente_alergias && data.paciente_alergias.trim() !== "") 
+                             ? data.paciente_alergias 
+                             : "Ninguna conocida";
+            document.getElementById('alergias').value = alergias;
+        }
+
+        function guardarReceta() {
+            const diagnostico = document.getElementById('diagnostico').value;
+            const tratamiento = document.getElementById('tratamiento').value;
+
+            if(!diagnostico.trim() || !tratamiento.trim()) {
+                Swal.fire('Atención', 'Por favor llena el Diagnóstico y el Tratamiento.', 'warning');
+                return;
+            }
+
+            let url, metodo, cuerpo;
+
+            if (modoEdicion) {
+                url = `/api/recetas/${idActual}`; 
+                metodo = 'PUT';
+                cuerpo = { diagnostico, tratamiento }; 
+            } else {
+                url = '/api/crear-receta';
+                metodo = 'POST';
+                cuerpo = { cita_id: idActual, diagnostico, tratamiento }; 
+            }
+
+            fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cuerpo)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success === false || data.error) {
+                    throw new Error(data.message || data.error);
+                }
+        
+                const accion = modoEdicion ? 'actualizada' : 'creada';
+        
+                Swal.fire('¡Éxito!', `La receta ha sido ${accion} correctamente.`, 'success')
+                .then(() => {
+                    if (modoEdicion) {
+                        window.location.href = 'admin-recetas.html';
+                    } else {
+                        window.location.href = 'admin-citas.html';
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'Hubo un problema al guardar los cambios.', 'error');
+            });
+        }
+
+        function configurarBotonPDF() {
             document.getElementById('btn-descargar-pdf').addEventListener('click', function () {
                 const { jsPDF } = window.jspdf;
                 const hoja = document.getElementById('form-receta');
@@ -286,48 +374,9 @@
                     const imgX = (pdfWidth - imgWidth * ratio) / 2;
                     
                     pdf.addImage(imgData, 'PNG', imgX, 10, imgWidth * ratio, imgHeight * ratio);
-                    
-                    const nombrePaciente = document.getElementById('nombre').value || 'paciente';
-                    pdf.save(`Receta-${nombrePaciente}.pdf`);
+                    const nombre = document.getElementById('nombre').value || 'receta';
+                    pdf.save(`Receta-${nombre}.pdf`);
                 });
-            });
-        });
-
-        //guardar en db
-        function guardarReceta() {
-            const citaId = document.getElementById('citaIdHidden').value;
-            const diagnostico = document.getElementById('diagnostico').value;
-            const tratamiento = document.getElementById('tratamiento').value;
-
-            if(!diagnostico.trim() || !tratamiento.trim()) {
-                Swal.fire('Atención', 'Por favor llena el Diagnóstico y el Tratamiento antes de guardar.', 'warning');
-                return;
-            }
-
-            //backend
-            fetch('/api/crear-receta', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cita_id: citaId,
-                    diagnostico: diagnostico,
-                    tratamiento: tratamiento
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.error) {
-                    throw new Error(data.error);
-                }
-                Swal.fire('¡Guardado!', 'La receta se ha registrado exitosamente en la base de datos.', 'success')
-                .then(() => {
-                    //volver a admin citas
-                    window.location.href = 'admin-citas.html';
-                });
-            })
-            .catch(err => {
-                console.error(err);
-                Swal.fire('Error', 'Hubo un problema al guardar la receta.', 'error');
             });
         }
     </script>
