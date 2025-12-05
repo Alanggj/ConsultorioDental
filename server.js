@@ -731,6 +731,30 @@ app.get('/api/reportes/pacientes-activos', async (req, res) => {
     }
 });
 
+//Endpoint para ejecutar el procedimiento de reporte con CURSOR
+app.get('/api/reporte-mensual-texto', async (req, res) => {
+    const client = await pool.connect();
+    const mensajes = [];
+
+    try {
+        client.on('notice', (msg) => {
+            mensajes.push(msg.message); //guardar cada linea de texto
+        });
+
+        //llamar procedimiento
+        await client.query('CALL sp_generar_reporte_mensual()');
+
+        //enviar texto acumulado
+        res.json({ success: true, reporte: mensajes.join('\n') });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error generando reporte' });
+    } finally {
+        client.release(); 
+    }
+});
+
 // Servir archivos estáticos
 app.use(express.static(__dirname));
 

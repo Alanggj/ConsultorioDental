@@ -121,9 +121,26 @@
                                 <option value="year">Este Año</option>
                             </select>
                         </div>
+                        <div class="d-grid gap-2 mt-3">
+                            <button id="btn-reporte-avanzado" class="btn btn-dark shadow-sm">
+                                <i class="bi bi-file-earmark-text"></i> Ver Reporte Detallado
+                            </button>
+                        </div>
                     </div>
 
                     <div class="col-md-8">
+                        <div id="area-reporte-avanzado" class="card shadow-sm mb-4 border-dark" style="display: none;">
+                            <div class="card-header bg-dark bg-opacity-10 text-dark fw-bold d-flex justify-content-between align-items-center">
+                                <span style="color: white;">Reporte Detallado</span>
+                                <button id="btn-cerrar-reporte" class="btn btn-sm btn-outline-light"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                            <div class="card-body bg-light">
+                                <pre id="contenido-reporte" class="mb-0 text-dark" 
+                                    style="font-family: 'Consolas', 'Menlo', monospace; font-size: 0.9rem; white-space: pre-wrap; background-color: #fff; padding: 15px; border-radius: 5px;">
+                                    Cargando...
+                                </pre>                            
+                            </div>
+                        </div>
                         <div class="card shadow-lg border-0">
                             <div class="card-header bg-white py-3">
                                 <h5 class="mb-0 text-secondary">Desglose de Movimientos</h5>

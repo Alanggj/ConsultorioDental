@@ -86,5 +86,38 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    //CURSOR + ROLLUP
+    const btnReporte = document.getElementById('btn-reporte-avanzado');
+    const btnCerrarReporte = document.getElementById('btn-cerrar-reporte');
+    const areaReporte = document.getElementById('area-reporte-avanzado');
+    const contenidoReporte = document.getElementById('contenido-reporte');
+
+    if (btnReporte) {
+        btnReporte.addEventListener('click', async () => {
+            areaReporte.style.display = 'block';
+            contenidoReporte.innerText = 'Ejecutando procedimiento almacenado con cursor...';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/reporte-mensual-texto');
+                const data = await response.json();
+
+                if (data.success) {
+                    contenidoReporte.innerText = data.reporte;
+                } else {
+                    contenidoReporte.innerText = 'Error: ' + (data.error || 'No se pudo generar el reporte.');
+                }
+            } catch (error) {
+                console.error(error);
+                contenidoReporte.innerText = 'Error de conexión con el servidor.';
+            }
+        });
+    }
+
+    if (btnCerrarReporte) {
+        btnCerrarReporte.addEventListener('click', () => {
+            areaReporte.style.display = 'none';
+        });
+    }
+
     cargarGanancias('all');
 });

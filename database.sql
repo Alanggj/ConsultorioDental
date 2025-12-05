@@ -228,6 +228,71 @@ BEGIN
 END;
 $$;
 
+--procedure reporte detallado
+CREATE OR REPLACE PROCEDURE sp_generar_reporte_mensual()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    --variables para datos del cursor
+    v_servicio VARCHAR(40);
+    v_mes INTEGER;
+    v_total_ingresos DECIMAL(10,2);
+    v_promedio_venta DECIMAL(10,2);
+    
+    cur_finanzas CURSOR FOR
+        SELECT 
+            s.nombre,
+            EXTRACT(MONTH FROM c.fecha)::INTEGER,
+            SUM(dc.total),
+            AVG(dc.total)
+        FROM Cita c
+        JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+        JOIN Servicio s ON dc.servicio_id = s.servicio_id
+        WHERE c.estatus = 'atendida' --solo citas pagadas
+        --agrupar por servicio y mes
+        GROUP BY ROLLUP(s.nombre, EXTRACT(MONTH FROM c.fecha))
+        --mostrar grupos donde se haya ganado dinero
+        HAVING SUM(dc.total) > 0
+        ORDER BY s.nombre NULLS LAST, 2 NULLS LAST;
+
+BEGIN
+    OPEN cur_finanzas;
+    
+    RAISE NOTICE 'REPORTE DE INGRESOS MENSUALES Y PROMEDIOS';
+
+    LOOP
+        --cursor a variables
+        FETCH cur_finanzas INTO v_servicio, v_mes, v_total_ingresos, v_promedio_venta;
+        
+        --si no hay mas filas terminar
+        EXIT WHEN NOT FOUND;
+
+        --ROLLUP (Subtotales y Totales)
+        IF v_servicio IS NULL THEN
+            --gran total (generada por ROLLUP cuando ambos son null)
+            RAISE NOTICE '>>> INGRESOS TOTALES CONSULTORIO: $% <<<', v_total_ingresos;
+            
+        ELSIF v_mes IS NULL THEN
+            --subtotal por servicio (generada por ROLLUP cuando mes es null)
+            RAISE NOTICE '   > TOTAL HISTÓRICO %: $% (Promedio por cita: $%)', 
+                         UPPER(v_servicio), v_total_ingresos, TRUNC(v_promedio_venta, 2);
+            RAISE NOTICE '';
+            
+        ELSE
+            --fila servicio + mes
+            RAISE NOTICE '      - Servicio: % | Mes: % | Venta: $%', 
+                         v_servicio, v_mes, v_total_ingresos;
+        END IF;
+
+    END LOOP;
+
+    --cerrar cursos
+    CLOSE cur_finanzas;
+    
+    RAISE NOTICE 'Fin del reporte.';
+END;
+$$;
+
 ---********VISTAS*******
 -- Creación de la Vista para Reporte Financiero
 CREATE VIEW Vista_Reporte_Ganancias AS
