@@ -7,9 +7,8 @@
     <meta name="description" content="Consultorio dental Sonrisa Perfecta - Atención odontológica profesional">
     <meta name="author" content="Equipo Sonrisa Perfecta">
 
-    <title>Consultorio Dental Sonrisa Perfecta</title>
+    <title>Mis Citas - Sonrisa Perfecta</title>
 
-    <!-- Fuentes y CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -25,44 +24,27 @@
 
 <body id="top">
 
-    <main>
-        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
-            <div class="container">
-                <a class="navbar-brand mx-auto d-lg-none" href="index.html">
-                    Sonrisa Perfecta
-                    <strong class="d-block">Consultorio Dental</strong>
-                </a>
+    <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
+        <div class="container">
+            <a class="navbar-brand mx-auto d-lg-none" href="index.html">Sonrisa Perfecta</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active"><a class="nav-link" href="index.html#hero">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.html#about">Sobre Nosotros</a></li>
-                        <li class="nav-item"><a class="nav-link" href="servicios.html">Servicios</a></li>
-                        <a class="navbar-brand d-none d-lg-block" href="index.html">
-                            Sonrisa Perfecta
-                            <strong class="d-block">Consultorio Dental</strong>
-                        </a>
-                        <li class="nav-item"><a class="nav-link" href="testimonios.html">Testimonios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="cita.html">Agendar</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
-                        <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
-                    </ul>
-
-                    <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
-                </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="panel-usuario.html">Volver al Panel</a></li>
+                </ul>
+                <span class="ms-auto" id="bienvenida"></span>
             </div>
-        </nav>
-
-        <div class="container mt-5">
-            <h2 class="text-center mb-4">Mis Citas</h2>
+        </div>
+    </nav>
+    <main>
+        <div class="container mt-5 pt-5">
+            <h2 class="text-center mb-4">Mis Citas Agendadas</h2>
             <div id="contenedor-citas" class="row g-4"></div>
         </div>
-
-
     </main>
 
     <footer class="site-footer section-padding" id="contact">
@@ -94,231 +76,148 @@
                         Sistemas Computacionales 6°A</p>
                 </div>
             </div>
-            <!doctype html>
-            <html lang="es">
+        </div>
+    </footer>
 
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <meta name="description"
-                    content="Consultorio dental Sonrisa Perfecta - Atención odontológica profesional">
-                <meta name="author" content="Equipo Sonrisa Perfecta">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/scrollspy.min.js"></script>
+    <script src="js/custom.js"></script>
+    
+    <script src="js/sesion.js"></script>
+    <script src="js/nav.js"></script> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kit.fontawesome.com/b1bfd4ff0a.js" crossorigin="anonymous"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const sesion = JSON.parse(localStorage.getItem("sesionIniciada"));
+            const contenedor = document.getElementById("contenedor-citas");
 
-                <title>Consultorio Dental Sonrisa Perfecta</title>
+            // Validar sesión
+            if (!sesion || sesion.tipo !== "usuario") {
+                Swal.fire("Acceso denegado", "Debes iniciar sesión como usuario", "warning")
+                    .then(() => location.href = "login.html");
+                return;
+            }
+            
+            // Mostrar nombre en navbar (si no lo hace nav.js)
+            const spanBienvenida = document.getElementById('bienvenida');
+            if(spanBienvenida && sesion.nombre) {
+                spanBienvenida.textContent = `Hola, ${sesion.nombre}`;
+                spanBienvenida.classList.remove('d-none');
+            }
 
-                <!-- Fuentes y CSS -->
-                <link rel="preconnect" href="https://fonts.googleapis.com">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap"
-                    rel="stylesheet">
+            if (!contenedor) return;
 
-                <link href="css/bootstrap.min.css" rel="stylesheet">
-                <link href="css/bootstrap-icons.css" rel="stylesheet">
-                <link href="css/owl.carousel.min.css" rel="stylesheet">
-                <link href="css/owl.theme.default.min.css" rel="stylesheet">
-                <link href="css/templatemo-medic-care.css" rel="stylesheet">
-                <link href="css/styles.css" rel="stylesheet">
+            // Función para cargar citas
+            async function cargarCitas() {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/citas/usuario/${sesion.id}`);
+                    if (!response.ok) throw new Error('Error al cargar citas');
 
-            </head>
+                    const citas = await response.json();
 
-            <body id="top">
-
-                <main>
-                    <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
-                        <div class="container">
-                            <a class="navbar-brand mx-auto d-lg-none" href="index.html">
-                                Sonrisa Perfecta
-                                <strong class="d-block">Consultorio Dental</strong>
-                            </a>
-
-                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#navbarNav">
-                                <span class="navbar-toggler-icon"></span>
-                            </button>
-
-                            <div class="collapse navbar-collapse" id="navbarNav">
-                                <ul class="navbar-nav mx-auto">
-                                    <li class="nav-item active"><a class="nav-link" href="index.html#hero">Inicio</a>
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link" href="index.html#about">Sobre Nosotros</a>
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link" href="servicios.html">Servicios</a></li>
-                                    <a class="navbar-brand d-none d-lg-block" href="index.html">
-                                        Sonrisa Perfecta
-                                        <strong class="d-block">Consultorio Dental</strong>
-                                    </a>
-                                    <li class="nav-item"><a class="nav-link" href="testimonios.html">Testimonios</a>
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link" href="cita.html">Agendar</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
-                                </ul>
-
-                                <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
-                            </div>
-                        </div>
-                    </nav>
-
-                    <div class="container mt-5">
-                        <h2 class="text-center mb-4">Mis Citas</h2>
-                        <div id="contenedor-citas" class="row g-4"></div>
-                    </div>
-
-
-                </main>
-
-                <footer class="site-footer section-padding" id="contact">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-5 me-auto col-12">
-                                <h5 class="mb-lg-4 mb-3">Horarios</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex">Domingo: Cerrado</li>
-                                    <li class="list-group-item d-flex">Lunes a Viernes<span> 9:00 AM - 6:00 PM</span>
-                                    </li>
-                                    <li class="list-group-item d-flex">Sábado<span> 10:00 AM - 2:00 PM</span></li>
-                                </ul>
-                            </div>
-                            <div class="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
-                                <h5 class="mb-lg-4 mb-3">Ubicación</h5>
-                                <p>Av. Salud Dental #123, Aguascalientes, México</p>
-                                <p><a href="mailto:sonrisa@consultorio.com">sonrisa@consultorio.com</a></p>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-12 ms-auto">
-                                <h5 class="mb-lg-4 mb-3">Redes Sociales</h5>
-                                <ul class="social-icon">
-                                    <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-                                    <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-                                    <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                                </ul>
-                            </div>
-                            <div class="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
-                                <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta<br>Diseñado por el
-                                    equipo de
-                                    Sistemas Computacionales 6°A</p>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-
-                <!-- JS -->
-                <script src="js/sesion.js"></script>
-                <script src="js/jquery.min.js"></script>
-                <script src="js/bootstrap.bundle.min.js"></script>
-                <script src="js/owl.carousel.min.js"></script>
-                <script src="js/scrollspy.min.js"></script>
-                <script src="js/custom.js"></script>
-                <script src="js/nav.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                <script src="https://kit.fontawesome.com/b1bfd4ff0a.js" crossorigin="anonymous"></script>
-                <script>
-                    document.addEventListener("DOMContentLoaded", async () => {
-                        const sesion = JSON.parse(localStorage.getItem("sesionIniciada"));
-                        const contenedor = document.getElementById("contenedor-citas");
-
-                        if (!sesion || sesion.tipo !== "usuario") {
-                            Swal.fire("Acceso denegado", "Debes iniciar sesión como usuario", "warning")
-                                .then(() => location.href = "login.html");
-                            return;
-                        }
-
-                        if (!contenedor) return;
-
-                        // Función para cargar citas
-                        async function cargarCitas() {
-                            try {
-                                const response = await fetch(`http://localhost:3000/api/citas/usuario/${sesion.id}`);
-                                if (!response.ok) throw new Error('Error al cargar citas');
-
-                                const citas = await response.json();
-
-                                if (citas.length === 0) {
-                                    contenedor.innerHTML = `
-                            <div class="text-center text-muted mt-4">
-                                <h5>No tienes citas agendadas.</h5>
+                    if (citas.length === 0) {
+                        contenedor.innerHTML = `
+                            <div class="col-12 text-center text-muted mt-5">
+                                <i class="bi bi-calendar-x display-1"></i>
+                                <h4 class="mt-3">No tienes citas agendadas.</h4>
+                                <a href="cita.html" class="btn btn-primary mt-3">Agendar una cita</a>
                             </div>`;
-                                    return;
-                                }
+                        return;
+                    }
 
-                                contenedor.innerHTML = ''; // Limpiar
-                                citas.forEach(cita => {
-                                    const card = document.createElement("div");
-                                    card.className = "col-md-6 col-lg-4 mb-4";
+                    contenedor.innerHTML = ''; // Limpiar
+                    citas.forEach(cita => {
+                        const card = document.createElement("div");
+                        card.className = "col-md-6 col-lg-4 mb-4";
 
-                                    // Determinar color según estatus
-                                    let badgeClass = 'bg-primary';
-                                    if (cita.estatus === 'cancelada') badgeClass = 'bg-danger';
-                                    if (cita.estatus === 'atendida') badgeClass = 'bg-success';
+                        // Determinar color según estatus
+                        let badgeClass = 'bg-primary';
+                        if (cita.estatus === 'cancelada') badgeClass = 'bg-danger';
+                        if (cita.estatus === 'atendida') badgeClass = 'bg-success';
 
-                                    // Botón cancelar solo si está agendada
-                                    const btnCancelar = cita.estatus === 'agendada'
-                                        ? `<button class="btn btn-danger mt-3 btn-cancelar-cita" data-id="${cita.cita_id}">Cancelar Cita</button>`
-                                        : '';
+                        // Botón cancelar solo si está agendada
+                        const btnCancelar = cita.estatus === 'agendada'
+                            ? `<div class="d-grid mt-3"><button class="btn btn-outline-danger btn-sm btn-cancelar-cita" data-id="${cita.cita_id}"><i class="bi bi-x-circle"></i> Cancelar Cita</button></div>`
+                            : '';
 
-                                    card.innerHTML = `
-                            <div class="card shadow-sm h-100 border-0">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h5 class="card-title text-primary fw-bold mb-0">${cita.servicio}</h5>
-                                        <span class="badge ${badgeClass}">${cita.estatus.toUpperCase()}</span>
+                        card.innerHTML = `
+                            <div class="card shadow h-100 border-0">
+                                <div class="card-header bg-white border-bottom-0 pt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge ${badgeClass} rounded-pill">${cita.estatus.toUpperCase()}</span>
+                                        <small class="text-muted"><i class="bi bi-clock"></i> ${cita.hora}</small>
                                     </div>
-                                    <p class="card-text"><strong>Fecha:</strong> ${cita.fecha}</p>
-                                    <p class="card-text"><strong>Hora:</strong> ${cita.hora}</p>
-                                    <p class="card-text"><strong>Precio:</strong> $${cita.precio}</p>
-                                    <p class="card-text"><strong>Comentario:</strong> ${cita.comentario || 'Ninguno'}</p>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary fw-bold mb-3">${cita.servicio}</h5>
+                                    
+                                    <p class="card-text mb-1"><i class="bi bi-calendar-event text-secondary me-2"></i><strong>Fecha:</strong> ${cita.fecha}</p>
+                                    <p class="card-text mb-1"><i class="bi bi-currency-dollar text-secondary me-2"></i><strong>Precio:</strong> $${cita.precio}</p>
+                                    <p class="card-text mb-1"><i class="bi bi-person-badge text-secondary me-2"></i><strong>Dr(a):</strong> ${cita.doctor_nombre || 'Asignado'}</p>
+                                    
+                                    ${cita.comentario ? `<div class="alert alert-light mt-2 mb-0 small"><i class="bi bi-chat-quote me-1"></i> ${cita.comentario}</div>` : ''}
+                                    
                                     ${btnCancelar}
                                 </div>
                             </div>
                         `;
-                                    contenedor.appendChild(card);
-                                });
-
-                            } catch (error) {
-                                console.error(error);
-                                contenedor.innerHTML = `<div class="alert alert-danger">Error al cargar tus citas.</div>`;
-                            }
-                        }
-
-                        // Cargar citas al inicio
-                        await cargarCitas();
-
-                        // Delegar evento cancelar
-                        contenedor.addEventListener('click', async function (e) {
-                            if (e.target.classList.contains('btn-cancelar-cita')) {
-                                const id = e.target.getAttribute('data-id');
-
-                                const result = await Swal.fire({
-                                    title: "¿Cancelar cita?",
-                                    text: "Esta acción no se puede deshacer.",
-                                    icon: "warning",
-                                    showCancelButton: true,
-                                    confirmButtonText: "Sí, cancelar",
-                                    cancelButtonText: "No"
-                                });
-
-                                if (result.isConfirmed) {
-                                    try {
-                                        const response = await fetch(`http://localhost:3000/api/citas/${id}/estado`, {
-                                            method: 'PUT',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ estado: 'cancelada' })
-                                        });
-
-                                        if (response.ok) {
-                                            Swal.fire("Cancelada", "La cita ha sido cancelada.", "success");
-                                            await cargarCitas(); // Recargar lista
-                                        } else {
-                                            Swal.fire("Error", "No se pudo cancelar la cita.", "error");
-                                        }
-                                    } catch (error) {
-                                        console.error(error);
-                                        Swal.fire("Error", "Error de conexión.", "error");
-                                    }
-                                }
-                            }
-                        });
+                        contenedor.appendChild(card);
                     });
-                </script>
-            </body>
 
-            </html>
+                } catch (error) {
+                    console.error(error);
+                    contenedor.innerHTML = `<div class="alert alert-danger text-center w-100">Error al conectar con el servidor para cargar tus citas.</div>`;
+                }
+            }
+
+            // Cargar citas al inicio
+            await cargarCitas();
+
+            // Delegar evento cancelar
+            contenedor.addEventListener('click', async function (e) {
+                // Buscamos el botón o el icono dentro del botón
+                const btn = e.target.closest('.btn-cancelar-cita');
+                
+                if (btn) {
+                    const id = btn.getAttribute('data-id');
+
+                    const result = await Swal.fire({
+                        title: "¿Cancelar cita?",
+                        text: "Esta acción liberará el horario para otros pacientes.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: "Sí, cancelar",
+                        cancelButtonText: "No, volver"
+                    });
+
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`http://localhost:3000/api/citas/${id}/estado`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ estado: 'cancelada' })
+                            });
+
+                            if (response.ok) {
+                                Swal.fire("Cancelada", "La cita ha sido cancelada exitosamente.", "success");
+                                await cargarCitas(); // Recargar lista
+                            } else {
+                                Swal.fire("Error", "No se pudo cancelar la cita.", "error");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire("Error", "Error de conexión con el servidor.", "error");
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -45,7 +45,7 @@ CREATE TABLE Usuario (
 CREATE TABLE Servicio (
     servicio_id SERIAL PRIMARY KEY,
     nombre VARCHAR(40) NOT NULL,
-    descripcion VARCHAR(30),
+    descripcion VARCHAR(255),
     precio DECIMAL(10, 2) NOT NULL, 
     dias_disponible TEXT[], -- PostgreSQL soporta arrays nativos          
     horas_disponible TEXT[]           
@@ -80,6 +80,8 @@ CREATE TABLE Expediente (
     usuario_id INT NOT NULL REFERENCES Usuario(usuario_id),
     admin_id INT NOT NULL REFERENCES Admin(admin_id),
     fecha_creacion DATE NOT NULL,
+	diagnostico TEXT DEFAULT '',
+	tratamiento TEXT DEFAULT '',
 	UNIQUE(usuario_id)
 );
 
@@ -200,8 +202,6 @@ $$ LANGUAGE plpgsql;
 
 SELECT calcular_edad('1999-05-15');
 
-ALTER TABLE Expediente ADD COLUMN diagnostico TEXT;
-ALTER TABLE Expediente ADD COLUMN tratamiento TEXT;
 
 --****************PROCEDURE*********************
 --procedure para guardar o actualizar expediente

@@ -33,19 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         llenarSelect(selectServicio1);
         llenarSelect(selectServicio2);
 
-        // 1. Leer los parámetros de la URL
-        const params = new URLSearchParams(window.location.search);
-        const idPreseleccionado = params.get('servicio_id');
-
-        // 2. Si existe un ID en la URL, lo seleccionamos
-        if (idPreseleccionado) {
-            selectServicio1.value = idPreseleccionado;
-
-            // 3. ¡IMPORTANTE! Forzamos el evento "change" manualmente
-            // Esto hará que se calcule el precio automáticamente y 
-            // se ejecute la validación de no repetir servicios.
-            selectServicio1.dispatchEvent(new Event('change'));
-        }
+        
     } catch (error) {
         console.error("Error cargando servicios", error);
     }
@@ -183,6 +171,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         const servicioId2 = selectServicio2.value;
         const hora2 = selectHora2.value;
 
+        
+        
+        
         // --- VALIDACIONES ---
         
         // 1. Campos obligatorios básicos
@@ -266,4 +257,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
         }
     });
+     // 1. Leer los parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+        const idPreseleccionado = params.get('servicio_id');
+
+        // 2. Si existe un ID en la URL, lo seleccionamos
+        if (idPreseleccionado) {
+            selectServicio1.value = idPreseleccionado;
+
+            // 3. ¡IMPORTANTE! Forzamos el evento "change" manualmente
+            // Esto hará que se calcule el precio automáticamente y 
+            // se ejecute la validación de no repetir servicios.
+            selectServicio1.dispatchEvent(new Event('change'));
+        }
 });
