@@ -65,7 +65,8 @@ function aplicarRestriccionesAsistente() {
         'receta-detalle.html',
         'admin-ganancias.html'
     ];
-
+    
+    document.body.classList.add('es-asistente');
     const pathActual = window.location.pathname; //bloquear url
     const esProhibida = paginasProhibidas.some(pagina => pathActual.includes(pagina));
 

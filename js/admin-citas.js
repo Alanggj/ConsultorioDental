@@ -317,8 +317,13 @@ function generarHtmlCita(cita, intervaloTiempo) {
                 
                 ${mostrarExtras ? `
                 <div class="d-flex gap-1">
-                    <button class="btn btn-sm btn-info text-white btn-ver-expediente"><i class="bi-folder2-open"></i> Exp.</button>
-                    <button class="btn btn-sm btn-receta btn-generar-receta"><i class="bi-file-earmark-medical"></i> Receta</button>
+                    <button class="btn btn-sm btn-info text-white btn-ver-expediente btn-expediente">
+                        <i class="bi-folder2-open"></i> Exp.
+                    </button>
+                    
+                    <button class="btn btn-sm btn-receta btn-generar-receta">
+                        <i class="bi-file-earmark-medical"></i> Receta
+                    </button>
                 </div>` : ''}
 
             </div>
