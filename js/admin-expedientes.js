@@ -47,26 +47,32 @@ async function cargarExpedientes() {
 
         expedientes.forEach(exp => {
             const fila = document.createElement('tr');
+
+            // --- AGREGA ESTAS 2 LÍNEAS PARA QUE LOS FILTROS FUNCIONEN ---
+            fila.setAttribute('data-edad', exp.edad || 0);
+            fila.setAttribute('data-sexo', exp.sexo || '');
+            // ------------------------------------------------------------
+
             fila.innerHTML = `
-                <td>
-                    <strong>${exp.nombre_paciente}</strong>
-                    <br><small class="text-muted">${exp.edad || 0} años - ${exp.sexo || 'S/D'}</small>
-                </td>
-                <td>${exp.fecha_mostrar}</td>
-                <td>ID: ${exp.usuario_id}</td>
-                <td class="text-end">
-                    
-                <a href="expediente-detalle.html?id=${exp.usuario_id}&origen=expedientes" class="btn btn-sm btn-outline-primary" title="Editar">
-                    <i class="bi-pencil-fill"></i>
-                </a>
-                    <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarExpediente(${exp.usuario_id})" title="Borrar Historial">
-                        <i class="bi-trash-fill"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="descargarPDF(${exp.usuario_id})" title="PDF">
-                        <i class="bi-download"></i>
-                    </button>
-                </td>
-            `;
+        <td>
+            <strong>${exp.nombre_paciente}</strong>
+            <br><small class="text-muted">${exp.edad || 0} años - ${exp.sexo || 'S/D'}</small>
+        </td>
+        <td>${exp.fecha_mostrar}</td>
+        <td>ID: ${exp.usuario_id}</td>
+        <td class="text-end">
+            
+        <a href="expediente-detalle.html?id=${exp.usuario_id}&origen=expedientes" class="btn btn-sm btn-outline-primary" title="Editar">
+            <i class="bi-pencil-fill"></i>
+        </a>
+            <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarExpediente(${exp.usuario_id})" title="Borrar Historial">
+                <i class="bi-trash-fill"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="descargarPDF(${exp.usuario_id})" title="PDF">
+                <i class="bi-download"></i>
+            </button>
+        </td>
+    `;
             tabla.appendChild(fila);
         });
     } catch (error) {
