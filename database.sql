@@ -196,10 +196,8 @@ EXECUTE FUNCTION fn_actualizar_historial_expediente();
 CREATE OR REPLACE FUNCTION fn_marcar_cita_atendida()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Actualizamos el estatus de la cita asociada a la receta creada
-    UPDATE Cita
-    SET estatus = 'atendida'
-    WHERE cita_id = NEW.cita_id;
+    --llamamos a la funcion que función que calcula el total, inserta el pago y cambia el estatus
+	PERFORM fn_registrar_pago_cita(NEW.cita_id);
 
     RETURN NEW;
 END;
