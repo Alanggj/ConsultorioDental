@@ -202,6 +202,30 @@ $$ LANGUAGE plpgsql;
 
 SELECT calcular_edad('1999-05-15');
 
+--función para meter en pago una consulta atendida
+CREATE OR REPLACE FUNCTION fn_registrar_pago_cita(p_cita_id INT)
+RETURNS VOID AS $$
+DECLARE
+    v_total DECIMAL(10,2);
+BEGIN
+    --calcular el total de los servicios de esa cita
+    SELECT COALESCE(SUM(total), 0) INTO v_total
+    FROM Detalle_cita
+    WHERE cita_id = p_cita_id;
+
+    --innsertar el pago (si hay monto y no se ha pagado antes)
+    IF v_total > 0 AND NOT EXISTS (SELECT 1 FROM Pago WHERE cita_id = p_cita_id) THEN
+        INSERT INTO Pago (cita_id, monto)
+        VALUES (p_cita_id, v_total);
+    END IF;
+
+    --actualizar el estado de la cita a 'atendida'
+    UPDATE Cita
+    SET estatus = 'atendida'
+    WHERE cita_id = p_cita_id;
+END;
+$$ LANGUAGE plpgsql;
+
 
 --****************PROCEDURE*********************
 --procedure para guardar o actualizar expediente
