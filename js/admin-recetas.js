@@ -37,7 +37,7 @@ async function cargarRecetas() {
                 <td>${receta.fecha}</td>
                 <td>${resumenMedicamento}</td>
                 <td class="text-end">
-                    <a href="receta-detalle.html?id=${receta.receta_id}" 
+                    <a href="receta-detalle.html?id=${receta.receta_id}&origen=recetas" 
                        class="btn btn-sm btn-outline-primary" title="Ver/Editar">
                         <i class="bi-pencil-fill"></i>
                     </a>

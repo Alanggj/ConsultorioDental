@@ -139,7 +139,7 @@
                 Sonrisa Perfecta
                 <strong class="d-block">Panel Médico</strong>
             </a>
-            <a href="admin-citas.html" class="btn btn-outline-primary">
+            <a href="admin-citas.html" id="btn-volver" class="btn btn-outline-primary">
                 <i class="bi-arrow-left"></i> Volver a Citas
             </a>
         </div>
@@ -241,20 +241,33 @@
     
     <script>
         let modoEdicion = false;
-        let idActual = null; //cita o receta
+        let idActual = null; 
+        
+        // --- 1. CONFIGURACIÓN DINÁMICA ---
+        let urlRegreso = 'admin-citas.html';
+        let textoBoton = 'Volver a Citas';
 
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             const recetaId = params.get('id');       
             const citaId = params.get('cita_id');    
+            const origen = params.get('origen'); // 'citas' o 'recetas'
+
+            // Configurar botón según origen
+            if (origen === 'recetas') {
+                urlRegreso = 'admin-recetas.html';
+                textoBoton = 'Volver a Recetas';
+            }
+
+            const btnVolver = document.getElementById('btn-volver');
+            btnVolver.href = urlRegreso;
+            btnVolver.innerHTML = `<i class="bi-arrow-left"></i> ${textoBoton}`;
 
             if (recetaId) {
-                //editar
                 modoEdicion = true;
                 idActual = recetaId;
                 cargarDatosRecetaExistente(recetaId);
             } else if (citaId) {
-                //crear
                 modoEdicion = false;
                 idActual = citaId;
                 document.getElementById('citaIdHidden').value = citaId;
@@ -276,9 +289,7 @@
                 })
                 .then(res => {
                     const data = res.data;
-                
                     llenarEncabezado(data);
-
                     document.getElementById('diagnostico').value = data.diagnostico;
                     document.getElementById('tratamiento').value = data.tratamiento;
                 })
@@ -313,13 +324,11 @@
             
             document.getElementById('fecha').value = data.fecha || data.fecha_actual;
             
-            // Lógica para Alergias
             const alergias = (data.paciente_alergias && data.paciente_alergias.trim() !== "") 
                              ? data.paciente_alergias 
                              : "Ninguna conocida";
             document.getElementById('alergias').value = alergias;
 
-            // Lógica para Enfermedades Crónicas (NUEVA)
             const enfermedades = (data.paciente_enfermedades && data.paciente_enfermedades.trim() !== "")
                                  ? data.paciente_enfermedades
                                  : "Ninguna reportada";
@@ -362,11 +371,8 @@
         
                 Swal.fire('¡Éxito!', `La receta ha sido ${accion} correctamente.`, 'success')
                 .then(() => {
-                    if (modoEdicion) {
-                        window.location.href = 'admin-recetas.html';
-                    } else {
-                        window.location.href = 'admin-citas.html';
-                    }
+                    // --- REDIRECCIÓN DINÁMICA ---
+                    window.location.href = urlRegreso;
                 });
             })
             .catch(err => {
