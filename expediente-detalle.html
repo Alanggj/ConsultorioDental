@@ -68,7 +68,7 @@
                 Sonrisa Perfecta
                 <strong class="d-block">Panel Médico</strong>
             </a>
-            <a href="admin-citas.html" class="btn btn-outline-primary">
+            <a href="admin-citas.html" id="btn-volver" class="btn btn-outline-primary">
                 <i class="bi-arrow-left"></i> Volver a Citas
             </a>
         </div>
@@ -159,12 +159,29 @@
     
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // 1. OBTENER PARÁMETROS
             const params = new URLSearchParams(window.location.search);
             const usuarioId = params.get('id');
+            const origen = params.get('origen'); // 'citas' o 'expedientes'
+
+            // 2. CONFIGURAR URL DE REGRESO DINÁMICA
+            let urlRegreso = 'admin-citas.html'; // Por defecto
+            let textoBoton = 'Volver a Citas';
+
+            if (origen === 'expedientes') {
+                urlRegreso = 'admin-expedientes.html';
+                textoBoton = 'Volver a Expedientes';
+            }
+
+            // 3. ACTUALIZAR EL NAVBAR
+            const btnVolver = document.getElementById('btn-volver');
+            btnVolver.href = urlRegreso;
+            btnVolver.innerHTML = `<i class="bi-arrow-left"></i> ${textoBoton}`;
+
 
             if (!usuarioId) {
                 Swal.fire('Error', 'No se especificó un paciente');
-                window.location.href = 'admin-expedientes.html';
+                window.location.href = urlRegreso; // Usamos la variable dinámica
                 return;
             }
 
@@ -181,20 +198,16 @@
                     document.getElementById('edad').value = data.edad + " años";
                     document.getElementById('fecha-visita').value = data.ultima_visita || new Date().toISOString().split('T')[0];
                 
-                    // --- LÓGICA PARA MOSTRAR CAMPOS CONDICIONALES ---
-                    
-                    // 1. Alergias
+                    // Campos condicionales
                     if (data.alergias && data.alergias.trim() !== "") {
                         document.getElementById('box-alergias').classList.remove('d-none');
                         document.getElementById('alergias').value = data.alergias;
                     }
 
-                    // 2. Enfermedades Crónicas
                     if (data.enfermedades_cronicas && data.enfermedades_cronicas.trim() !== "") {
                         document.getElementById('box-enfermedades').classList.remove('d-none');
                         document.getElementById('enfermedades').value = data.enfermedades_cronicas;
                     }
-                    // -----------------------------------------------
 
                     // Datos doctor
                     if (data.doctor_nombre) {
@@ -210,7 +223,7 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    Swal.fire('Error', 'Error al cargar datos del expediente: ' + err.message, 'error');
+                    Swal.fire('Error', 'Error al cargar datos: ' + err.message, 'error');
                 });
 
             // GUARDAR CAMBIOS
@@ -239,7 +252,8 @@
                             confirmButtonText: 'Aceptar'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = 'admin-citas.html';
+                                // REDIRECCIÓN DINÁMICA
+                                window.location.href = urlRegreso;
                             }
                         });
                     } else {
@@ -268,7 +282,8 @@
                             if (data.success) {
                                 Swal.fire('¡Vaciado!', 'El expediente ha sido limpiado.', 'success')
                                 .then(() => {
-                                    window.location.href = 'admin-citas.html';
+                                    // REDIRECCIÓN DINÁMICA
+                                    window.location.href = urlRegreso;
                                 });
                             } else {
                                 Swal.fire('Error', data.message, 'error');

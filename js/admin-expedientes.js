@@ -20,7 +20,7 @@ window.eliminarExpediente = async (usuarioId) => {
     try {
         const res = await fetch(`/api/expediente/${usuarioId}`, { method: 'DELETE' });
         const data = await res.json();
-        
+
         if (data.success) {
             Swal.fire('¡Eliminado!', 'Historial clínico vaciado.', 'success');
             cargarExpedientes(); // Recargar la tabla automáticamente
@@ -55,9 +55,10 @@ async function cargarExpedientes() {
                 <td>${exp.fecha_mostrar}</td>
                 <td>ID: ${exp.usuario_id}</td>
                 <td class="text-end">
-                    <a href="expediente-detalle.html?id=${exp.usuario_id}" class="btn btn-sm btn-outline-primary" title="Editar">
-                        <i class="bi-pencil-fill"></i>
-                    </a>
+                    
+                <a href="expediente-detalle.html?id=${exp.usuario_id}&origen=expedientes" class="btn btn-sm btn-outline-primary" title="Editar">
+                    <i class="bi-pencil-fill"></i>
+                </a>
                     <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarExpediente(${exp.usuario_id})" title="Borrar Historial">
                         <i class="bi-trash-fill"></i>
                     </button>
@@ -84,7 +85,7 @@ function configurarFiltros() {
         const texto = inputBusqueda.value.toLowerCase();
         const filtroEdad = selectEdad.value; // 'todos', 'mayores', 'menores'
         const filtroSexo = selectSexo.value; // 'todos', 'M', 'F'
-        
+
         const filas = document.querySelectorAll('#tabla-expedientes tr');
 
         filas.forEach(fila => {
