@@ -70,44 +70,39 @@ function configurarFiltros() {
         
         const filas = document.querySelectorAll('#tabla-recetas tr');
         
-        // Obtenemos fecha actual para comparaciones
+        // Obtenemos fecha actual como strings para comparar fácilmente
         const hoy = new Date();
-        const añoActual = hoy.getFullYear();
-        const mesActual = hoy.getMonth();     // 0-11
-        const diaActual = hoy.getDate();
+        // Formato local YYYY-MM-DD (ojo con el ajuste de zona horaria local)
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        
+        const fechaHoyStr = `${year}-${month}-${day}`;     // "2025-12-05"
+        const mesActualStr = `${year}-${month}`;           // "2025-12"
 
         filas.forEach(fila => {
-            // 1. Obtener datos de la fila
-            // Buscamos en todo el texto de la fila (Nombre, fecha, medicamento)
+            // 1. Datos de la fila
             const contenidoFila = fila.textContent.toLowerCase();
-            const fechaRecetaStr = fila.getAttribute('data-fecha'); // YYYY-MM-DD
+            const fechaRecetaStr = fila.getAttribute('data-fecha'); // Viene como "YYYY-MM-DD" desde la BD
             
-            // 2. Condición de Texto
+            // 2. Condición Texto
             const coincideTexto = contenidoFila.includes(texto);
 
-            // 3. Condición de Fecha
+            // 3. Condición Fecha
             let coincideFecha = true;
 
             if (filtroFecha !== 'todos' && fechaRecetaStr) {
-                // Convertir la fecha de la receta (Ojo: new Date('2025-01-22') puede variar por zona horaria, mejor split)
-                const [rAnio, rMes, rDia] = fechaRecetaStr.split('-').map(Number);
-                
-                // Nota: en JS Date, mes es 0-indexado, pero aquí comparamos números directos
-                // Ajustamos rMes para que coincida con getMonth() (que es 0-11)
-                const mesRecetaIndex = rMes - 1; 
-
                 if (filtroFecha === 'hoy') {
-                    if (rAnio !== añoActual || mesRecetaIndex !== mesActual || rDia !== diaActual) {
-                        coincideFecha = false;
-                    }
-                } else if (filtroFecha === 'mes') {
-                    if (rAnio !== añoActual || mesRecetaIndex !== mesActual) {
-                        coincideFecha = false;
-                    }
+                    // Comparación directa de cadenas: "2025-12-05" === "2025-12-05"
+                    if (fechaRecetaStr !== fechaHoyStr) coincideFecha = false;
+                } 
+                else if (filtroFecha === 'mes') {
+                    // Comparación de inicio de cadena: "2025-12-05".startsWith("2025-12")
+                    if (!fechaRecetaStr.startsWith(mesActualStr)) coincideFecha = false;
                 }
             }
 
-            // 4. Mostrar u ocultar
+            // 4. Mostrar/Ocultar
             if (coincideTexto && coincideFecha) {
                 fila.style.display = '';
             } else {
@@ -116,7 +111,6 @@ function configurarFiltros() {
         });
     }
 
-    // Escuchar eventos
     inputBusqueda.addEventListener('keyup', aplicarFiltros);
     selectFecha.addEventListener('change', aplicarFiltros);
 }
