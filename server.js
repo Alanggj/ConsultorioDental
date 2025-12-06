@@ -688,10 +688,11 @@ app.put('/api/recetas/:id', async (req, res) => {
 app.get('/api/reportes/fechas-ocupadas', async (req, res) => {
     try {
         const query = `
-            SELECT fecha::DATE as fecha, 'Cita' as tipo, hora::TEXT as detalle
+            -- Usamos TO_CHAR para formatear la fecha como texto YYYY-MM-DD
+            SELECT TO_CHAR(fecha, 'YYYY-MM-DD') as fecha, 'Cita' as tipo, hora::TEXT as detalle
             FROM Cita WHERE estatus = 'agendada'
             UNION
-            SELECT fecha_inicio::DATE as fecha, 'Vacaciones' as tipo, descripcion as detalle
+            SELECT TO_CHAR(fecha_inicio, 'YYYY-MM-DD') as fecha, 'Vacaciones' as tipo, descripcion as detalle
             FROM Periodo_vacacional WHERE fecha_fin >= CURRENT_DATE
             ORDER BY fecha DESC`;
         
