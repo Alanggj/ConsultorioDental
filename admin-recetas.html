@@ -9,6 +9,134 @@
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <link href="css/templatemo-medic-care.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
+    <style>
+        /* Estilos copiados de receta-detalle para el PDF */
+        .expediente-hoja {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .expediente-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 2rem;
+            background: linear-gradient(135deg, #eaf4ff 0%, #ffffff 70%);
+            border-bottom: 2px solid #0d6efd;
+        }
+
+        .expediente-header .doctor-info h2 {
+            color: #0d6efd;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .expediente-header .doctor-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .expediente-header .logo-area i {
+            font-size: 3.5rem;
+            color: #0d6efd;
+        }
+
+        .expediente-body {
+            padding: 2.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18rem;
+            color: #0d6efd;
+            opacity: 0.06;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Simulación de Inputs para el PDF */
+        .input-line-simulado {
+            border-bottom: 1px solid #ccc;
+            padding: 5px 0;
+            color: #333;
+            min-height: 24px;
+            display: block;
+            width: 100%;
+        }
+
+        .box-simulado {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0.5rem;
+            min-height: 80px;
+            white-space: pre-wrap;
+        }
+
+        .firma-area {
+            margin-top: 4rem;
+            text-align: right;
+        }
+
+        .firma-linea {
+            width: 280px;
+            border-top: 1px solid #555;
+            margin-left: auto;
+            padding-top: 0.5rem;
+        }
+
+        /* --- CORRECCIÓN DEL FOOTER --- */
+        .expediente-footer {
+            background-color: #0d6efd !important;
+            color: #ffffff !important;
+            /* Blanco forzado */
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Regla específica para los textos e iconos dentro del footer */
+        .expediente-footer p,
+        .expediente-footer i,
+        .expediente-footer span {
+            color: #ffffff !important;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Clases auxiliares */
+        .fw-bold {
+            font-weight: 600;
+        }
+
+        .text-primary {
+            color: #0d6efd !important;
+        }
+
+        .alerta-alergia {
+            color: #646161 !important;
+            font-weight: bold;
+        }
+
+        .alerta-cronica {
+            color: #646161 !important;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body id="top">
@@ -27,7 +155,8 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
-                        <li class="nav-item"><a class="nav-link text-warning" href="panel-admin.html">Panel Admin</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="panel-admin.html">Panel Admin</a>
+                        </li>
                         <li class="nav-item"><a class="nav-link" href="admin-citas.html">Citas</a></li>
                         <li class="nav-item"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
                         <li class="nav-item active">
@@ -58,7 +187,7 @@
                     <div class="col-12">
                         <div class="card shadow-lg">
                             <div class="card-body">
-                                
+
                                 <div class="row g-2 mb-3">
                                     <div class="col-md-6">
                                         <select class="form-select" id="filtro-fecha">
@@ -67,13 +196,14 @@
                                             <option value="mes">Este Mes</option>
                                         </select>
                                     </div>
-                                    </div>
+                                </div>
 
                                 <div class="input-group mb-3">
-                                    <span class="input-group-text" id="icono-busqueda-receta"><i class="bi-search"></i></span>
+                                    <span class="input-group-text" id="icono-busqueda-receta"><i
+                                            class="bi-search"></i></span>
                                     <input type="text" class="form-control" id="buscador-recetas"
-                                        placeholder="Buscar por nombre del paciente ..."
-                                        aria-label="Buscar receta" aria-describedby="icono-busqueda-receta">
+                                        placeholder="Buscar por nombre del paciente ..." aria-label="Buscar receta"
+                                        aria-describedby="icono-busqueda-receta">
                                 </div>
 
                                 <div class="table-responsive">
@@ -87,7 +217,7 @@
                                             </tr>
                                         </thead>
                                         <tbody id="tabla-recetas">
-                                            </tbody>
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -97,9 +227,86 @@
             </div>
         </section>
     </main>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/admin-recetas.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <div id="contenedor-pdf-oculto" style="position: fixed; left: -9999px; top: 0; width: 850px; z-index: -1;">
+
+        <div id="molde-receta" class="expediente-hoja">
+
+            <div class="expediente-header">
+                <div class="doctor-info">
+                    <h2 id="pdf-doctor">Dr. Cargando...</h2>
+                    <p>DENTISTA</p>
+                    <p>Céd. Prof. <span id="pdf-cedula">...</span></p>
+                </div>
+                <div class="logo-area">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+            </div>
+
+            <div class="expediente-body">
+                <div class="watermark"><i class="bi bi-heart-pulse-fill"></i></div>
+
+                <div class="row mb-4" style="display: flex; margin-bottom: 1.5rem;">
+                    <div style="width: 60%; padding-right: 15px;">
+                        <label class="fw-bold">Nombre del Paciente:</label>
+                        <span id="pdf-paciente" class="input-line-simulado"></span>
+                    </div>
+                    <div style="width: 15%; padding-right: 15px;">
+                        <label class="fw-bold">Edad:</label>
+                        <span id="pdf-edad" class="input-line-simulado"></span>
+                    </div>
+                    <div style="width: 25%;">
+                        <label class="fw-bold">Fecha:</label>
+                        <span id="pdf-fecha" class="input-line-simulado"></span>
+                    </div>
+
+                    <div class="row mb-4" style="display: flex; margin-bottom: 1.5rem;">
+                        <div style="width: 50%; padding-right: 15px;">
+                            <label class="fw-bold">Alergias Conocidas:</label>
+                            <span id="pdf-alergias" class="input-line-simulado alerta-alergia"></span>
+                        </div>
+                        <div style="width: 50%;">
+                            <label class="fw-bold">Enfermedades Crónicas:</label>
+                            <span id="pdf-enfermedades" class="input-line-simulado alerta-cronica"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4" style="margin-bottom: 1.5rem;">
+                    <label class="fw-bold text-primary">Diagnóstico:</label>
+                    <div id="pdf-diagnostico" class="box-simulado" style="min-height: 60px;"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="fw-bold text-primary">Tratamiento / Receta (Rx):</label>
+                    <div id="pdf-tratamiento" class="box-simulado" style="min-height: 250px;"></div>
+                </div>
+
+                <div class="firma-area">
+                    <div class="firma-linea"></div>
+                    <label>Firma del Doctor</label>
+                </div>
+            </div>
+
+            <div class="expediente-footer">
+                <div>
+                    <p><i class="bi bi-geo-alt-fill"></i> Av. Salud Dental #123, Aguascalientes</p>
+                    <p><i class="bi bi-telephone-fill"></i> 55 47 79 94 15</p>
+                </div>
+                <div style="text-align: right;">
+                    <p><i class="bi bi-envelope-fill"></i> sonrisa@consultorio.com</p>
+                    <p><i class="bi bi-globe"></i> www.sonrisaperfecta.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>

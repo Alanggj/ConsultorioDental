@@ -127,6 +127,85 @@ function configurarFiltros() {
     selectSexo.addEventListener('change', aplicarFiltros);
 }
 
-// ... Mantén tus funciones window.eliminarExpediente y window.descargarPDF aquí ...
-//window.eliminarExpediente = async (id) => { /* ... tu código de eliminar ... */ };
-//window.descargarPDF = (id) => { /* ... tu código de PDF ... */ };
+// Función para descargar PDF directo desde la tabla de expedientes
+function descargarPDF(usuarioId) {
+    // 1. Mostrar alerta de carga
+    Swal.fire({
+        title: 'Generando Expediente...',
+        text: 'Obteniendo historial clínico',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading() }
+    });
+
+    // 2. Obtener datos del servidor
+    fetch(`/api/expediente/${usuarioId}`)
+        .then(res => res.json())
+        .then(response => {
+            if (!response.success) throw new Error(response.message);
+            
+            const data = response.data;
+
+            // 3. Llenar el "Molde Oculto"
+            
+            // Doctor
+            if (data.doctor_nombre) {
+                document.getElementById('pdf-doctor-nombre').textContent = "DR. " + data.doctor_nombre.toUpperCase();
+                document.getElementById('pdf-cedula').textContent = data.cedula_profesional || 'SIN CÉDULA';
+            } else {
+                document.getElementById('pdf-doctor-nombre').textContent = "DR. GENERAL";
+                document.getElementById('pdf-cedula').textContent = "PENDIENTE";
+            }
+
+            // Paciente
+            document.getElementById('pdf-nombre').textContent = data.nombre_completo;
+            document.getElementById('pdf-edad').textContent = (data.edad || 0) + " años";
+            document.getElementById('pdf-fecha').textContent = data.ultima_visita || new Date().toISOString().split('T')[0];
+
+            // --- Lógica de Alertas ---
+            
+            // Alergias
+            const boxAlergias = document.getElementById('pdf-box-alergias');
+            if (data.alergias && data.alergias.trim() !== "") {
+                boxAlergias.classList.remove('d-none');
+                document.getElementById('pdf-alergias').textContent = data.alergias;
+            } else {
+                boxAlergias.classList.add('d-none');
+            }
+
+            // Enfermedades
+            const boxEnfermedades = document.getElementById('pdf-box-enfermedades');
+            if (data.enfermedades_cronicas && data.enfermedades_cronicas.trim() !== "") {
+                boxEnfermedades.classList.remove('d-none');
+                document.getElementById('pdf-enfermedades').textContent = data.enfermedades_cronicas;
+            } else {
+                boxEnfermedades.classList.add('d-none');
+            }
+
+            // Diagnóstico y Tratamiento
+            document.getElementById('pdf-diagnostico').textContent = data.diagnostico || 'Sin diagnóstico registrado.';
+            document.getElementById('pdf-tratamiento').textContent = data.tratamiento || 'Sin tratamiento registrado.';
+
+            // 4. Configurar y Generar PDF
+            const elemento = document.getElementById('molde-expediente');
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     `Expediente-${data.nombre_completo}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(elemento).save().then(() => {
+                Swal.close();
+            });
+
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire('Error', 'No se pudo generar el PDF: ' + err.message, 'error');
+        });
+}
+
+// Asegúrate de que esta función esté disponible globalmente (window) si usas onclick en el HTML
+window.descargarPDF = descargarPDF;
