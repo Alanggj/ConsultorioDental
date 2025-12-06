@@ -1,9 +1,9 @@
 -- 1. CREACIÓN DE ENUMS (Tipos de datos personalizados)
 
--- Enum para el tipo de admin (solicitado)
+-- Enum para el tipo de admin 
 CREATE TYPE admin_tipo AS ENUM ('doctor', 'asistente');
 
--- Enum para el estado de la cita (solicitado al final)
+-- Enum para el estado de la cita 
 CREATE TYPE cita_estatus AS ENUM ('agendada', 'atendida', 'cancelada');
 
 
@@ -98,8 +98,8 @@ CREATE TABLE Periodo_vacacional(
 CREATE TABLE Receta(
     receta_id SERIAL PRIMARY KEY,
     fecha DATE NOT NULL,
-	diagnostico VARCHAR(255),
-    tratamiento VARCHAR(255),
+	diagnostico TEXT,
+    tratamiento TEXT,
 	cita_id INTEGER NOT NULL REFERENCES Cita(cita_id)
 );
 
@@ -191,6 +191,29 @@ AFTER INSERT ON Receta
 FOR EACH ROW
 EXECUTE FUNCTION fn_actualizar_historial_expediente();
 
+
+--Trigger para actualizar el estatus de una cita despues de haber guardado su receta
+CREATE OR REPLACE FUNCTION fn_marcar_cita_atendida()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Actualizamos el estatus de la cita asociada a la receta creada
+    UPDATE Cita
+    SET estatus = 'atendida'
+    WHERE cita_id = NEW.cita_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. Crear el Trigger que se dispara al guardar una receta
+DROP TRIGGER IF EXISTS trg_actualizar_estatus_receta ON receta;
+
+CREATE TRIGGER trg_actualizar_estatus_receta
+AFTER INSERT ON receta
+FOR EACH ROW
+EXECUTE FUNCTION fn_marcar_cita_atendida();
+
+
 --**************FUNCIONES********************
 --funcion para calcular edad
 CREATE OR REPLACE FUNCTION calcular_edad(fecha_nacimiento DATE)
@@ -225,7 +248,6 @@ BEGIN
     WHERE cita_id = p_cita_id;
 END;
 $$ LANGUAGE plpgsql;
-
 
 --****************PROCEDURE*********************
 --procedure para guardar o actualizar expediente
@@ -355,7 +377,8 @@ JOIN Admin doc ON c.admin_id = doc.admin_id;
 
 CREATE OR REPLACE VIEW Vista_Agenda_Maestra AS
 SELECT 
-    c.cita_id AS id, 
+    c.cita_id AS id,
+	c.usuario_id,
     TO_CHAR(c.fecha, 'YYYY-MM-DD') AS fecha, 
     TO_CHAR(c.hora, 'HH24:MI') AS hora,
     c.estatus AS estado, 
@@ -377,8 +400,3 @@ select * from cita;
 select * from expediente;
 select * from servicio;
 
--- ALTER USER postgres WITH PASSWORD 'gasaiyuno';
-INSERT INTO Admin (usuario, contraseña, tipo, nombre, ap_paterno, cedula_profesional)
-VALUES ('admin', 'Admin123!', 'doctor', 'Administrador', 'Sistema', 'CED001');
-
-SELECT COUNT(*) FROM Admin;
