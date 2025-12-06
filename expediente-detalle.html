@@ -30,7 +30,7 @@
         }
         .expediente-header img {
             max-width: 100px;
-            border-radius: 50%; /* Como en el PDF [cite: 1] */
+            border-radius: 50%;
         }
         .expediente-header .doctor-info {
             text-align: right;
@@ -44,6 +44,19 @@
             padding-top: 1rem;
             margin-top: 2rem;
         }
+        /* Estilo para alertas médicas en el expediente */
+        .alerta-medica {
+            background-color: #fff5f5;
+            border-left: 4px solid #dc3545;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        .aviso-cronico {
+            background-color: #f8f9fa;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 
@@ -53,19 +66,20 @@
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 Sonrisa Perfecta
-                <strong class="d-block">Consultorio Dental</strong>
+                <strong class="d-block">Panel Médico</strong>
             </a>
-            <a href="admin-expedientes.html" class="btn btn-outline-primary">
-                <i class="bi-arrow-left"></i> Volver a Expedientes
+            <a href="admin-citas.html" class="btn btn-outline-primary">
+                <i class="bi-arrow-left"></i> Volver a Citas
             </a>
         </div>
     </nav>
 
-    <div classs="container">
+    <div class="container">
         <form id="form-expediente" class="expediente-hoja">
             
             <div class="expediente-header">
-                <img src="images/gallery/logo.png" alt="Logo Dr. Morales"> <div class="doctor-info">
+                <img src="images/gallery/logo.png" alt="Logo Dr. Morales"> 
+                <div class="doctor-info">
                     <h3 class="mb-1" id="header-doctor">DR. JAVIER MORALES</h3> 
                     <p class="mb-0">DENTISTA</p> 
                     <p class="mb-0">Céd. Prof. <span id="header-cedula">...</span></p> 
@@ -77,15 +91,34 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="nombre" class="form-label fw-bold">Nombre:</label>
-                    <input type="text" id="nombre" class="form-control" value="Carlos Méndez" readonly> 
+                    <input type="text" id="nombre" class="form-control" readonly> 
                 </div>
 
                 <div class="col-md-3">
                     <label for="edad" class="form-label fw-bold">Edad:</label>
-                    <input type="text" id="edad" class="form-control" value="35 años" readonly> 
-                </div> <div class="col-md-3">
+                    <input type="text" id="edad" class="form-control" readonly> 
+                </div> 
+                <div class="col-md-3">
                     <label for="fecha-visita" class="form-label fw-bold">Fecha última visita:</label>
-                    <input type="date" id="fecha-visita" class="form-control" value="2025-01-22"> 
+                    <input type="date" id="fecha-visita" class="form-control" readonly> 
+                </div>
+            </div>
+
+            <div id="box-alergias" class="mb-3 d-none">
+                <div class="alerta-medica">
+                    <label class="form-label fw-bold text-danger mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> ALERGIAS:
+                    </label>
+                    <input type="text" id="alergias" class="form-control-plaintext fw-bold text-danger" readonly>
+                </div>
+            </div>
+
+            <div id="box-enfermedades" class="mb-3 d-none">
+                <div class="aviso-cronico">
+                    <label class="form-label fw-bold text-dark mb-0">
+                        <i class="bi bi-activity"></i> Enfermedades Crónicas / Antecedentes:
+                    </label>
+                    <input type="text" id="enfermedades" class="form-control-plaintext text-dark" readonly>
                 </div>
             </div>
 
@@ -127,7 +160,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
-            const usuarioId = params.get('id'); // Esto es el usuario_id
+            const usuarioId = params.get('id');
 
             if (!usuarioId) {
                 Swal.fire('Error', 'No se especificó un paciente');
@@ -135,38 +168,52 @@
                 return;
             }
 
-            //cargar datos
+            // CARGAR DATOS
             fetch(`/api/expediente/${usuarioId}`)
                 .then(res => res.json())
                 .then(response => {
                     if (!response.success) throw new Error(response.message);
                 
                     const data = response.data;
-                    //llenar campos
+                    
+                    // Llenar campos básicos
                     document.getElementById('nombre').value = data.nombre_completo;
                     document.getElementById('edad').value = data.edad + " años";
                     document.getElementById('fecha-visita').value = data.ultima_visita || new Date().toISOString().split('T')[0];
                 
-                    //datos doctor
+                    // --- LÓGICA PARA MOSTRAR CAMPOS CONDICIONALES ---
+                    
+                    // 1. Alergias
+                    if (data.alergias && data.alergias.trim() !== "") {
+                        document.getElementById('box-alergias').classList.remove('d-none');
+                        document.getElementById('alergias').value = data.alergias;
+                    }
+
+                    // 2. Enfermedades Crónicas
+                    if (data.enfermedades_cronicas && data.enfermedades_cronicas.trim() !== "") {
+                        document.getElementById('box-enfermedades').classList.remove('d-none');
+                        document.getElementById('enfermedades').value = data.enfermedades_cronicas;
+                    }
+                    // -----------------------------------------------
+
+                    // Datos doctor
                     if (data.doctor_nombre) {
                         document.getElementById('header-doctor').textContent = "DR. " + data.doctor_nombre.toUpperCase();
                         document.getElementById('header-cedula').textContent = data.cedula_profesional || 'SIN CÉDULA';
                     } else {
-                        //expediente nuevo
                         document.getElementById('header-doctor').textContent = "DR. GENERAL";
                         document.getElementById('header-cedula').textContent = "PENDIENTE";
                     }
                     
-                    //llenar diagnostico y tratamiento
                     document.getElementById('diagnostico').value = data.diagnostico || '';
                     document.getElementById('tratamiento').value = data.tratamiento || '';
                 })
                 .catch(err => {
                     console.error(err);
-                    Swal.fire('Error', 'Error al cargar datos del expediente ' + data.message, 'error');
+                    Swal.fire('Error', 'Error al cargar datos del expediente: ' + err.message, 'error');
                 });
 
-            //guardar cambios
+            // GUARDAR CAMBIOS
             document.getElementById('form-expediente').addEventListener('submit', function(e) {
                 e.preventDefault();
             
@@ -192,10 +239,9 @@
                             confirmButtonText: 'Aceptar'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = 'admin-expedientes.html';
+                                window.location.href = 'admin-citas.html';
                             }
                         });
-
                     } else {
                         Swal.fire('Error', 'No se pudo guardar: ' + data.message, 'error');
                     }
@@ -203,16 +249,16 @@
                 .catch(err => console.error(err));
             });
 
-            //eliminar desde detalle
+            // ELIMINAR (VACIAR)
             document.getElementById('btn-eliminar').addEventListener('click', function() {
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "¿Deseas vaciar el contenido de este expediente? Esta acción no se puede deshacer.",
+                    text: "¿Deseas vaciar este expediente? Se borrará el diagnóstico y tratamiento.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33', 
                     cancelButtonColor: '#3085d6', 
-                    confirmButtonText: 'Sí, vaciar expediente',
+                    confirmButtonText: 'Sí, vaciar',
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -220,26 +266,19 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire(
-                                    '¡Eliminado!',
-                                    'El expediente ha sido vaciado correctamente.',
-                                    'success'
-                                ).then(() => {
-                                    window.location.href = 'admin-expedientes.html';
+                                Swal.fire('¡Vaciado!', 'El expediente ha sido limpiado.', 'success')
+                                .then(() => {
+                                    window.location.href = 'admin-citas.html';
                                 });
                             } else {
-                                Swal.fire('Error', 'No se pudo completar la acción: ' + data.message, 'error');
+                                Swal.fire('Error', data.message, 'error');
                             }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            Swal.fire('Error', 'Hubo un error de conexión', 'error');
                         });
                     }
                 });
             });
 
-            //pdf
+            // PDF
             document.getElementById('btn-descargar-pdf').addEventListener('click', function() {
                 const { jsPDF } = window.jspdf;
                 const hoja = document.getElementById('form-expediente');
@@ -259,5 +298,4 @@
         });
     </script>
 </body>
-
 </html>

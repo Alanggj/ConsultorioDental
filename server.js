@@ -508,6 +508,8 @@ app.get('/api/expediente/:id', async (req, res) => {
                 u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS nombre_completo,
                 EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.fecha_nacimiento))::int AS edad,
                 TO_CHAR(u.fecha_nacimiento, 'YYYY-MM-DD') as fecha_nac,
+                u.alergias, 
+                u.enfermedades_cronicas,
                 e.diagnostico, e.tratamiento,
                 (SELECT TO_CHAR(MAX(fecha), 'YYYY-MM-DD') FROM Cita WHERE usuario_id = u.usuario_id AND estatus = 'atendida') as ultima_visita,
                 doc.nombre || ' ' || doc.ap_paterno AS doctor_nombre, doc.cedula_profesional
@@ -571,6 +573,7 @@ app.get('/api/recetas/:id', async (req, res) => {
                 r.diagnostico, r.tratamiento,
                 u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente_nombre,
                 calcular_edad(u.fecha_nacimiento) AS paciente_edad, u.alergias AS paciente_alergias,
+                u.enfermedades_cronicas AS paciente_enfermedades,
                 doc.nombre || ' ' || doc.ap_paterno AS doctor_nombre, doc.cedula_profesional
             FROM Receta r
             JOIN Cita c ON r.cita_id = c.cita_id
@@ -598,6 +601,7 @@ app.get('/api/cita/:id/datos-receta', async (req, res) => {
         const query = `
             SELECT u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente_nombre,
                 calcular_edad(u.fecha_nacimiento) AS paciente_edad, u.alergias AS paciente_alergias,
+                u.enfermedades_cronicas AS paciente_enfermedades,
                 doc.nombre || ' ' || doc.ap_paterno || ' ' || COALESCE(doc.ap_materno, '') AS doctor_nombre,
                 doc.cedula_profesional, TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') as fecha_actual
             FROM Cita c

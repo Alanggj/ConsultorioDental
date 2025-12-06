@@ -124,6 +124,10 @@
             color: #dc3545;
             font-weight: bold;
         }
+        .alerta-cronica {
+            color: #e67e22; /* Un naranja para diferenciar de alergias */
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -177,9 +181,15 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="alergias" class="form-label">Alergias Conocidas:</label>
-                    <input type="text" id="alergias" class="form-control input-line alerta-alergia" readonly>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="alergias" class="form-label">Alergias Conocidas:</label>
+                        <input type="text" id="alergias" class="form-control input-line alerta-alergia" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="enfermedades" class="form-label">Enfermedades Crónicas:</label>
+                        <input type="text" id="enfermedades" class="form-control input-line alerta-cronica" readonly>
+                    </div>
                 </div>
 
                 <hr class="my-4">
@@ -229,7 +239,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-<script>
+    <script>
         let modoEdicion = false;
         let idActual = null; //cita o receta
 
@@ -253,7 +263,7 @@
                 Swal.fire('Error', 'No se especificó ninguna cita o receta.', 'error');
             }
 
-            //pedf
+            //pdf
             configurarBotonPDF();
         });
 
@@ -303,10 +313,17 @@
             
             document.getElementById('fecha').value = data.fecha || data.fecha_actual;
             
+            // Lógica para Alergias
             const alergias = (data.paciente_alergias && data.paciente_alergias.trim() !== "") 
                              ? data.paciente_alergias 
                              : "Ninguna conocida";
             document.getElementById('alergias').value = alergias;
+
+            // Lógica para Enfermedades Crónicas (NUEVA)
+            const enfermedades = (data.paciente_enfermedades && data.paciente_enfermedades.trim() !== "")
+                                 ? data.paciente_enfermedades
+                                 : "Ninguna reportada";
+            document.getElementById('enfermedades').value = enfermedades;
         }
 
         function guardarReceta() {
