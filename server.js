@@ -770,6 +770,37 @@ app.get('/api/reporte-mensual-texto', async (req, res) => {
     }
 });
 
+//ELIMINAR USUARIO (pacientes inactivos)
+app.delete('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        await pool.query('BEGIN');
+
+        //borrar expediente vacío
+        await pool.query('DELETE FROM Expediente WHERE usuario_id = $1', [id]);
+
+        //borrar usuario
+        const result = await pool.query('DELETE FROM Usuario WHERE usuario_id = $1', [id]);
+
+        await pool.query('COMMIT');
+
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: 'Usuario eliminado correctamente' });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+
+    } catch (error) {
+        await pool.query('ROLLBACK'); //deshacer
+        console.error(error);
+        if (error.code === '23503') {
+            return res.status(400).json({ success: false, message: 'No se puede eliminar: El usuario tiene datos relacionados.' });
+        }
+        res.status(500).json({ success: false, message: 'Error interno al eliminar usuario' });
+    }
+});
+
 // Servir archivos estáticos
 app.use(express.static(__dirname));
 

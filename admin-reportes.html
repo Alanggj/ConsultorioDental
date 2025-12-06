@@ -150,6 +150,7 @@
 
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/sesion.js"></script>
 
     <script>
@@ -218,13 +219,13 @@
                             <strong>${result.total}</strong> paciente(s) sin historial de citas
                         </div>
                         <div class="table-responsive table-container">
-                            <table class="table table-hover">
+                            <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Nombre Completo</th>
                                         <th>Correo</th>
                                         <th>Teléfono</th>
-                                    </tr>
+                                        <th class="text-end">Acciones</th> </tr>
                                 </thead>
                                 <tbody>`;
 
@@ -234,6 +235,12 @@
                                 <td><strong>${paciente.nombre_completo}</strong></td>
                                 <td>${paciente.correo}</td>
                                 <td>${paciente.telefono || 'Sin teléfono'}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="eliminarUsuarioInactivo(${paciente.usuario_id})">
+                                        <i class="bi-trash-fill"></i> Eliminar
+                                    </button>
+                                </td>
                             </tr>`;
                     });
 
@@ -251,6 +258,40 @@
                 container.innerHTML = `<div class="alert alert-danger">Error al cargar pacientes</div>`;
             }
         }
+
+        //Eliminar usuario inactivo
+        async function eliminarUsuarioInactivo(id) {
+            const result = await Swal.fire({
+                title: '¿Eliminar usuario?',
+                text: "Esta acción borrará al usuario y su expediente vacío permanentemente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
+                    method: 'DELETE'
+                });
+            
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    Swal.fire('Eliminado', data.message, 'success');
+                    cargarPacientesInactivos(); // Recargar la tabla para ver cambios
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo eliminar', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Fallo de conexión con el servidor', 'error');
+            }
+        }
+}
 
         // Reporte 3: Pacientes Activos
         async function cargarPacientesActivos() {
