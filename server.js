@@ -182,11 +182,21 @@ app.put('/api/citas/:id/estado', async (req, res) => {
     const { estado } = req.body;
 
     try {
-        await pool.query('UPDATE Cita SET estatus = $1 WHERE cita_id = $2', [estado, id]);
-        res.json({ success: true, message: 'Estado actualizado' });
+        //si el usuario marca la cita como atendida
+        if (estado === 'atendida') {
+            //llamar a la función
+            await pool.query('SELECT fn_registrar_pago_cita($1)', [id]);
+            res.json({ success: true, message: 'Cita finalizada y pago registrado.' });
+        } 
+        else {
+            //update normal
+            await pool.query('UPDATE Cita SET estatus = $1 WHERE cita_id = $2', [estado, id]);
+            res.json({ success: true, message: 'Estado actualizado correctamente.' });
+        }
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
