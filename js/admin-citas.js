@@ -263,35 +263,35 @@ function showDaySchedule(dateStr, tdElement) {
 }
 
 // Generador de HTML para tarjetas de citas
-// Cambié el nombre del segundo parámetro a 'intervaloTiempo' para que sea más claro
+// Generador de HTML para tarjetas de citas
 function generarHtmlCita(cita, intervaloTiempo) {
-    // Convertimos el estado a minúsculas para la clase CSS (ej: estado-confirmada)
+    // Convertimos el estado a minúsculas para la clase CSS
     let estadoClass = `estado-${cita.estado.toLowerCase()}`; 
     let botonesHtml = "";
+    
+    // 1. Variable para controlar si mostramos los botones de Exp/Receta
+    let mostrarExtras = true; 
 
-    // --- LÓGICA DE BOTONES MODIFICADA ---
+    // --- LÓGICA DE ESTADOS ---
     if (cita.estado === "Pendiente") {
-        // Si está pendiente, mostramos Confirmar (Check) y Cancelar (X)
         botonesHtml = `
             <button class="btn btn-success btn-confirmar" title="Confirmar Asistencia"><i class="bi-check-lg"></i></button>
             <button class="btn btn-danger btn-cancelar" title="Cancelar Cita"><i class="bi-x-lg"></i></button>
         `;
     } 
     else if (cita.estado === "Confirmada" || cita.estado === "Atendida") {
-        // ⭐ CAMBIO AQUÍ: 
-        // Antes aparecía el botón de cancelar. Ahora mostramos solo texto/ícono.
-        // Ya no hay botón de X.
         botonesHtml = `
             <span class="text-success fw-bold">
                 <i class="bi-check-circle-fill"></i> Atendida
             </span>
         `;
+        mostrarExtras = false; 
     } 
     else if (cita.estado === "Cancelada") {
         botonesHtml = `<span class="text-danger fw-bold">Cancelada</span>`;
+        mostrarExtras = false; 
     }
     else {
-        // Por defecto (si llega otro estado)
         botonesHtml = `<span class="fw-bold">${cita.estado}</span>`;
     }
 
@@ -315,11 +315,12 @@ function generarHtmlCita(cita, intervaloTiempo) {
             <div class="cita-actions d-flex flex-column gap-2 align-items-end">
                 <div class="btn-group btn-group-sm">${botonesHtml}</div>
                 
-                ${cita.estado !== "Cancelada" ? `
+                ${mostrarExtras ? `
                 <div class="d-flex gap-1">
                     <button class="btn btn-sm btn-info text-white btn-ver-expediente"><i class="bi-folder2-open"></i> Exp.</button>
                     <button class="btn btn-sm btn-receta btn-generar-receta"><i class="bi-file-earmark-medical"></i> Receta</button>
                 </div>` : ''}
+
             </div>
         </div>
     `;
