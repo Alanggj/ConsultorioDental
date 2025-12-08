@@ -63,7 +63,8 @@ function aplicarRestriccionesAsistente() {
         'expediente-detalle.html',
         'admin-recetas.html',
         'receta-detalle.html',
-        'admin-ganancias.html'
+        'admin-ganancias.html',
+        'admin-reportes.html'
     ];
     
     document.body.classList.add('es-asistente');
