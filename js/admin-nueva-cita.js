@@ -25,6 +25,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const precioTotalInput = document.getElementById('precio_total');
     let serviciosDB = [];
 
+    // BLOQUEAR FECHAS PASADAS EN EL HTML
+    // Obtenemos la fecha de hoy en formato YYYY-MM-DD local
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const fechaMinima = `${anio}-${mes}-${dia}`;
+
+    // Para que el input: "No acepte nada antes de hoy"
+    dateInput.min = fechaMinima;
+
     // --- 2. CARGAR SERVICIOS ---
     try {
         const res = await fetch('http://localhost:3000/api/servicios');
@@ -234,10 +245,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 7. ENVÍO DEL FORMULARIO ---
     document.getElementById('form-cita-admin').addEventListener('submit', async (e) => {
         e.preventDefault();
+        // Validacion de fechas pasadas
+        const fechaSeleccionada = dateInput.value;
+        // Volvemos a calcular hoy por seguridad
+        const fechaActual = new Date();
+        fechaActual.setHours(0, 0, 0, 0); // Quitamos la hora para comparar solo fechas
+        
+        // Creamos objeto fecha con lo seleccionado (agregamos T00:00 para evitar problemas de zona horaria)
+        const fechaCita = new Date(fechaSeleccionada + 'T00:00:00');
 
-        // ... (Tu lógica de validación existente va aquí) ...
-        // Copia aquí tus validaciones (paciente, fecha, servicios duplicados, etc.)
-
+        if (fechaCita < fechaActual) {
+            return Swal.fire('Fecha inválida', 'No puedes agendar citas en una fecha pasada.', 'error');
+        }
+        
         if (!usuarioIdInput.value) { Swal.fire('Falta Paciente', 'Selecciona un paciente.', 'warning'); return; }
         if (!dateInput.value) { Swal.fire('Falta Fecha', 'Selecciona la fecha.', 'warning'); return; }
 
