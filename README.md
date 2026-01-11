@@ -5,9 +5,19 @@
 
 ## Arquitectura
 El sistema utiliza una arquitectura **Cliente-Servidor (Monolito Modular)**:
-*   **Backend**: API RESTful construida con Node.js y Express, responsable de la lógica de negocio y comunicación con la base de datos.
-*   **Base de Datos**: PostgreSQL actuando como fuente de verdad, con lógica de negocio pesada implementada en procedimientos almacenados y triggers.
-*   **Frontend**: Cliente web estático (HTML/CSS/JS) que consume la API.
+```
+ConsultorioDental/
+├── css/             # Estilos (Bootstrap + Custom)
+├── js/              # Lógica Cliente (Fetch API, DOM)
+├── server.js        # Entry Point del Backend (Express)
+├── database.sql     # Schema de Base de Datos
+├── *.html           # Vistas (Admin, Usuario, Landing)
+├── package.json     # Dependencias (pg, express, dotenv)
+└── .env             # Variables de entorno (DB Credenciales)
+```
+*   **Backend**: API RESTful construida con Node.js y Express.
+*   **Base de Datos**: PostgreSQL con procedimientos almacenados.
+*   **Frontend**: Cliente web estático que consume la API.
 
 ## Tecnologías Utilizadas
 *   **Backend**: Node.js, Express.js (v5.x), dotenv, cors.
