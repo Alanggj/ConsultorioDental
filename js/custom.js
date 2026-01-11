@@ -64,5 +64,10 @@
         }
       }
     });
+
+    // FLOATING ACTIONS CLOSE BUTTON
+    $('#close-actions').click(function() {
+      $('#floating-actions').fadeOut();
+    });
     
   })(window.jQuery);
