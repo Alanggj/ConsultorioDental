@@ -1,0 +1,810 @@
+// 1. Cargar las herramientas
+require('dotenv').config();
+const express = require('express');
+const { Pool } = require('pg');
+const cors = require('cors');
+
+// 2. Configurar la conexión a la Base de Datos
+const pool = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+});
+
+// 3. Crear el servidor
+const app = express();
+const PORT = 3000;
+
+// 4. Middlewares
+app.use(cors());
+app.use(express.json());
+
+// --- RUTAS (ENDPOINTS) ---
+
+// Prueba de conexión
+app.get('/api/prueba_conexion', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT NOW()');
+        res.json({ message: '¡Conexión exitosa!', hora_bd: result.rows[0].now });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// LOGIN
+app.post('/api/login', async (req, res) => {
+    const { usuario, contrasena } = req.body;
+
+    if (!usuario || !contrasena)
+        return res.status(400).json({ success: false, message: 'Faltan datos' });
+
+    try {
+        // Buscar Admin
+        const adminQuery = `SELECT admin_id AS id, nombre, ap_paterno, tipo 
+                            FROM Admin 
+                            WHERE usuario = $1 AND contraseña = $2`;
+        const adminRes = await pool.query(adminQuery, [usuario, contrasena]);
+
+        if (adminRes.rowCount > 0) {
+            const admin = adminRes.rows[0];
+            return res.json({
+                success: true,
+                user: {
+                    id: admin.id,
+                    nombre: `${admin.nombre} ${admin.ap_paterno}`,
+                    tipo: 'admin',
+                    rol: admin.tipo
+                }
+            });
+        }
+
+        // Buscar Usuario
+        const userQuery = `SELECT usuario_id AS id, nombre, ap_paterno, correo 
+                           FROM Usuario 
+                           WHERE usuario = $1 AND contraseña = $2`;
+        const userRes = await pool.query(userQuery, [usuario, contrasena]);
+
+        if (userRes.rowCount > 0) {
+            const u = userRes.rows[0];
+            return res.json({
+                success: true,
+                user: {
+                    id: u.id,
+                    nombre: `${u.nombre} ${u.ap_paterno}`,
+                    email: u.correo,
+                    tipo: 'usuario'
+                }
+            });
+        }
+
+        return res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error de servidor' });
+    }
+});
+
+// REGISTRO
+app.post('/api/registro', async (req, res) => {
+    const { nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, nombre_tutor, telefono, correo, usuario, contrasena } = req.body;
+
+    if (!nombre || !correo || !usuario || !contrasena || !fecha_nacimiento || !sexo)
+        return res.status(400).json({ success: false, message: 'Datos incompletos' });
+
+    if (sexo !== 'M' && sexo !== 'F') {
+        return res.status(400).json({ success: false, message: 'Sexo inválido.' });
+    }
+
+    const tieneMayuscula = /[A-Z]/.test(contrasena);
+    const tieneMinuscula = /[a-z]/.test(contrasena);
+    const tieneNumero = /[0-9]/.test(contrasena);
+    const tieneSimbolo = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(contrasena);
+    const longitudValida = contrasena.length >= 8;
+
+    if (!longitudValida || !tieneMayuscula || !tieneMinuscula || !tieneNumero || !tieneSimbolo) {
+        return res.status(400).json({
+            success: false,
+            message: 'La contraseña es débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo.'
+        });
+    }
+
+    const fechaNacDate = new Date(fecha_nacimiento);
+    const hoy = new Date();
+
+    if (fechaNacDate > hoy) {
+        return res.status(400).json({ success: false, message: 'Fecha de nacimiento inválida (futura)' });
+    }
+
+    let edadCalculada = hoy.getFullYear() - fechaNacDate.getFullYear();
+    const m = hoy.getMonth() - fechaNacDate.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < fechaNacDate.getDate())) {
+        edadCalculada--;
+    }
+
+    if (edadCalculada > 100) {
+        return res.status(400).json({ success: false, message: 'La edad no puede ser mayor a 100 años.' });
+    }
+
+    if (edadCalculada < 1) {
+        return res.status(400).json({ success: false, message: 'Lo sentimos, la edad mínima para atención es de 1 año.' });
+    }
+
+    if (edadCalculada < 18 && !nombre_tutor) {
+        return res.status(400).json({ success: false, message: 'Para menores de edad, el nombre del tutor es obligatorio.' });
+    }
+
+    const tutorFinal = edadCalculada >= 18 ? null : nombre_tutor;
+
+    try {
+        const check = await pool.query(
+            `SELECT usuario_id FROM Usuario WHERE usuario = $1 OR correo = $2`,
+            [usuario, correo]
+        );
+
+        if (check.rowCount > 0)
+            return res.status(400).json({ success: false, message: 'El usuario o correo ya existen' });
+
+        const insert = `INSERT INTO Usuario 
+            (nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, nombre_tutor, telefono, correo, usuario, contraseña)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
+
+        await pool.query(insert, [
+            nombre, ap_paterno, ap_materno, fecha_nacimiento, sexo, tutorFinal, telefono, correo, usuario, contrasena
+        ]);
+
+        res.status(201).json({ success: true, message: 'Registro exitoso' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error en el servidor' });
+    }
+});
+
+// --- CITAS ---
+
+app.get('/api/citas', async (req, res) => {
+    try {
+        const query = `SELECT * FROM Vista_Agenda_Maestra ORDER BY fecha ASC, hora ASC`;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener citas' });
+    }
+});
+
+app.put('/api/citas/:id/estado', async (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    try {
+        //si el usuario marca la cita como atendida
+        if (estado === 'atendida') {
+            //llamar a la función
+            await pool.query('SELECT fn_registrar_pago_cita($1)', [id]);
+            res.json({ success: true, message: 'Cita finalizada y pago registrado.' });
+        } 
+        else {
+            //update normal
+            await pool.query('UPDATE Cita SET estatus = $1 WHERE cita_id = $2', [estado, id]);
+            res.json({ success: true, message: 'Estado actualizado correctamente.' });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/citas', async (req, res) => {
+    const { usuario_id, admin_id, fecha, citas, comentario } = req.body;
+
+    if (!usuario_id || !fecha || !citas || citas.length === 0) {
+        return res.status(400).json({ success: false, message: 'Faltan datos obligatorios.' });
+    }
+
+    try {
+        await pool.query('BEGIN');
+
+        for (const item of citas) {
+            if (!item.hora || item.hora === '') {
+                throw new Error(`Falta hora para el servicio ${item.servicio_id}`);
+            }
+
+            const conflict = await pool.query(
+                `SELECT cita_id FROM Cita WHERE fecha = $1 AND hora = $2 AND estatus != 'cancelada'`,
+                [fecha, item.hora]
+            );
+
+            if (conflict.rowCount > 0) {
+                throw new Error("Horario ocupado");
+            }
+
+            const citaRes = await pool.query(
+                `INSERT INTO Cita (usuario_id, admin_id, fecha, hora, comentario, estatus) 
+                 VALUES ($1, $2, $3, $4, $5, 'agendada') RETURNING cita_id`,
+                [usuario_id, admin_id, fecha, item.hora, comentario || '']
+            );
+
+            await pool.query(
+                `INSERT INTO Detalle_cita (cita_id, servicio_id, total)
+                 VALUES ($1, $2, (SELECT precio FROM Servicio WHERE servicio_id = $2))`,
+                [citaRes.rows[0].cita_id, item.servicio_id]
+            );
+        }
+
+        await pool.query('COMMIT');
+        res.status(201).json({ success: true });
+
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        console.error(error);
+
+        if (error.message === "Horario ocupado") {
+            return res.status(400).json({ success: false, message: 'Horario ocupado.' });
+        }
+
+        if (error.message.includes('VACACIONES_CONFLICTO')) {
+            return res.status(400).json({
+                success: false,
+                message: 'No se puede agendar: El doctor está de vacaciones en la fecha seleccionada.'
+            });
+        }
+
+        const msg = error.message.includes('Falta hora') ? error.message : 'Error interno al crear la cita.';
+        res.status(500).json({ success: false, message: msg });
+    }
+});
+
+// --- AUXILIARES ---
+
+app.get('/api/buscar-paciente', async (req, res) => {
+    const { query } = req.query;
+    if (!query) return res.json([]);
+
+    try {
+        const searchTerms = query.trim().split(/\s+/).join('%');
+        const searchPattern = `%${searchTerms}%`;
+
+        const sql = `
+            SELECT usuario_id, nombre, ap_paterno, ap_materno, correo, telefono 
+            FROM Usuario 
+            WHERE nombre ILIKE $1 OR ap_paterno ILIKE $1 OR ap_materno ILIKE $1 
+                OR CONCAT_WS(' ', TRIM(nombre), TRIM(ap_paterno), NULLIF(TRIM(ap_materno), '')) ILIKE $1
+            LIMIT 5`;
+
+        const result = await pool.query(sql, [searchPattern]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error buscando paciente' });
+    }
+});
+
+app.get('/api/servicios', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM Servicio ORDER BY servicio_id ASC');
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error obteniendo servicios' });
+    }
+});
+
+app.get('/api/horarios-disponibles', async (req, res) => {
+    const { fecha } = req.query;
+
+    if (!fecha) return res.status(400).json({ error: 'Fecha requerida' });
+
+    try {
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        const diaSemana = fechaObj.getDay();
+        let slots = [];
+
+        if (diaSemana === 0) return res.json([]);
+        else if (diaSemana === 6)
+            slots = ['10:00:00', '11:00:00', '12:00:00', '13:00:00', '14:00:00'];
+        else
+            slots = ['09:00:00', '10:00:00', '11:00:00', '12:00:00', '13:00:00',
+                '14:00:00', '15:00:00', '16:00:00', '17:00:00'];
+
+        const occupied = await pool.query(
+            `SELECT hora FROM Cita WHERE fecha = $1 AND estatus != 'cancelada'`,
+            [fecha]
+        );
+
+        const busyHours = occupied.rows.map(r => r.hora);
+        res.json(slots.filter(s => !busyHours.includes(s)));
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error calculando horarios' });
+    }
+});
+
+// --- VACACIONES ---
+
+app.post('/api/vacaciones', async (req, res) => {
+    const { fecha_inicio, fecha_fin, descripcion } = req.body;
+    const admin_id = 1;
+
+    try {
+        const conflicto = await pool.query(
+            `SELECT vacacion_id FROM Periodo_vacacional 
+             WHERE fecha_inicio <= $2 AND fecha_fin >= $1`,
+            [fecha_inicio, fecha_fin]
+        );
+
+        if (conflicto.rowCount > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ya existe un periodo vacacional en esas fechas.'
+            });
+        }
+
+        const insert = `INSERT INTO Periodo_vacacional (admin_id, fecha_inicio, fecha_fin, descripcion) 
+                        VALUES ($1, $2, $3, $4) RETURNING *`;
+
+        const result = await pool.query(insert, [admin_id, fecha_inicio, fecha_fin, descripcion]);
+        res.status(201).json({ success: true, data: result.rows[0] });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor.' });
+    }
+});
+
+app.get('/api/vacaciones', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM Periodo_vacacional ORDER BY fecha_inicio ASC');
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener vacaciones' });
+    }
+});
+
+app.delete('/api/vacaciones/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM Periodo_vacacional WHERE vacacion_id = $1', [id]);
+        res.json({ success: true, message: 'Periodo eliminado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al eliminar' });
+    }
+});
+
+// GANANCIAS
+app.get('/api/ganancias', async (req, res) => {
+    try {
+        const { filtro } = req.query;
+        let query = `SELECT *, SUM(monto) OVER() as total_periodo FROM Vista_Reporte_Ganancias`;
+        let params = [];
+
+        if (filtro === 'today') {
+            query += " WHERE fecha = CURRENT_DATE";
+        } else if (filtro === 'month') {
+            query += " WHERE mes = EXTRACT(MONTH FROM CURRENT_DATE) AND anio = EXTRACT(YEAR FROM CURRENT_DATE)";
+        } else if (filtro === 'year') {
+            query += " WHERE anio = EXTRACT(YEAR FROM CURRENT_DATE)";
+        }
+
+        query += " ORDER BY fecha DESC";
+
+        const result = await pool.query(query, params);
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener historial de ganancias' });
+    }
+});
+
+// USUARIO
+app.get('/api/usuario/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const sql = `
+            SELECT nombre, ap_paterno, ap_materno, correo, telefono, 
+                usuario, direccion, alergias, enfermedades_cronicas, 
+                nombre_tutor, TO_CHAR(fecha_nacimiento, 'YYYY-MM-DD') as fecha_nacimiento
+            FROM Usuario WHERE usuario_id = $1`;
+
+        const result = await pool.query(sql, [id]);
+
+        if (result.rowCount > 0) {
+            res.json({ success: true, data: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error al obtener usuario' });
+    }
+});
+
+app.put('/api/usuario/:id', async (req, res) => {
+    const { id } = req.params;
+    const { telefono, direccion, alergias, enfermedades_cronicas, nombre_tutor, contrasena } = req.body;
+
+    try {
+        let sql, params;
+
+        if (contrasena && contrasena.trim() !== "") {
+            sql = `UPDATE Usuario SET telefono = $1, direccion = $2, alergias = $3, 
+                    enfermedades_cronicas = $4, nombre_tutor = $5, contraseña = $6
+                   WHERE usuario_id = $7`;
+            params = [telefono, direccion, alergias, enfermedades_cronicas, nombre_tutor, contrasena, id];
+        } else {
+            sql = `UPDATE Usuario SET telefono = $1, direccion = $2, alergias = $3, 
+                    enfermedades_cronicas = $4, nombre_tutor = $5 WHERE usuario_id = $6`;
+            params = [telefono, direccion, alergias, enfermedades_cronicas, nombre_tutor, id];
+        }
+
+        await pool.query(sql, params);
+        res.json({ success: true, message: 'Datos actualizados correctamente' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar datos' });
+    }
+});
+
+// OBTENER CITAS DE UN USUARIO ESPECÍFICO
+app.get('/api/citas/usuario/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        const query = `
+            SELECT 
+                c.cita_id,
+                c.fecha,
+                c.hora,
+                c.estatus,
+                c.comentario,
+                s.nombre as servicio,
+                s.precio,
+                a.nombre || ' ' || a.ap_paterno as doctor_nombre
+            FROM Cita c
+            JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+            JOIN Servicio s ON dc.servicio_id = s.servicio_id
+            LEFT JOIN Admin a ON c.admin_id = a.admin_id
+            WHERE c.usuario_id = $1
+            ORDER BY c.fecha DESC, c.hora DESC`;
+        
+        const result = await pool.query(query, [id]);
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener citas del usuario' });
+    }
+});
+
+// EXPEDIENTES
+app.get('/api/expedientes', async (req, res) => {
+    try {
+        const query = `
+            SELECT e.expediente_id, u.usuario_id,
+                TRIM(CONCAT(u.nombre, ' ', u.ap_paterno, ' ', COALESCE(u.ap_materno, ''))) AS nombre_paciente,
+                TO_CHAR(MAX(c.fecha), 'YYYY-MM-DD') AS ultima_visita,
+                CASE WHEN MAX(c.fecha) IS NULL THEN 'Sin historial' ELSE TO_CHAR(MAX(c.fecha), 'YYYY-MM-DD') END AS fecha_mostrar,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.fecha_nacimiento))::int AS edad, u.sexo
+            FROM Expediente e
+            JOIN Usuario u ON e.usuario_id = u.usuario_id
+            LEFT JOIN Cita c ON u.usuario_id = c.usuario_id AND c.estatus = 'atendida'
+            GROUP BY e.expediente_id, u.usuario_id, u.nombre, u.ap_paterno, u.ap_materno, u.fecha_nacimiento, u.sexo
+            ORDER BY u.ap_paterno ASC`;
+
+        const result = await pool.query(query);
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al cargar expedientes' });
+    }
+});
+
+app.get('/api/expediente/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT u.usuario_id, 
+                u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS nombre_completo,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.fecha_nacimiento))::int AS edad,
+                TO_CHAR(u.fecha_nacimiento, 'YYYY-MM-DD') as fecha_nac,
+                u.alergias, 
+                u.enfermedades_cronicas,
+                e.diagnostico, e.tratamiento,
+                (SELECT TO_CHAR(MAX(fecha), 'YYYY-MM-DD') FROM Cita WHERE usuario_id = u.usuario_id AND estatus = 'atendida') as ultima_visita,
+                doc.nombre || ' ' || doc.ap_paterno AS doctor_nombre, doc.cedula_profesional
+            FROM Usuario u
+            LEFT JOIN Expediente e ON u.usuario_id = e.usuario_id
+            LEFT JOIN Admin doc ON e.admin_id = doc.admin_id
+            WHERE u.usuario_id = $1`;
+
+        const result = await pool.query(query, [id]);
+
+        if (result.rows.length > 0) {
+            res.json({ success: true, data: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Paciente no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error de servidor' });
+    }
+});
+
+app.post('/api/expediente', async (req, res) => {
+    const { usuario_id, diagnostico, tratamiento } = req.body;
+    try {
+        await pool.query('CALL sp_guardar_expediente($1, $2, $3)', [usuario_id, diagnostico, tratamiento]);
+        res.json({ success: true, message: 'Expediente guardado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al guardar' });
+    }
+});
+
+app.delete('/api/expediente/:usuario_id', async (req, res) => {
+    const { usuario_id } = req.params;
+    try {
+        await pool.query('DELETE FROM Expediente WHERE usuario_id = $1', [usuario_id]);
+        res.json({ success: true, message: 'Expediente eliminado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al eliminar' });
+    }
+});
+
+// RECETAS
+app.get('/api/recetas', async (req, res) => {
+    try {
+        const query = `SELECT * FROM Vista_Recetas_Completas ORDER BY fecha DESC`;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener recetas' });
+    }
+});
+
+app.get('/api/recetas/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT r.receta_id, r.cita_id, TO_CHAR(r.fecha, 'YYYY-MM-DD') as fecha,
+                r.diagnostico, r.tratamiento,
+                u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente_nombre,
+                calcular_edad(u.fecha_nacimiento) AS paciente_edad, u.alergias AS paciente_alergias,
+                u.enfermedades_cronicas AS paciente_enfermedades,
+                doc.nombre || ' ' || doc.ap_paterno AS doctor_nombre, doc.cedula_profesional
+            FROM Receta r
+            JOIN Cita c ON r.cita_id = c.cita_id
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            JOIN Admin doc ON c.admin_id = doc.admin_id
+            WHERE r.receta_id = $1`;
+
+        const result = await pool.query(query, [id]);
+
+        if (result.rows.length > 0) {
+            res.json({ success: true, data: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Receta no encontrada' });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error al obtener la receta' });
+    }
+});
+
+app.get('/api/cita/:id/datos-receta', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, '') AS paciente_nombre,
+                calcular_edad(u.fecha_nacimiento) AS paciente_edad, u.alergias AS paciente_alergias,
+                u.enfermedades_cronicas AS paciente_enfermedades,
+                doc.nombre || ' ' || doc.ap_paterno || ' ' || COALESCE(doc.ap_materno, '') AS doctor_nombre,
+                doc.cedula_profesional, TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') as fecha_actual
+            FROM Cita c
+            JOIN Usuario u ON c.usuario_id = u.usuario_id
+            JOIN Admin doc ON c.admin_id = doc.admin_id
+            WHERE c.cita_id = $1`;
+
+        const result = await pool.query(query, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Cita no encontrada' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al obtener datos de la receta' });
+    }
+});
+
+app.post('/api/crear-receta', async (req, res) => {
+    const { cita_id, diagnostico, tratamiento } = req.body;
+    try {
+        const query = `INSERT INTO Receta (fecha, diagnostico, tratamiento, cita_id)
+            VALUES (CURRENT_DATE, $1, $2, $3) RETURNING *`;
+        await pool.query(query, [diagnostico, tratamiento, cita_id]);
+
+        res.json({ mensaje: 'Receta creada exitosamente' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al guardar la receta' });
+    }
+});
+
+app.delete('/api/recetas/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM Receta WHERE receta_id = $1', [id]);
+
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: 'Receta eliminada correctamente' });
+        } else {
+            res.status(404).json({ success: false, message: 'Receta no encontrada' });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al eliminar la receta' });
+    }
+});
+
+
+
+
+app.put('/api/recetas/:id', async (req, res) => {
+    const { id } = req.params;
+    const { diagnostico, tratamiento } = req.body;
+
+    try {
+        const query = `UPDATE Receta SET diagnostico = $1, tratamiento = $2 WHERE receta_id = $3`;
+        await pool.query(query, [diagnostico, tratamiento, id]);
+        res.json({ success: true, message: 'Receta actualizada correctamente' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar la receta' });
+    }
+});
+// ═══════════════════════════════════════════════════════════════════
+// REPORTES AVANZADOS (UNION, EXCEPT, INTERSECT)
+// ═══════════════════════════════════════════════════════════════════
+
+// 1. UNION - Fechas ocupadas
+app.get('/api/reportes/fechas-ocupadas', async (req, res) => {
+    try {
+        const query = `
+            -- Usamos TO_CHAR para formatear la fecha como texto YYYY-MM-DD
+            SELECT TO_CHAR(fecha, 'YYYY-MM-DD') as fecha, 'Cita' as tipo, hora::TEXT as detalle
+            FROM Cita WHERE estatus = 'agendada'
+            UNION
+            SELECT TO_CHAR(fecha_inicio, 'YYYY-MM-DD') as fecha, 'Vacaciones' as tipo, descripcion as detalle
+            FROM Periodo_vacacional WHERE fecha_fin >= CURRENT_DATE
+            ORDER BY fecha DESC`;
+        
+        const result = await pool.query(query);
+        res.json({ success: true, total: result.rows.length, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error al obtener fechas' });
+    }
+});
+
+// 2. EXCEPT - Pacientes sin citas
+app.get('/api/reportes/pacientes-sin-citas', async (req, res) => {
+    try {
+        const query = `
+            SELECT usuario_id, nombre || ' ' || ap_paterno || ' ' || COALESCE(ap_materno, '') as nombre_completo,
+                   correo, telefono
+            FROM Usuario
+            EXCEPT
+            SELECT DISTINCT u.usuario_id, u.nombre || ' ' || u.ap_paterno || ' ' || COALESCE(u.ap_materno, ''),
+                   u.correo, u.telefono
+            FROM Usuario u JOIN Cita c ON u.usuario_id = c.usuario_id
+            ORDER BY nombre_completo`;
+        
+        const result = await pool.query(query);
+        res.json({ success: true, total: result.rows.length, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error' });
+    }
+});
+
+// 3. Pacientes activos (con citas Y recetas)
+app.get('/api/reportes/pacientes-activos', async (req, res) => {
+    try {
+        const query = `
+            SELECT u.usuario_id, u.nombre || ' ' || u.ap_paterno as nombre_completo, u.correo,
+                   COUNT(DISTINCT c.cita_id) as total_citas, COUNT(DISTINCT r.receta_id) as total_recetas
+            FROM Usuario u
+            JOIN Cita c ON u.usuario_id = c.usuario_id
+            LEFT JOIN Receta r ON c.cita_id = r.cita_id
+            WHERE EXISTS (SELECT 1 FROM Receta r2 JOIN Cita c2 ON r2.cita_id = c2.cita_id WHERE c2.usuario_id = u.usuario_id)
+            GROUP BY u.usuario_id, u.nombre, u.ap_paterno, u.correo
+            ORDER BY total_citas DESC`;
+        
+        const result = await pool.query(query);
+        res.json({ success: true, total: result.rows.length, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error' });
+    }
+});
+
+//Endpoint para ejecutar el procedimiento de reporte con CURSOR
+app.get('/api/reporte-mensual-texto', async (req, res) => {
+    const client = await pool.connect();
+    const mensajes = [];
+
+    try {
+        client.on('notice', (msg) => {
+            mensajes.push(msg.message); //guardar cada linea de texto
+        });
+
+        //llamar procedimiento
+        await client.query('CALL sp_generar_reporte_mensual()');
+
+        //enviar texto acumulado
+        res.json({ success: true, reporte: mensajes.join('\n') });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Error generando reporte' });
+    } finally {
+        client.release(); 
+    }
+});
+
+//ELIMINAR USUARIO (pacientes inactivos)
+app.delete('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        await pool.query('BEGIN');
+
+        //borrar expediente vacío
+        await pool.query('DELETE FROM Expediente WHERE usuario_id = $1', [id]);
+
+        //borrar usuario
+        const result = await pool.query('DELETE FROM Usuario WHERE usuario_id = $1', [id]);
+
+        await pool.query('COMMIT');
+
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: 'Usuario eliminado correctamente' });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+
+    } catch (error) {
+        await pool.query('ROLLBACK'); //deshacer
+        console.error(error);
+        if (error.code === '23503') {
+            return res.status(400).json({ success: false, message: 'No se puede eliminar: El usuario tiene datos relacionados.' });
+        }
+        res.status(500).json({ success: false, message: 'Error interno al eliminar usuario' });
+    }
+});
+
+// Servir archivos estáticos
+app.use(express.static(__dirname));
+
+// Encender Servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

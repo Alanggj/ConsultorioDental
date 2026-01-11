@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar Perfil - Sonrisa Perfecta</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body id="top">
+
+    <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
+        <div class="container">
+            <a class="navbar-brand mx-auto d-lg-none" href="index.html">Sonrisa Perfecta</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="panel-usuario.html">Volver al Panel</a></li>
+                </ul>
+                <span class="ms-auto" id="bienvenida"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-12">
+                <div class="card shadow-sm mb-5">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white">Mi Información</h4>
+                        <a href="panel-usuario.html" class="btn btn-outline-light btn-sm">Regresar</a>
+                    </div>
+                    <div class="card-body">
+                        <form id="formPerfil">
+                            <h5 class="text-secondary mb-3">Datos de Identificación</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" readonly>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Apellido Paterno</label>
+                                    <input type="text" class="form-control" id="ap_paterno" readonly>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Apellido Materno</label>
+                                    <input type="text" class="form-control" id="ap_materno" readonly>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Fecha Nacimiento</label>
+                                    <input type="date" class="form-control" id="fecha_nacimiento" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correo" readonly>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h5 class="text-secondary mb-3">Información de Contacto y Médica</h5>
+                            
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" placeholder="Calle, Número, Colonia">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefono">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre_tutor" class="form-label">Nombre del Tutor (si aplica)</label>
+                                    <input type="text" class="form-control" id="nombre_tutor">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="alergias" class="form-label">Alergias</label>
+                                <textarea class="form-control" id="alergias" rows="2"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="enfermedades" class="form-label">Enfermedades Crónicas</label>
+                                <textarea class="form-control" id="enfermedades" rows="2"></textarea>
+                            </div>
+
+                            <hr>
+                            
+                            <h5 class="text-secondary mb-3">Seguridad</h5>
+                            <div class="mb-3">
+                                <label for="nueva_contrasena" class="form-label">Nueva Contraseña (Dejar en blanco para mantener la actual)</label>
+                                <input type="password" class="form-control" id="nueva_contrasena" placeholder="********">
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/sesion.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const sesion = JSON.parse(localStorage.getItem('sesionIniciada'));
+
+            if (!sesion || sesion.tipo !== 'usuario') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/usuario/${sesion.id}`);
+                const res = await response.json();
+
+                if (res.success) {
+                    const u = res.data;
+                    document.getElementById('nombre').value = u.nombre;
+                    document.getElementById('ap_paterno').value = u.ap_paterno;
+                    document.getElementById('ap_materno').value = u.ap_materno || '';
+                    document.getElementById('fecha_nacimiento').value = u.fecha_nacimiento;
+                    document.getElementById('correo').value = u.correo;
+
+                    document.getElementById('telefono').value = u.telefono || '';
+                    document.getElementById('direccion').value = u.direccion || '';
+                    document.getElementById('nombre_tutor').value = u.nombre_tutor || '';
+                    document.getElementById('alergias').value = u.alergias || '';
+                    document.getElementById('enfermedades').value = u.enfermedades_cronicas || '';
+                }
+            } catch (error) {
+                console.error("Error cargando perfil", error);
+            }
+
+            document.getElementById('formPerfil').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const datosActualizados = {
+                    telefono: document.getElementById('telefono').value,
+                    direccion: document.getElementById('direccion').value,
+                    nombre_tutor: document.getElementById('nombre_tutor').value,
+                    alergias: document.getElementById('alergias').value,
+                    enfermedades_cronicas: document.getElementById('enfermedades').value,
+                    contrasena: document.getElementById('nueva_contrasena').value
+                };
+
+                try {
+                    const response = await fetch(`/api/usuario/${sesion.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(datosActualizados)
+                    });
+
+                    const res = await response.json();
+
+                    if (res.success) {
+                        Swal.fire('Actualizado', 'Datos guardados correctamente', 'success').then(() => {
+                            document.getElementById('nueva_contrasena').value = '';
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+
+                } catch (error) {
+                    Swal.fire('Error', 'No se pudo conectar', 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

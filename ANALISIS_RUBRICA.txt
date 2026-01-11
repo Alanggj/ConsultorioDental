@@ -1,0 +1,298 @@
+═══════════════════════════════════════════════════════════════════════
+        ANÁLISIS DE RÚBRICA - PROYECTO FINAL REDES III
+        Sistema de Gestión de Consultorio Dental
+═══════════════════════════════════════════════════════════════════════
+
+══════════════════════════════════════════════════════════════════════
+1. DESARROLLO - SISTEMA FUNCIONANDO (18%)
+══════════════════════════════════════════════════════════════════════
+
+✅ COMPLETADO:
+--------------
+• Altas, bajas, cambios: 
+  - ✓ Alta de usuarios (registro.html)
+  - ✓ Alta de citas (cita.html, admin-nueva-cita.html)
+  - ✓ Alta de servicios (via SQL)
+  - ✓ Alta de recetas (receta-detalle.html)
+  - ✓ Baja de citas (cancelación)
+  - ✓ Cambios en perfil de usuario (perfil.html)
+
+• Funcionalidades principales (5):
+  1. ✓ Sistema de login (admin/usuario)
+  2. ✓ Gestión de citas
+  3. ✓ Gestión de recetas
+  4. ✓ Control de vacaciones
+  5. ✓ Reporte de ganancias
+
+• Uso de secuencias (1):
+  - ✓ SERIAL en todas las tablas (auto-incremento)
+
+• Uso de vistas (mínimo 3):
+  - ✓ Vista_Agenda_Maestra
+  - ✓ Vista_Reporte_Ganancias  
+  - ✓ Vista_Recetas_Completas
+
+• Funciones:
+  - ✓ calcular_edad()
+
+• Triggers:
+  - ✓ fn_crear_expediente_automatico()
+  - ✓ trg_validar_cita_en_vacaciones()
+
+❌ FALTA IMPLEMENTAR:
+---------------------
+• Reportes (3 requeridos):
+  ❌ FALTA 1 reporte adicional con información compleja
+     IDEAS:
+     - Reporte de pacientes frecuentes
+     - Análisis de servicios más solicitados
+     - Historial médico por paciente
+
+• Consultas con JOIN (mínimo 2 datos):
+  ❌ Agregar 1 consulta más compleja que involucre múltiples JOINs
+     IDEA: Reporte de eficiencia de doctores (citas atendidas, 
+           tiempo promedio, ganancias generadas)
+
+• Índices (mínimo 1):
+  ❌ NO hay índices personalizados
+     SUGERENCIAS:
+     CREATE INDEX idx_cita_fecha ON Cita(fecha);
+     CREATE INDEX idx_cita_usuario ON Cita(usuario_id);
+     CREATE INDEX idx_usuario_correo ON Usuario(correo);
+
+• Funciones de agregación (SUM, AVG, etc):
+  ⚠️  Usar más en reportes
+     IDEA: Calcular promedio de edad de pacientes, 
+           suma total de ganancias por mes/año
+
+══════════════════════════════════════════════════════════════════════
+2. OPERADORES SQL (2%)
+══════════════════════════════════════════════════════════════════════
+
+❌ UNION, INTERSECT o MINUS (1 consulta):
+  NO IMPLEMENTADO
+  
+  IDEAS PRÁCTICAS:
+  ----------------
+  1. UNION: Combinar fechas de citas y vacaciones
+     SELECT fecha FROM Cita WHERE estatus = 'agendada'
+     UNION
+     SELECT fecha_inicio FROM Periodo_vacacional;
+  
+  2. EXCEPT: Pacientes registrados sin citas
+     SELECT usuario_id FROM Usuario
+     EXCEPT
+     SELECT DISTINCT usuario_id FROM Cita;
+  
+  3. INTERSECT: Pacientes con citas Y recetas
+     SELECT usuario_id FROM Cita
+     INTERSECT
+     SELECT u.usuario_id FROM Usuario u
+     JOIN Cita c ON u.usuario_id = c.usuario_id
+     JOIN Receta r ON c.cita_id = r.cita_id;
+
+══════════════════════════════════════════════════════════════════════
+3. GROUP BY / HAVING (3%)
+══════════════════════════════════════════════════════════════════════
+
+⚠️  PARCIALMENTE IMPLEMENTADO
+  
+  FALTA:
+  ------
+  Consultas más complejas con GROUP BY y HAVING
+  
+  IDEAS:
+  ------
+  1. Servicios con más de 5 reservaciones:
+     SELECT s.nombre, COUNT(*) as total
+     FROM Servicio s
+     JOIN Detalle_cita dc ON s.servicio_id = dc.servicio_id
+     GROUP BY s.servicio_id, s.nombre
+     HAVING COUNT(*) > 5;
+  
+  2. Doctores con promedio de atención superior a X:
+     SELECT a.nombre, COUNT(c.cita_id) as total_citas
+     FROM Admin a
+     JOIN Cita c ON a.admin_id = c.admin_id
+     WHERE c.estatus = 'atendida'
+     GROUP BY a.admin_id, a.nombre
+     HAVING COUNT(c.cita_id) > 10;
+
+══════════════════════════════════════════════════════════════════════
+4. PL/SQL (22% TOTAL)
+══════════════════════════════════════════════════════════════════════
+
+✅ COMPLETADO:
+--------------
+• Triggers (2 mínimo): ✓ 2 triggers implementados
+• Funciones (2 mínimo): ⚠️ Solo 1 función (calcular_edad)
+
+❌ FALTA:
+---------
+• Procedimientos almacenados (2 mínimo, 1 con cursor):
+  ❌ Solo tienes sp_guardar_expediente (sin cursor)
+  
+  SUGERENCIAS:
+  ------------
+  1. Procedimiento con cursor para generar reporte mensual:
+     CREATE OR REPLACE PROCEDURE generar_reporte_mensual(
+         p_mes INT, p_anio INT
+     ) AS
+     BEGIN
+         -- Cursor para recorrer todas las citas del mes
+         -- Calcular totales, generar estadísticas
+     END;
+  
+  2. Procedimiento para limpiar citas canceladas antiguas:
+     CREATE OR REPLACE PROCEDURE limpiar_citas_antiguas(
+         p_dias_antiguedad INT
+     ) AS
+     BEGIN
+         DELETE FROM Cita 
+         WHERE estatus = 'cancelada' 
+         AND fecha < CURRENT_DATE - p_dias_antiguedad;
+     END;
+
+• Cursores (1 mínimo en procedimiento o función):
+  ❌ NO IMPLEMENTADO
+  
+  EJEMPLO:
+  --------
+  CREATE OR REPLACE FUNCTION calcular_ganancias_doctor(
+      p_admin_id INT, p_mes INT, p_anio INT
+  ) RETURNS DECIMAL AS $$
+  DECLARE
+      cur_citas CURSOR FOR 
+          SELECT c.cita_id, dc.total
+          FROM Cita c
+          JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+          WHERE c.admin_id = p_admin_id
+          AND EXTRACT(MONTH FROM c.fecha) = p_mes
+          AND EXTRACT(YEAR FROM c.fecha) = p_anio;
+      v_total DECIMAL := 0;
+      v_record RECORD;
+  BEGIN
+      OPEN cur_citas;
+      LOOP
+          FETCH cur_citas INTO v_record;
+          EXIT WHEN NOT FOUND;
+          v_total := v_total + v_record.total;
+      END LOOP;
+      CLOSE cur_citas;
+      RETURN v_total;
+  END;
+  $$ LANGUAGE plpgsql;
+
+• Funciones adicionales (1 más requerida):
+  IDEAS:
+  ------
+  - calcular_edad_promedio_pacientes()
+  - validar_horario_disponible(fecha, hora)
+  - obtener_proximo_horario_libre(fecha)
+
+══════════════════════════════════════════════════════════════════════
+5. CUBE / ROLLUP (3%)
+══════════════════════════════════════════════════════════════════════
+
+❌ NO IMPLEMENTADO
+
+SUGERENCIAS:
+------------
+1. Análisis de ganancias con ROLLUP:
+   SELECT 
+       EXTRACT(YEAR FROM fecha) as anio,
+       EXTRACT(MONTH FROM fecha) as mes,
+       SUM(monto) as total
+   FROM Pago p
+   JOIN Cita c ON p.cita_id = c.cita_id
+   GROUP BY ROLLUP(EXTRACT(YEAR FROM fecha), EXTRACT(MONTH FROM fecha));
+
+2. Análisis multidimensional con CUBE:
+   SELECT 
+       a.tipo,
+       s.nombre as servicio,
+       COUNT(*) as total_citas
+   FROM Cita c
+   JOIN Admin a ON c.admin_id = a.admin_id
+   JOIN Detalle_cita dc ON c.cita_id = dc.cita_id
+   JOIN Servicio s ON dc.servicio_id = s.servicio_id
+   GROUP BY CUBE(a.tipo, s.nombre);
+
+══════════════════════════════════════════════════════════════════════
+6. MANEJO DE TRANSACCIONES (3% EXTRA)
+══════════════════════════════════════════════════════════════════════
+
+✅ PARCIALMENTE IMPLEMENTADO:
+  - ✓ En POST /api/citas (BEGIN/COMMIT/ROLLBACK)
+
+MEJORAR:
+--------
+• Agregar transacciones en más operaciones críticas
+• Documentar uso de transacciones en el código
+
+══════════════════════════════════════════════════════════════════════
+7. ANÁLISIS DE IMPACTO MATEMÁTICO/ESTADÍSTICO
+══════════════════════════════════════════════════════════════════════
+
+❌ NO IMPLEMENTADO
+
+REQUISITOS:
+-----------
+1. Realizar consultas CON y SIN índices
+2. Elaborar gráfica comparativa de resultados (tiempos)
+3. Analizar efectos del uso de base de datos relacional
+4. Conclusiones sobre tiempos de manejo de información
+
+PLAN DE ACCIÓN:
+---------------
+1. Crear consultas de prueba pesadas
+2. Medir tiempos SIN índices
+3. Crear índices estratégicos
+4. Medir tiempos CON índices
+5. Generar gráficas comparativas (puede ser en Excel)
+6. Documentar resultados en reporte
+
+══════════════════════════════════════════════════════════════════════
+8. CONCLUSIONES
+══════════════════════════════════════════════════════════════════════
+
+❌ PENDIENTE:
+  - Conclusiones de equipo (8%)
+  - Conclusiones individuales por integrante (7%)
+
+══════════════════════════════════════════════════════════════════════
+RESUMEN DE PRIORIDADES
+══════════════════════════════════════════════════════════════════════
+
+🔴 ALTA PRIORIDAD (Más puntos):
+-------------------------------
+1. [6%] Implementar 2 procedimientos almacenados (1 con cursor)
+2. [6%] Implementar 1 función adicional
+3. [4%] Implementar cursor en procedimiento o función
+4. [3%] Implementar GROUP BY/HAVING en consultas complejas
+5. [3%] Implementar CUBE o ROLLUP
+
+🟡 MEDIA PRIORIDAD:
+-------------------
+6. [2%] Crear 1 índice personalizado y documentar
+7. [2%] Implementar UNION, INTERSECT o EXCEPT
+8. [15%] Conclusiones (equipo e individuales)
+
+🟢 BAJA PRIORIDAD:
+------------------
+9. [3%] Análisis de impacto con gráficas
+10. [3%] Bonus: Manejo de transacciones (ya parcialmente hecho)
+
+══════════════════════════════════════════════════════════════════════
+RECOMENDACIONES FINALES
+══════════════════════════════════════════════════════════════════════
+
+1. Enfocarse primero en PL/SQL (procedimientos y cursores) = 22%
+2. Agregar consultas avanzadas (GROUP BY/HAVING, UNION) = 5%
+3. Implementar índices y medir impacto = 2-5%
+4. Escribir conclusiones bien fundamentadas = 15%
+5. Si hay tiempo: Implementar CUBE/ROLLUP = 3%
+
+TOTAL POTENCIAL A GANAR: ~47% adicional
+
+═══════════════════════════════════════════════════════════════════════

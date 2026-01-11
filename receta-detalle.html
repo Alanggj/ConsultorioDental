@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Receta Médica - Sonrisa Perfecta</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7f6;
+        }
+
+        .expediente-hoja {
+            max-width: 850px;
+            margin: 2rem auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .expediente-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 2rem;
+            background: linear-gradient(135deg, #eaf4ff 0%, #ffffff 70%);
+            border-bottom: 2px solid #0d6efd;
+        }
+
+        .expediente-header .doctor-info h2 {
+            color: #0d6efd;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .expediente-header .doctor-info p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .expediente-header .logo-area i {
+            font-size: 3.5rem;
+            color: #0d6efd;
+        }
+
+        .expediente-body {
+            padding: 2.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18rem;
+            color: #0d6efd;
+            opacity: 0.06;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .input-line {
+            border: 0;
+            border-bottom: 1px solid #ccc;
+            border-radius: 0;
+            padding-left: 0;
+            background-color: transparent;
+        }
+
+        .input-line:focus {
+            box-shadow: none;
+            border-bottom-color: #0d6efd;
+            background-color: #fafdff;
+        }
+
+        .input-line[readonly] {
+            background-color: transparent;
+            color: #555;
+            cursor: default;
+        }
+
+        textarea.input-line {
+            height: auto;
+            min-height: 80px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+
+        textarea.input-line:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+        }
+
+        .firma-area {
+            margin-top: 4rem;
+            text-align: right;
+        }
+
+        .firma-linea {
+            width: 280px;
+            border-top: 1px solid #555;
+            margin-left: auto;
+            padding-top: 0.5rem;
+        }
+
+        .firma-area label {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .expediente-footer {
+            background-color: #0d6efd;
+            color: white;
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .expediente-footer p {
+            margin-bottom: 0.25rem;
+        }
+
+        .botones-accion {
+            text-align: center;
+            padding: 1.5rem 0 3rem 0;
+        }
+
+        .alerta-alergia {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .alerta-cronica {
+            color: #e67e22;
+            /* Un naranja para diferenciar de alergias */
+            font-weight: bold;
+        }
+
+        .row,
+        .mb-4,
+        label,
+        textarea,
+        .firma-area {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                Sonrisa Perfecta
+                <strong class="d-block">Panel Médico</strong>
+            </a>
+            <a href="admin-citas.html" id="btn-volver" class="btn btn-outline-primary">
+                <i class="bi-arrow-left"></i> Volver a Citas
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <input type="hidden" id="citaIdHidden">
+
+        <form id="form-receta" class="expediente-hoja">
+
+            <div class="expediente-header">
+                <div class="doctor-info">
+                    <h2 id="header-doctor">Dr. Cargando...</h2>
+                    <p>DENTISTA</p>
+                    <p>Céd. Prof. <span id="header-cedula">...</span></p>
+                </div>
+                <div class="logo-area">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+            </div>
+
+            <div class="expediente-body">
+
+                <div class="watermark"><i class="bi bi-heart-pulse-fill"></i></div>
+
+                <div class="row mb-4">
+                    <div class="col-md-7">
+                        <label for="nombre" class="form-label">Nombre del Paciente:</label>
+                        <input type="text" id="nombre" class="form-control input-line" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="edad" class="form-label">Edad:</label>
+                        <input type="text" id="edad" class="form-control input-line" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="fecha" class="form-label">Fecha:</label>
+                        <input type="text" id="fecha" class="form-control input-line" readonly>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="alergias" class="form-label">Alergias Conocidas:</label>
+                        <input type="text" id="alergias" class="form-control input-line alerta-alergia" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="enfermedades" class="form-label">Enfermedades Crónicas:</label>
+                        <input type="text" id="enfermedades" class="form-control input-line alerta-cronica" readonly>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="mb-4">
+                    <label for="diagnostico" class="form-label fw-bold text-primary">Diagnóstico:</label>
+                    <textarea id="diagnostico" class="form-control input-line" rows="2"
+                        placeholder="Escriba el diagnóstico clínico..." required></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="tratamiento" class="form-label fw-bold text-primary">Tratamiento / Receta (Rx):</label>
+                    <textarea id="tratamiento" class="form-control input-line" rows="5"
+                        placeholder="Nombre del medicamento, dosis, frecuencia y duración..." required></textarea>
+                </div>
+
+                <div class="firma-area">
+                    <div class="firma-linea"></div>
+                    <label>Firma del Doctor</label>
+                </div>
+
+            </div>
+
+            <div class="expediente-footer">
+                <div>
+                    <p><i class="bi bi-geo-alt-fill"></i> Av. Salud Dental #123, Aguascalientes</p>
+                    <p><i class="bi bi-telephone-fill"></i> 55 47 79 94 15</p>
+                </div>
+                <div>
+                    <p><i class="bi bi-envelope-fill"></i> sonrisa@consultorio.com</p>
+                    <p><i class="bi bi-globe"></i> www.sonrisaperfecta.com</p>
+                </div>
+            </div>
+        </form>
+
+        <div class="botones-accion">
+            <button type="button" class="btn btn-primary btn-lg me-2" onclick="guardarReceta()">
+                <i class="bi-save-fill"></i> Guardar Receta
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" id="btn-descargar-pdf">
+                <i class="bi-download"></i> Descargar PDF
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let modoEdicion = false;
+        let idActual = null;
+
+        // --- 1. CONFIGURACIÓN DINÁMICA ---
+        let urlRegreso = 'admin-citas.html';
+        let textoBoton = 'Volver a Citas';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const params = new URLSearchParams(window.location.search);
+            const recetaId = params.get('id');
+            const citaId = params.get('cita_id');
+            const origen = params.get('origen'); // 'citas' o 'recetas'
+
+            // Configurar botón según origen
+            if (origen === 'recetas') {
+                urlRegreso = 'admin-recetas.html';
+                textoBoton = 'Volver a Recetas';
+            }
+
+            const btnVolver = document.getElementById('btn-volver');
+            btnVolver.href = urlRegreso;
+            btnVolver.innerHTML = `<i class="bi-arrow-left"></i> ${textoBoton}`;
+
+            if (recetaId) {
+                modoEdicion = true;
+                idActual = recetaId;
+                cargarDatosRecetaExistente(recetaId);
+            } else if (citaId) {
+                modoEdicion = false;
+                idActual = citaId;
+                document.getElementById('citaIdHidden').value = citaId;
+                cargarDatosParaNuevaReceta(citaId);
+            } else {
+                Swal.fire('Error', 'No se especificó ninguna cita o receta.', 'error');
+            }
+
+            //pdf
+            configurarBotonPDF();
+        });
+
+        //cargar receta existente
+        function cargarDatosRecetaExistente(id) {
+            fetch(`/api/recetas/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Receta no encontrada');
+                    return response.json();
+                })
+                .then(res => {
+                    const data = res.data;
+                    llenarEncabezado(data);
+                    document.getElementById('diagnostico').value = data.diagnostico;
+                    document.getElementById('tratamiento').value = data.tratamiento;
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('Error', 'No se pudo cargar la receta.', 'error');
+                });
+        }
+
+        //cargar datos de cita
+        function cargarDatosParaNuevaReceta(id) {
+            fetch(`/api/cita/${id}/datos-receta`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Cita no encontrada');
+                    return response.json();
+                })
+                .then(data => {
+                    llenarEncabezado(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('Error', 'No se pudieron cargar los datos de la cita.', 'error');
+                });
+        }
+
+        function llenarEncabezado(data) {
+            document.getElementById('header-doctor').textContent = "Dr. " + (data.doctor_nombre || "Desconocido");
+            document.getElementById('header-cedula').textContent = data.cedula_profesional || 'S/N';
+
+            document.getElementById('nombre').value = data.paciente_nombre || data.nombre_paciente;
+            document.getElementById('edad').value = (data.paciente_edad || data.edad || 0) + " años";
+
+            document.getElementById('fecha').value = data.fecha || data.fecha_actual;
+
+            const alergias = (data.paciente_alergias && data.paciente_alergias.trim() !== "")
+                ? data.paciente_alergias
+                : "Ninguna conocida";
+            document.getElementById('alergias').value = alergias;
+
+            const enfermedades = (data.paciente_enfermedades && data.paciente_enfermedades.trim() !== "")
+                ? data.paciente_enfermedades
+                : "Ninguna reportada";
+            document.getElementById('enfermedades').value = enfermedades;
+        }
+
+        function guardarReceta() {
+            const diagnostico = document.getElementById('diagnostico').value;
+            const tratamiento = document.getElementById('tratamiento').value;
+
+            if (!diagnostico.trim() || !tratamiento.trim()) {
+                Swal.fire('Atención', 'Por favor llena el Diagnóstico y el Tratamiento.', 'warning');
+                return;
+            }
+
+            let url, metodo, cuerpo;
+
+            if (modoEdicion) {
+                url = `/api/recetas/${idActual}`;
+                metodo = 'PUT';
+                cuerpo = { diagnostico, tratamiento };
+            } else {
+                url = '/api/crear-receta';
+                metodo = 'POST';
+                cuerpo = { cita_id: idActual, diagnostico, tratamiento };
+            }
+
+            fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cuerpo)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success === false || data.error) {
+                        throw new Error(data.message || data.error);
+                    }
+
+                    const accion = modoEdicion ? 'actualizada' : 'creada';
+
+                    Swal.fire('¡Éxito!', `La receta ha sido ${accion} correctamente.`, 'success')
+                        .then(() => {
+                            // --- REDIRECCIÓN DINÁMICA ---
+                            window.location.href = urlRegreso;
+                        });
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error', 'Hubo un problema al guardar los cambios.', 'error');
+                });
+        }
+
+        function configurarBotonPDF() {
+            document.getElementById('btn-descargar-pdf').addEventListener('click', function () {
+                const elemento = document.getElementById('form-receta');
+                const nombrePaciente = document.getElementById('nombre').value || 'Paciente';
+
+                // 1. PREPARACIÓN: Convertir textareas a DIVs para respetar formato vertical
+                const textareas = elemento.querySelectorAll('textarea');
+                const replacements = [];
+
+                textareas.forEach(tx => {
+                    if (tx.style.display !== 'none') {
+                        const div = document.createElement('div');
+                        div.textContent = tx.value;
+
+                        // Estilos para que el PDF respete saltos de línea y se vea bien
+                        div.style.whiteSpace = 'pre-wrap';
+                        div.className = tx.className;
+                        div.style.minHeight = '80px'; // Altura mínima similar al CSS
+                        div.style.height = 'auto';
+                        div.style.background = '#fff';
+                        div.style.border = '1px solid #ccc'; // Borde sutil como en el CSS original
+                        div.style.borderRadius = '4px';
+                        div.style.padding = '0.5rem';
+
+                        // Ocultar textarea y mostrar div
+                        tx.style.display = 'none';
+                        tx.parentNode.insertBefore(div, tx);
+                        replacements.push({ textarea: tx, div: div });
+                    }
+                });
+
+                // 2. CONFIGURACIÓN
+                const opt = {
+                    margin: [10, 10, 20, 10], // Márgenes (mm)
+                    filename: `Receta-${nombrePaciente}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 2, // Mejor calidad
+                        useCORS: true, // Importante para logos o imágenes
+                        scrollY: 0
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                // 3. GENERAR
+                Swal.fire({
+                    title: 'Generando Receta...',
+                    text: 'Formateando documento',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading() }
+                });
+
+                html2pdf().set(opt).from(elemento).save().then(() => {
+                    // RESTAURAR: Volver a mostrar los textareas editables
+                    replacements.forEach(rep => {
+                        rep.div.remove();
+                        rep.textarea.style.display = '';
+                    });
+                    Swal.close();
+                }).catch(err => {
+                    console.error(err);
+                    // Restaurar en caso de error
+                    replacements.forEach(rep => {
+                        rep.div.remove();
+                        rep.textarea.style.display = '';
+                    });
+                    Swal.fire('Error', 'No se pudo generar el PDF', 'error');
+                });
+            });
+        }
+    </script>
+
+</body>
+
+</html>

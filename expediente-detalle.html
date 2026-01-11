@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle de Expediente - Sonrisa Perfecta</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <style>
+        /* Evita que los bloques se rompan a la mitad al cambiar de página */
+        .mb-3,
+        .row,
+        .expediente-header,
+        label,
+        textarea {
+            page-break-inside: avoid;
+        }
+
+        /* Estilos para que parezca una hoja */
+        .expediente-hoja {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 3rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .expediente-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .expediente-header img {
+            max-width: 100px;
+            border-radius: 50%;
+        }
+
+        .expediente-header .doctor-info {
+            text-align: right;
+            color: #333;
+        }
+
+        .expediente-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Estilo para alertas médicas en el expediente */
+        .alerta-medica {
+            background-color: #fff5f5;
+            border-left: 4px solid #dc3545;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+
+        .aviso-cronico {
+            background-color: #f8f9fa;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                Sonrisa Perfecta
+                <strong class="d-block">Panel Médico</strong>
+            </a>
+            <a href="admin-citas.html" id="btn-volver" class="btn btn-outline-primary">
+                <i class="bi-arrow-left"></i> Volver a Citas
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <form id="form-expediente" class="expediente-hoja">
+
+            <div class="expediente-header">
+                <img src="images/gallery/logo.png" alt="Logo Dr. Morales">
+                <div class="doctor-info">
+                    <h3 class="mb-1" id="header-doctor">DR. JAVIER MORALES</h3>
+                    <p class="mb-0">DENTISTA</p>
+                    <p class="mb-0">Céd. Prof. <span id="header-cedula">...</span></p>
+                </div>
+            </div>
+
+            <h4 class="text-center mb-4">EXPEDIENTE CLÍNICO</h4>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label fw-bold">Nombre:</label>
+                    <input type="text" id="nombre" class="form-control" readonly>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="edad" class="form-label fw-bold">Edad:</label>
+                    <input type="text" id="edad" class="form-control" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label for="fecha-visita" class="form-label fw-bold">Fecha última visita:</label>
+                    <input type="date" id="fecha-visita" class="form-control" readonly>
+                </div>
+            </div>
+
+            <div id="box-alergias" class="mb-3 d-none">
+                <div class="alerta-medica">
+                    <label class="form-label fw-bold text-danger mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> ALERGIAS:
+                    </label>
+                    <input type="text" id="alergias" class="form-control-plaintext fw-bold text-danger" readonly>
+                </div>
+            </div>
+
+            <div id="box-enfermedades" class="mb-3 d-none">
+                <div class="aviso-cronico">
+                    <label class="form-label fw-bold text-dark mb-0">
+                        <i class="bi bi-activity"></i> Enfermedades Crónicas / Antecedentes:
+                    </label>
+                    <input type="text" id="enfermedades" class="form-control-plaintext text-dark" readonly>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <label for="diagnostico" class="form-label h5">Diagnóstico:</label>
+                <textarea id="diagnostico" class="form-control" rows="5"
+                    placeholder="Ingrese el diagnóstico..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="tratamiento" class="form-label h5">Tratamiento:</label>
+                <textarea id="tratamiento" class="form-control" rows="5"
+                    placeholder="Ingrese el tratamiento..."></textarea>
+            </div>
+
+            <div class="text-end mt-4" data-html2canvas-ignore="true">
+                <button type="button" class="btn btn-danger me-2" id="btn-eliminar">
+                    <i class="bi-trash"></i> Eliminar Expediente
+                </button>
+                <button type="button" class="btn btn-secondary me-2" id="btn-descargar-pdf">
+                    <i class="bi-download"></i> Descargar PDF
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi-save-fill"></i> Guardar Cambios
+                </button>
+            </div>
+
+            <div class="expediente-footer">
+                Este documento es confidencial y forma parte del historial clínico.
+            </div>
+
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. OBTENER PARÁMETROS
+            const params = new URLSearchParams(window.location.search);
+            const usuarioId = params.get('id');
+            const origen = params.get('origen'); // 'citas' o 'expedientes'
+
+            // 2. CONFIGURAR URL DE REGRESO DINÁMICA
+            let urlRegreso = 'admin-citas.html'; // Por defecto
+            let textoBoton = 'Volver a Citas';
+
+            if (origen === 'expedientes') {
+                urlRegreso = 'admin-expedientes.html';
+                textoBoton = 'Volver a Expedientes';
+            }
+
+            // 3. ACTUALIZAR EL NAVBAR
+            const btnVolver = document.getElementById('btn-volver');
+            btnVolver.href = urlRegreso;
+            btnVolver.innerHTML = `<i class="bi-arrow-left"></i> ${textoBoton}`;
+
+
+            if (!usuarioId) {
+                Swal.fire('Error', 'No se especificó un paciente');
+                window.location.href = urlRegreso; // Usamos la variable dinámica
+                return;
+            }
+
+            // CARGAR DATOS
+            fetch(`/api/expediente/${usuarioId}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (!response.success) throw new Error(response.message);
+
+                    const data = response.data;
+
+                    // Llenar campos básicos
+                    document.getElementById('nombre').value = data.nombre_completo;
+                    document.getElementById('edad').value = data.edad + " años";
+                    document.getElementById('fecha-visita').value = data.ultima_visita || new Date().toISOString().split('T')[0];
+
+                    // Campos condicionales
+                    if (data.alergias && data.alergias.trim() !== "") {
+                        document.getElementById('box-alergias').classList.remove('d-none');
+                        document.getElementById('alergias').value = data.alergias;
+                    }
+
+                    if (data.enfermedades_cronicas && data.enfermedades_cronicas.trim() !== "") {
+                        document.getElementById('box-enfermedades').classList.remove('d-none');
+                        document.getElementById('enfermedades').value = data.enfermedades_cronicas;
+                    }
+
+                    // Datos doctor
+                    if (data.doctor_nombre) {
+                        document.getElementById('header-doctor').textContent = "DR. " + data.doctor_nombre.toUpperCase();
+                        document.getElementById('header-cedula').textContent = data.cedula_profesional || 'SIN CÉDULA';
+                    } else {
+                        document.getElementById('header-doctor').textContent = "DR. GENERAL";
+                        document.getElementById('header-cedula').textContent = "PENDIENTE";
+                    }
+
+                    document.getElementById('diagnostico').value = data.diagnostico || '';
+                    document.getElementById('tratamiento').value = data.tratamiento || '';
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error', 'Error al cargar datos: ' + err.message, 'error');
+                });
+
+            // GUARDAR CAMBIOS
+            document.getElementById('form-expediente').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const datos = {
+                    usuario_id: usuarioId,
+                    diagnostico: document.getElementById('diagnostico').value,
+                    tratamiento: document.getElementById('tratamiento').value
+                };
+
+                fetch('/api/expediente', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: '¡Guardado!',
+                                text: 'El expediente se ha actualizado correctamente.',
+                                icon: 'success',
+                                confirmButtonColor: '#0d6efd',
+                                confirmButtonText: 'Aceptar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // REDIRECCIÓN DINÁMICA
+                                    window.location.href = urlRegreso;
+                                }
+                            });
+                        } else {
+                            Swal.fire('Error', 'No se pudo guardar: ' + data.message, 'error');
+                        }
+                    })
+                    .catch(err => console.error(err));
+            });
+
+            // ELIMINAR (VACIAR)
+            document.getElementById('btn-eliminar').addEventListener('click', function () {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¿Deseas vaciar este expediente? Se borrará el diagnóstico y tratamiento.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, vaciar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/api/expediente/${usuarioId}`, { method: 'DELETE' })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('¡Vaciado!', 'El expediente ha sido limpiado.', 'success')
+                                        .then(() => {
+                                            // REDIRECCIÓN DINÁMICA
+                                            window.location.href = urlRegreso;
+                                        });
+                                } else {
+                                    Swal.fire('Error', data.message, 'error');
+                                }
+                            });
+                    }
+                });
+            });
+
+            // PDF
+
+            document.getElementById('btn-descargar-pdf').addEventListener('click', function () {
+                const elemento = document.getElementById('form-expediente');
+                const nombrePaciente = document.getElementById('nombre').value || 'Paciente';
+
+                // 1. PREPARACIÓN: Convertir textareas a DIVs para que se respeten los saltos de línea
+                const textareas = elemento.querySelectorAll('textarea');
+                const replacements = []; // Guardamos referencias para restaurar después
+
+                textareas.forEach(tx => {
+                    // Creamos un div que se vea igual al textarea
+                    const div = document.createElement('div');
+
+                    // Copiamos el texto tal cual
+                    div.textContent = tx.value;
+
+                    // ESTILO MÁGICO: 'pre-wrap' respeta los "Enters" y espacios
+                    div.style.whiteSpace = 'pre-wrap';
+
+                    // Copiamos estilos visuales básicos para que se vea bonito
+                    div.className = tx.className; // Mantiene estilo bootstrap
+                    div.style.minHeight = '100px';
+                    div.style.height = 'auto';
+                    div.style.background = '#fff';
+                    div.style.border = '1px solid #ced4da';
+                    div.style.padding = '0.375rem 0.75rem';
+                    div.style.borderRadius = '0.25rem';
+                    div.style.color = '#212529';
+
+                    // Ocultamos el textarea original y ponemos el div en su lugar
+                    tx.style.display = 'none';
+                    tx.parentNode.insertBefore(div, tx);
+
+                    // Guardamos el par para borrar el div y mostrar el textarea luego
+                    replacements.push({ textarea: tx, div: div });
+                });
+
+                // 2. CONFIGURACIÓN DEL PDF
+                const opt = {
+                    margin: [10, 10, 20, 10],
+                    filename: `Expediente-${nombrePaciente}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                // Alerta de carga
+                Swal.fire({
+                    title: 'Generando PDF...',
+                    text: 'Formateando texto...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading() }
+                });
+
+                // 3. GENERAR Y RESTAURAR
+                html2pdf().set(opt).from(elemento).save().then(() => {
+                    // Restaurar todo a la normalidad
+                    replacements.forEach(rep => {
+                        rep.div.remove();         // Elimina el div temporal
+                        rep.textarea.style.display = ''; // Muestra el textarea original
+                    });
+                    Swal.close();
+                }).catch(err => {
+                    console.error(err);
+                    replacements.forEach(rep => { // Restaurar incluso si falla
+                        rep.div.remove();
+                        rep.textarea.style.display = '';
+                    });
+                    Swal.fire('Error', 'No se pudo generar el PDF', 'error');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Administración de Citas - Consultorio Sonrisa Perfecta">
+    <meta name="author" content="Equipo Sonrisa Perfecta">
+
+    <title>Administrar Citas - Sonrisa Perfecta</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/owl.carousel.min.css" rel="stylesheet">
+    <link href="css/owl.theme.default.min.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+
+    <style>
+        /* Estilos específicos para el calendario */
+        .calendar-container { display: flex; justify-content: center; margin-bottom: 2rem; }
+        .calendar { width: 100%; border-collapse: collapse; text-align: center; }
+        .calendar th { background-color: var(--primary-color); color: #fff; padding: 0.8rem 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        .calendar td { padding: 0.5rem; border: 1px solid #eee; cursor: pointer; transition: background-color 0.2s; vertical-align: top; height: 90px; }
+        .calendar td:not(.other-month):hover { background-color: #f0f8ff; }
+        .calendar td.current-month { background-color: #fff; color: #333; }
+        .calendar td.other-month { background-color: #f8f8f8; color: #ccc; cursor: default; }
+        .calendar td.selected-day { background-color: var(--secondary-color); color: #fff; font-weight: 700; }
+        .calendar td.selected-day:hover { background-color: var(--secondary-color); }
+        .calendar .day-number { display: block; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.2rem; }
+        .calendar .today .day-number { color: var(--primary-color); font-weight: 700; }
+        .calendar .cita-badge { font-size: 0.75rem; padding: 0.2em 0.5em; }
+        .calendar .vacation-day { background-color: #ffebee; color: #d32f2f; cursor: not-allowed; text-decoration: line-through; }
+        .calendar .vacation-day:hover { background-color: #ffcdd2; }
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 10px; }
+        .calendar-nav h4 { margin: 0; color: var(--primary-color); }
+        .calendar-nav button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); }
+
+        /* Botón flotante */
+        .btn-flotante-nueva-cita { position: fixed; bottom: 30px; right: 30px; z-index: 1000; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); border-radius: 50px; padding: 15px 25px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+
+        /* Listado de citas */
+        .cita-item { background-color: #fff; border: 1px solid #eee; border-left: 5px solid var(--primary-color); margin-bottom: 10px; padding: 15px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease-in-out; }
+        .cita-item.estado-confirmada { border-left-color: var(--secondary-color); }
+        
+        /* Estilo para CANCELADAS */
+        .cita-item.estado-cancelada { border-left-color: #dc3545; background-color: #ffe6e6; opacity: 0.8; }
+        .cita-item.estado-cancelada h5 { text-decoration: line-through; color: #dc3545; }
+
+        .cita-item.disponible { background-color: #f8f9fa; border-left: 5px solid #28a745; color: #6c757d; }
+        .cita-item h5 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--primary-color); }
+        .cita-item.estado-confirmada h5 { color: var(--secondary-color); }
+        .cita-item p { margin: 0; font-size: 0.9rem; }
+        .cita-actions button { margin-left: 5px; }
+        .no-citas-msg { padding: 20px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px; color: #856404; text-align: center; }
+        .btn-receta { background-color: #6f42c1; color: white; border: none; }
+        .btn-receta:hover { background-color: #5a32a3; color: white; }
+        .cita-actions { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+        body.es-asistente .btn-expediente, 
+        body.es-asistente .btn-receta {
+        display: none !important;
+        }
+    </style>
+
+</head>
+
+<body id="top">
+
+    <main>
+        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg m">
+            <div class="container">
+                <a class="navbar-brand mx-auto d-lg-none" href="index.html">
+                    Sonrisa Perfecta
+                    <strong class="d-block">Control de Citas</strong>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" id="adminPanelLink" href="panel-admin.html">Panel Admin</a></li>
+                        <li class="nav-item active"><a class="nav-link text-primary" href="admin-citas.html">Citas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-recetas.html">Recetas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-ganancias.html">Ganancias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-vacaciones.html">Vacaciones</a></li>
+                    </ul>
+                    <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
+                </div>
+            </div>
+        </nav>
+
+        <section class="section-padding" style="padding-top: 10rem; min-height: 90vh;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center mb-4">
+                        <h2 class="mb-0">Control de Citas</h2>
+                        <p class="text-muted">Administra el calendario de citas del consultorio.</p>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi-search"></i></span>
+                            <input type="text" id="search-cita-input" class="form-control form-control-lg"
+                                placeholder="Buscar cita por nombre o apellido del paciente...">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7 col-12 mb-4">
+                        <div class="card shadow-lg p-3">
+                            <div class="card-header bg-white border-0 calendar-nav">
+                                <button id="prev-month" title="Mes anterior"><i class="bi-chevron-left"></i></button>
+                                <h4 id="current-month-year" class="mb-0">Mes Año</h4>
+                                <button id="next-month" title="Mes siguiente"><i class="bi-chevron-right"></i></button>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="calendar" id="calendar">
+                                    <thead>
+                                        <tr>
+                                            <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="calendar-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5 col-12 mb-4">
+                        <div class="card shadow-lg p-4 h-100">
+                            <h4 class="mb-4" id="citas-list-title">Citas del día</h4>
+                            <div id="citas-list-container" style="max-height: 600px; overflow-y: auto;">
+                                <p class="text-muted text-center mt-3" id="no-day-selected-msg">Haz clic en un día del calendario.</p>
+                            </div>
+                            <div id="no-results-message" class="no-citas-msg d-none mt-3">
+                                <i class="bi-emoji-frown"></i> No existen citas que coincidan con la búsqueda.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <a href="admin-nueva-cita.html" class="btn btn-success btn-flotante-nueva-cita">
+        <i class="bi-plus-circle-fill"></i> Nueva Cita
+    </a>
+
+    <footer class="site-footer section-padding" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 me-auto col-12">
+                    <h5 class="mb-lg-4 mb-3">Horarios</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex">Domingo: Cerrado</li>
+                        <li class="list-group-item d-flex">Lunes a Viernes<span> 9:00 AM - 6:00 PM</span></li>
+                        <li class="list-group-item d-flex">Sábado<span> 10:00 AM - 2:00 PM</span></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
+                    <h5 class="mb-lg-4 mb-3">Ubicación</h5>
+                    <p>Av. Salud Dental #123, Aguascalientes, México</p>
+                </div>
+                <div class="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
+                    <p class="copyright-text">&copy; 2025 Consultorio Sonrisa Perfecta</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/sesion.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/scrollspy.min.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/nav.js"></script>
+
+    <script src="js/admin-citas.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+.object-fit-cover {
+    object-fit: cover;
+  }
+
+  .tarjeta-servicio {
+    background-color: #ffffff;
+    border-left: 5px solid #0d6efd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .tarjeta-servicio:hover {
+    transform: scale(1.01);
+  }
+  
+  .tarjeta-servicio img {
+    border-radius: 0 12px 12px 0;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .tarjeta-servicio .btn {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .tarjeta-servicio .btn:hover {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+ 
+  .nav-link.active-link {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-radius: 0.4rem;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem; /* separación entre botones */
+    font-weight: 600;
+    box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3);
+    }

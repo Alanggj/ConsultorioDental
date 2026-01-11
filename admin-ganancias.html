@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Reporte de Ganancias - Consultorio Sonrisa Perfecta">
+    <meta name="author" content="Equipo Sonrisa Perfecta">
+
+    <title>Reporte Financiero - Sonrisa Perfecta</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/owl.carousel.min.css" rel="stylesheet">
+    <link href="css/owl.theme.default.min.css" rel="stylesheet">
+    <link href="css/templatemo-medic-care.css" rel="stylesheet">
+    
+    <style>
+        /* Estilo para cada fila de pago */
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+        .payment-item:hover {
+            background-color: #f9f9f9;
+        }
+        .payment-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .payment-info h5 {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
+        }
+        .payment-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #198754; /* Color verde para el servicio */
+        }
+        .payment-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #198754; /* Verde dinero */
+        }
+        /* Tarjeta de Total */
+        .total-card {
+            background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+
+<body id="top">
+
+    <main>
+        <nav class="navbar navbar-expand-lg bg-light fixed-top shadow-lg">
+            <div class="container">
+                <a class="navbar-brand mx-auto d-lg-none" href="index.html">
+                    Sonrisa Perfecta
+                    <strong class="d-block">Finanzas</strong>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio Web</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="panel-admin.html">Panel Admin</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-citas.html">Citas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-expedientes.html">Expedientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-recetas.html">Recetas</a></li>
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link text-success fw-bold" href="admin-ganancias.html">Ganancias</a>
+                        </li>
+                        
+                        <li class="nav-item"><a class="nav-link" href="admin-vacaciones.html">Vacaciones</a></li>
+                    </ul>
+                        <span id="bienvenida" class="ms-auto text-primary fw-bold d-none"></span>
+                </div>
+            </div>
+        </nav>
+
+        <section class="section-padding" style="padding-top: 8rem; min-height: 90vh; background-color: #f4f7f6;">
+            <div class="container">
+                <div class="row">
+                    
+                    <div class="col-12 mb-4">
+                        <h2 class="text-center">Reporte de Ingresos</h2>
+                        <p class="text-center text-muted">Historial de citas pagadas y completadas</p>
+                    </div>
+
+                    <div class="col-md-4 mb-4">
+                        <div class="card total-card shadow p-4 text-center">
+                            <h5 class="text-uppercase mb-2" style="opacity: 0.9;">Ganancia Total</h5>
+                            
+                            <h1 class="display-4 fw-bold mb-0" id="display-total-ganancias">Cargando...</h1>
+                            <small>MXN</small>
+                        </div>
+                        
+                        <div class="card shadow-sm mt-3 p-3 border-0">
+                            <h6 class="text-muted">Filtros</h6>
+                            <select class="form-select form-select-sm">
+                                <option value="all">Todo el historial</option>
+                                <option value="today">Este Día</option>
+                                <option value="month">Este Mes</option>
+                                <option value="year">Este Año</option>
+                            </select>
+                        </div>
+                        <div class="d-grid gap-2 mt-3">
+                            <button id="btn-reporte-avanzado" class="btn btn-dark shadow-sm">
+                                <i class="bi bi-file-earmark-text"></i> Ver Reporte Detallado
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div id="area-reporte-avanzado" class="card shadow-sm mb-4 border-dark" style="display: none;">
+                            <div class="card-header bg-dark bg-opacity-10 text-dark fw-bold d-flex justify-content-between align-items-center">
+                                <span style="color: white;">Reporte Detallado</span>
+                                <button id="btn-cerrar-reporte" class="btn btn-sm btn-outline-light"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                            <div class="card-body bg-light">
+                                <pre id="contenido-reporte" class="mb-0 text-dark" 
+                                    style="font-family: 'Consolas', 'Menlo', monospace; font-size: 0.9rem; white-space: pre-wrap; background-color: #fff; padding: 15px; border-radius: 5px;">
+                                    Cargando...
+                                </pre>                            
+                            </div>
+                        </div>
+                        <div class="card shadow-lg border-0">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 text-secondary">Desglose de Movimientos</h5>
+                            </div>
+                            
+                            <div class="card-body p-0" id="lista-pagos-container">
+                                <div class="p-5 text-center text-muted">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="mt-2">Cargando transacciones...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer section-padding">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 Sonrisa Perfecta - Sistema de Gestión</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/sesion.js"></script> <script src="js/admin-ganancias.js"></script>
+
+</body>
+</html>

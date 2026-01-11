@@ -1,0 +1,50 @@
+================================================================================
+GUÍA DE CONFIGURACIÓN - CONSULTORIO DENTAL
+================================================================================
+
+PASO 1: PREPARAR LA BASE DE DATOS (POSTGRESQL)
+--------------------------------------------------------------------------------
+1. Abre tu herramienta de base de datos (pgAdmin, DBeaver o la extensión de VS Code).
+2. Conéctate a tu servidor PostgreSQL.
+3. Crea una NUEVA base de datos llamada: consultorio_dental
+   (Si usas SQL: CREATE DATABASE consultorio_dental;)
+
+PASO 2: CREAR LAS TABLAS
+--------------------------------------------------------------------------------
+1. En VS Code, abre el archivo "database.sql".
+2. Copia TODO el contenido.
+3. Ve a tu herramienta de base de datos, abre una nueva consulta (Query Tool) 
+   sobre la base de datos "consultorio_dental" que acabas de crear.
+4. Pega el código y ejecútalo (Botón Play/Run).
+   - Debería decir "CREATE TABLE", "CREATE VIEW", etc. sin errores rojos.
+
+PASO 3: CONFIGURAR EL SERVIDOR (VS CODE)
+--------------------------------------------------------------------------------
+1. En la carpeta del proyecto, busca el archivo ".env.example".
+2. Haz clic derecho -> Renombrar (Rename).
+3. Cámbiale el nombre a: .env
+   (Borrando el ".example" del final).
+4. Abre ese archivo ".env" y edita la contraseña:
+   Donde dice: DB_PASSWORD=tu_contraseña_aqui
+   Cámbialo por: DB_PASSWORD=la_contraseña_real_de_tu_postgres
+
+PASO 4: INSTALAR Y ENCENDER
+--------------------------------------------------------------------------------
+1. Abre una terminal en VS Code (Terminal -> New Terminal).
+2. Escribe este comando para descargar las librerías necesarias:
+   npm install
+   (Espera a que termine).
+
+3. Enciende el servidor con:
+   npm start
+
+4. Si todo sale bien, verás un mensaje:
+   "Servidor corriendo en http://localhost:3000"
+
+PASO 5: PROBAR
+--------------------------------------------------------------------------------
+1. Abre tu navegador (Chrome, Edge, etc.).
+2. Entra a: http://localhost:3000/api/prueba_conexion
+3. Deberías ver un mensaje: {"message":"¡Conexión exitosa!", ...}
+
+¡LISTO! Ya tienes el sistema conectado a la base de datos.

@@ -1,0 +1,39 @@
+GUIA DE USO - CONSULTORIO DENTAL SONRISA PERFECTA
+
+1. CREAR UN USUARIO (REGISTRO)
+   - Abre la página en tu navegador (por defecto http://localhost:3000 o abre index.html).
+   - Ve a la opción "Iniciar Sesión" en el menú.
+   - Haz clic en el enlace "¿No tienes cuenta? Regístrate aquí".
+   - Llena el formulario con tus datos:
+     * Nombre, Apellidos, Fecha de Nacimiento (debes ser mayor de 1 año).
+     * Sexo (M/F).
+     * Teléfono y Correo (usados para contacto).
+     * Usuario y Contraseña (la contraseña debe tener mayúscula, minúscula, número y símbolo).
+     * Si eres menor de edad, deberás ingresar el nombre de un tutor.
+   - Haz clic en "Registrarse".
+
+2. INICIAR SESIÓN
+   - Ve a "Iniciar Sesión".
+   - Ingresa tu Usuario y Contraseña.
+   - Si los datos son correctos, serás redirigido a la página principal y verás tu nombre en la barra de navegación.
+
+3. AGENDAR UNA CITA
+   - Una vez iniciada la sesión, ve a la opción "Agendar" en el menú.
+   - Tus datos personales (nombre, correo, teléfono) se llenarán automáticamente.
+   - Selecciona la Fecha deseada.
+   - Selecciona el Servicio Principal (ej. Limpieza Dental).
+   - Selecciona una Hora disponible (los horarios ocupados no aparecerán).
+   - (Opcional) Puedes agregar un segundo servicio y su hora correspondiente.
+   - Haz clic en "Agendar cita". Recibirás una confirmación si todo es correcto.
+
+4. VER Y CANCELAR CITAS (PANEL DE USUARIO)
+   - Ve a la opción "Mis Citas" (o accede a miscitas.html).
+   - Aquí verás una lista de todas tus citas agendadas, atendidas o canceladas.
+   - Si tienes una cita "AGENDADA" que deseas cancelar:
+     * Haz clic en el botón rojo "Cancelar Cita".
+     * Confirma la acción.
+     * El estado cambiará a "CANCELADA" y el horario quedará libre para otros pacientes.
+
+NOTAS TÉCNICAS:
+- Asegúrate de que el servidor esté corriendo (`node server.js`).
+- La base de datos PostgreSQL debe estar activa.
