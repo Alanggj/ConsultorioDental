@@ -5,17 +5,26 @@ const { Pool } = require('pg');
 const cors = require('cors');
 
 // 2. Configurar la conexión a la Base de Datos
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-});
+// Soporta tanto variables separadas (DB_USER, DB_HOST, etc.) como DATABASE_URL
+let pool;
+if (process.env.DATABASE_URL) {
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+    });
+} else {
+    pool = new Pool({
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_DATABASE,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT,
+    });
+}
 
 // 3. Crear el servidor
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // 4. Middlewares
 app.use(cors());
