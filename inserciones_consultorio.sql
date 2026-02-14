@@ -1,6 +1,6 @@
 -- 1. INSERTAR ADMIN (Doctor)
 INSERT INTO Admin (usuario, contraseña, tipo, nombre, ap_paterno, ap_materno, cedula_profesional, instituto_egreso, especialidad)
-VALUES ('doc_juan', 'Admin123!', 'doctor', 'Juan', 'Pérez', 'López', 'CED12345', 'UNAM', 'Odontología');
+VALUES ('doc_juan', 'Admin12!', 'doctor', 'Juan', 'Pérez', 'López', 'CED12345', 'UNAM', 'Odontología');
 
 -- 2. INSERTAR SERVICIOS
 INSERT INTO Servicio (nombre, descripcion, precio, dias_disponible, horas_disponible)

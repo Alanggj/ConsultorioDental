@@ -16,7 +16,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const imagenDefault = "images/gallery/medium-shot-man-getting-check-up.jpg"; 
 
     try {
-        const response = await fetch('http://localhost:3000/api/servicios');
+        // Usar ruta relativa para que funcione tanto en local como en producción (Railway)
+        const response = await fetch('/api/servicios');
         const servicios = await response.json();
 
         // Limpiamos el spinner de carga
