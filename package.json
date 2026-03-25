@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "node build-static.js",
     "init:db": "node init_db.js",
     "init:data": "node init_data.js",
     "test": "echo \"Error: no test specified\" && exit 1"
