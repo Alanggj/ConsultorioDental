@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3. Función para cargar datos desde la API
     async function cargarVacaciones() {
         try {
-            const response = await fetch('http://localhost:3000/api/vacaciones');
+            const response = await fetch('/api/vacaciones');
             const vacaciones = await response.json();
             renderVacaciones(vacaciones);
         } catch (error) {
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const datos = { fecha_inicio: fechaInicio, fecha_fin: fechaFin, descripcion };
 
         try {
-            const res = await fetch('http://localhost:3000/api/vacaciones', {
+            const res = await fetch('/api/vacaciones', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (result.isConfirmed) {
                     // Solo si el usuario dijo "Sí", procedemos a borrar
                     try {
-                        const res = await fetch(`http://localhost:3000/api/vacaciones/${id}`, { method: 'DELETE' });
+                        const res = await fetch(`/api/vacaciones/${id}`, { method: 'DELETE' });
                         
                         if (res.ok) {
                             cargarVacaciones(); // Recargar lista visual

@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 2. CARGAR SERVICIOS ---
     try {
-        const res = await fetch('http://localhost:3000/api/servicios');
+        const res = await fetch('/api/servicios');
         serviciosDB = await res.json();
 
         const llenarSelect = (select, esOpcional) => {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         // Correcto: encodeURIComponent convierte los espacios en %20 para que no se rompa la URL
-        const res = await fetch(`http://localhost:3000/api/buscar-paciente?query=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/buscar-paciente?query=${encodeURIComponent(query)}`);
         const pacientes = await res.json();
 
         listaResultados.innerHTML = '';
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         timeSelect2.disabled = true;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/horarios-disponibles?fecha=${fechaStr}`);
+            const response = await fetch(`/api/horarios-disponibles?fecha=${fechaStr}`);
             const horariosLibres = await response.json();
 
             const llenarHoras = (select) => {
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (s2) payload.citas.push({ servicio_id: s2, hora: t2 });
 
         try {
-            const response = await fetch('http://localhost:3000/api/citas', {
+            const response = await fetch('/api/citas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

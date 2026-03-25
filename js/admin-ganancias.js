@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             listaContainer.innerHTML = '<div class="p-5 text-center"><div class="spinner-border text-success"></div></div>';
             displayTotal.textContent = '...';
 
-            const response = await fetch(`http://localhost:3000/api/ganancias?filtro=${filtro}`);
+            const response = await fetch(`/api/ganancias?filtro=${filtro}`);
             
             if (!response.ok) throw new Error('Error en la respuesta del servidor');
             
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
             contenidoReporte.innerText = 'Ejecutando procedimiento almacenado con cursor...';
             
             try {
-                const response = await fetch('http://localhost:3000/api/reporte-mensual-texto');
+                const response = await fetch('/api/reporte-mensual-texto');
                 const data = await response.json();
 
                 if (data.success) {

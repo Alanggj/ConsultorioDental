@@ -39,7 +39,7 @@ let vacaciones = getBlockedDays();
 // --- API: CARGAR CITAS ---
 async function cargarCitasDesdeBD() {
     try {
-        const response = await fetch('http://localhost:3000/api/citas');
+        const response = await fetch('/api/citas');
 
         if (!response.ok) throw new Error('Error al conectar con API');
 
@@ -79,7 +79,7 @@ async function cargarCitasDesdeBD() {
 // --- API: ACTUALIZAR ESTADO ---
 async function actualizarEstadoCita(id, nuevoEstadoBD) {
     try {
-        const response = await fetch(`http://localhost:3000/api/citas/${id}/estado`, {
+        const response = await fetch(`/api/citas/${id}/estado`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estado: nuevoEstadoBD })

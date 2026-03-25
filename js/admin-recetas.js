@@ -9,7 +9,7 @@ async function cargarRecetas() {
 
     try {
         // Asegúrate de haber agregado la ruta /api/recetas en tu server.js
-        const response = await fetch('http://localhost:3000/api/recetas');
+        const response = await fetch('/api/recetas');
 
         if (!response.ok) throw new Error('Error al obtener recetas');
 
@@ -128,7 +128,7 @@ window.eliminarReceta = (id) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`http://localhost:3000/api/recetas/${id}`, {
+                const response = await fetch(`/api/recetas/${id}`, {
                     method: 'DELETE'
                 });
 

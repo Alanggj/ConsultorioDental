@@ -36,7 +36,7 @@ window.eliminarExpediente = async (usuarioId) => {
 async function cargarExpedientes() {
     const tabla = document.getElementById('tabla-expedientes');
     try {
-        const response = await fetch('http://localhost:3000/api/expedientes');
+        const response = await fetch('/api/expedientes');
         const expedientes = await response.json();
         tabla.innerHTML = '';
 

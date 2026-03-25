@@ -3,3 +3,9 @@
 
 # Ignorar la carpeta de módulos de Node (es muy pesada)
 node_modules
+
+# Salida generada para despliegue estático
+public
+
+# Archivos locales de Wrangler
+.wrangler

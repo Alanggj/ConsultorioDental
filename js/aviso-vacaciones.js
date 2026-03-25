@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", async function () {
     try {
         // 1. Obtener periodos de la base de datos
-        const response = await fetch('http://localhost:3000/api/vacaciones');
+        const response = await fetch('/api/vacaciones');
         const periodos = await response.json();
 
         // 2. Fecha de hoy (Normalizada a 00:00:00 para comparar solo fechas)

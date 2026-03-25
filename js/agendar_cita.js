@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // --- 1. CARGAR SERVICIOS ---
     try {
-        const res = await fetch('http://localhost:3000/api/servicios');
+        const res = await fetch('/api/servicios');
         const serviciosData = await res.json();
 
         const llenarSelect = (selectElement) => {
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // --- 2. CARGAR DATOS USUARIO ---
     if (sesion && sesion.id && sesion.tipo === 'usuario') {
         try {
-            const res = await fetch(`http://localhost:3000/api/usuario/${sesion.id}`);
+            const res = await fetch(`/api/usuario/${sesion.id}`);
             const data = await res.json();
             if (data.success) {
                 const u = data.data;
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!fecha) return;
 
         try {
-            const res = await fetch(`http://localhost:3000/api/horarios-disponibles?fecha=${fecha}`);
+            const res = await fetch(`/api/horarios-disponibles?fecha=${fecha}`);
             horariosDisponiblesGlobal = await res.json();
 
             selectHora1.disabled = false;
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // --- ENVIAR AL BACKEND ---
         try {
-            const response = await fetch('http://localhost:3000/api/citas', {
+            const response = await fetch('/api/citas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datosBackend)
